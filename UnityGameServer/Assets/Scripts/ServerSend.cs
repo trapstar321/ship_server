@@ -112,7 +112,7 @@ public class ServerSend
             _packet.Write(_player.id);
             _packet.Write(_player.transform.position);
             
-            SendTCPDataToAll(_player.id, _packet);
+            SendUDPDataToAll(_player.id, _packet);
         }
     }
 
@@ -125,7 +125,7 @@ public class ServerSend
             _packet.Write(_player.id);
             _packet.Write(_player.transform.rotation);
 
-            SendTCPDataToAll(_player.id, _packet);
+            SendUDPDataToAll(_player.id, _packet);
         }
     }
 

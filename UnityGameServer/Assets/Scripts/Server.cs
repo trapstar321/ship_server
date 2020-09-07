@@ -132,7 +132,8 @@ public class Server
             { (int)ClientPackets.playerShoot, ServerHandle.PlayerShoot },
             { (int)ClientPackets.playerThrowItem, ServerHandle.PlayerThrowItem },
             { (int)ClientPackets.joystick, ServerHandle.Joystick },
-            { (int)ClientPackets.position, ServerHandle.Position }
+            { (int)ClientPackets.position, ServerHandle.Position },
+            { (int)ClientPackets.test, ServerHandle.test }
         };
         Debug.Log("Initialized packets.");
     }

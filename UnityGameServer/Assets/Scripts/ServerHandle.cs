@@ -61,4 +61,10 @@ public class ServerHandle
 
         Server.clients[_fromClient].player.ThrowItem(_throwDirection);
     }
+
+    public static void test(int _fromClient, Packet _packet)
+    {
+        string data =_packet.ReadString();
+        Debug.Log(data);
+    }
 }
