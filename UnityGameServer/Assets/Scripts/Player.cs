@@ -28,8 +28,11 @@ public class Player : MonoBehaviour
     private Vector3 newPosition;
     private Quaternion newRotation;
 
+    private float visibilityRadius;
+
     void Awake() {
-        //mBody = GetComponent<Rigidbody>();
+        //mBody = GetComponent<Rigidbody>();        
+        visibilityRadius = NetworkManager.visibilityRadius;
     }
 
     private void Start()
@@ -96,8 +99,7 @@ public class Player : MonoBehaviour
         transform.position = position;
         transform.rotation = rotation;
 
-        ServerSend.PlayerPosition(this);
-        ServerSend.PlayerRotation(this);
+        ServerSend.PlayerPosition(this, visibilityRadius);        
     }
 
     /// <summary>Updates the player input with newly received input.</summary>
@@ -166,7 +168,7 @@ public class Player : MonoBehaviour
             health = 0f;
             controller.enabled = false;
             transform.position = new Vector3(0f, 25f, 0f);
-            ServerSend.PlayerPosition(this);
+            ServerSend.PlayerPosition(this, visibilityRadius);
             StartCoroutine(Respawn());
         }
 

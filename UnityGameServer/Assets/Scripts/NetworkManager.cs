@@ -10,10 +10,11 @@ public class NetworkManager : MonoBehaviour
     public GameObject playerPrefab;
     public GameObject enemyPrefab;
     public GameObject projectilePrefab;
+    public static float visibilityRadius=20;
 
     private void Awake()
     {
-        wavesScript = GameObject.FindWithTag("Waves").GetComponent<Waves>();
+        wavesScript = GameObject.FindWithTag("Waves").GetComponent<Waves>();        
 
         if (instance == null)
         {

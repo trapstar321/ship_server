@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -43,6 +44,42 @@ public class ServerSend
             if (i != _exceptClient)
             {
                 Server.clients[i].tcp.SendData(_packet);
+            }
+        }
+    }
+
+    private static void SendTCPDataRadius(Packet _packet, Vector3 position, float sendRadius)
+    {
+        _packet.WriteLength();
+
+        for (int i = 1; i <= Server.MaxPlayers; i++)
+        {            
+            if (Server.clients[i].player != null)
+            {
+                float distance = Vector3.Distance(position, Server.clients[i].player.transform.position);
+                if (Math.Abs(Vector3.Distance(position, Server.clients[i].player.transform.position)) < sendRadius)
+                {
+                    Server.clients[i].tcp.SendData(_packet);
+                }
+            }            
+        }
+    }
+
+    private static void SendTCPDataRadius(int _exceptClient, Packet _packet, Vector3 position, float visibilityRadius) {
+        _packet.WriteLength();
+
+        for (int i = 1; i <= Server.MaxPlayers; i++)
+        {
+            if (i != _exceptClient)
+            {
+                if (Server.clients[i].player != null)
+                {
+                    float distance = Vector3.Distance(position, Server.clients[i].player.transform.position);
+                    if (Math.Abs(Vector3.Distance(position, Server.clients[i].player.transform.position)) < visibilityRadius)
+                    {
+                        Server.clients[i].tcp.SendData(_packet);
+                    }
+                }
             }
         }
     }
@@ -99,33 +136,22 @@ public class ServerSend
             _packet.Write(_player.transform.position);
             _packet.Write(_player.transform.rotation);
 
-            SendUDPData(_toClient, _packet);
+            SendTCPData(_toClient, _packet);
         }
     }
 
     /// <summary>Sends a player's updated position to all clients.</summary>
     /// <param name="_player">The player whose position to update.</param>
-    public static void PlayerPosition(Player _player)
+    public static void PlayerPosition(Player _player, float visibilityRadius)
     {
         using (Packet _packet = new Packet((int)ServerPackets.playerPosition))
         {
             _packet.Write(_player.id);
             _packet.Write(_player.transform.position);
-            
-            SendTCPDataToAll(_player.id, _packet);
-        }
-    }
-
-    /// <summary>Sends a player's updated rotation to all clients except to himself (to avoid overwriting the local player's rotation).</summary>
-    /// <param name="_player">The player whose rotation to update.</param>
-    public static void PlayerRotation(Player _player)
-    {
-        using (Packet _packet = new Packet((int)ServerPackets.playerRotation))
-        {
-            _packet.Write(_player.id);
             _packet.Write(_player.transform.rotation);
 
-            SendTCPDataToAll(_player.id, _packet);
+            //SendTCPDataToAll(_player.id, _packet);
+            SendTCPDataRadius(_player.id, _packet, _player.transform.position, visibilityRadius);
         }
     }
 

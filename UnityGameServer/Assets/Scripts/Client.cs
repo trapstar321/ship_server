@@ -215,18 +215,6 @@ public class Client
         player = NetworkManager.instance.InstantiatePlayer();
         player.Initialize(id, _playerName);
 
-        // Send all players to the new player
-        foreach (Client _client in Server.clients.Values)
-        {
-            if (_client.player != null)
-            {
-                if (_client.id != id)
-                {
-                    ServerSend.SpawnPlayer(id, _client.player);                    
-                }
-            }
-        }
-
         // Send the new player to all players (including himself)
         foreach (Client _client in Server.clients.Values)
         {
@@ -235,6 +223,18 @@ public class Client
                 ServerSend.SpawnPlayer(_client.id, player);
             }
         }
+
+        // Send all players to the new player
+        foreach (Client _client in Server.clients.Values)
+        {
+            if (_client.player != null)
+            {
+                if (_client.id != id)
+                {                    
+                    ServerSend.SpawnPlayer(id, _client.player);                    
+                }
+            }
+        }        
 
         /*foreach (ItemSpawner _itemSpawner in ItemSpawner.spawners.Values)
         {

@@ -868,6 +868,7 @@ MonoBehaviour:
     type: 3}
   projectilePrefab: {fileID: 7859153389591767978, guid: f08613b9a5c37044f8cb2ad66a833ea6,
     type: 3}
+  visibilityRadius: 40
 --- !u!4 &1902706400
 Transform:
   m_ObjectHideFlags: 0
