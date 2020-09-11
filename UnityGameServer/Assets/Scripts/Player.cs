@@ -30,9 +30,13 @@ public class Player : MonoBehaviour
 
     private float visibilityRadius;
 
+    private Inventory inventory;    
+
     void Awake() {
         //mBody = GetComponent<Rigidbody>();        
         visibilityRadius = NetworkManager.visibilityRadius;
+        //Instantiate(inventory);
+        inventory = FindObjectOfType<Inventory>();
     }
 
     private void Start()
@@ -49,6 +53,19 @@ public class Player : MonoBehaviour
         health = maxHealth;
 
         inputs = new bool[5];
+
+        Item wood = new Item();
+        wood.name = "Wood log";
+        wood.iconName = "wood.png";
+
+        Item plank = new Item();
+        wood.name = "Wood plank";
+        wood.iconName = "WoodPlank.png";
+
+        inventory.Add(wood);
+        inventory.Add(plank);
+
+        ServerSend.Inventory(_id, inventory);
     }
 
     /// <summary>Processes player input and moves the player.</summary>

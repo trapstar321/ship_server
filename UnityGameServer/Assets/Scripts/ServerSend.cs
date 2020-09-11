@@ -307,6 +307,15 @@ public class ServerSend
         }
     }
 
+    public static void Inventory(int to, Inventory inventory)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.inventory))
+        {
+            _packet.Write(inventory.items);
+            SendTCPData(to, _packet);
+        }
+    }
+
     public static void Time(float time)
     {
         using (Packet _packet = new Packet((int)ServerPackets.time))

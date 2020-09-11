@@ -55,6 +55,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -79,6 +80,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &4187005777591049097
 GameObject:
   m_ObjectHideFlags: 0
@@ -92,6 +94,7 @@ GameObject:
   - component: {fileID: 2319307683833354698}
   - component: {fileID: 2527204524704220173}
   - component: {fileID: 2043240255799629940}
+  - component: {fileID: -5483953056863147012}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -140,6 +143,7 @@ MonoBehaviour:
   itemAmount: 0
   maxItemAmount: 3
   moveForce: 10
+  inventory: {fileID: 0}
 --- !u!143 &2319307683833354698
 CharacterController:
   m_ObjectHideFlags: 0
@@ -186,6 +190,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -210,6 +215,21 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &-5483953056863147012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4187005777591049097}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cf0f51ef539a5449b52be2fad5e1d64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  space: 20
+  items: []
 --- !u!1 &5842331344950954625
 GameObject:
   m_ObjectHideFlags: 0
