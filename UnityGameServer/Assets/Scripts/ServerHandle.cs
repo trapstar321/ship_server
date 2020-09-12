@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ServerHandle
+public class ServerHandle: MonoBehaviour
 {
     public static void WelcomeReceived(int _fromClient, Packet _packet)
     {
@@ -66,5 +66,24 @@ public class ServerHandle
     {
         string data =_packet.ReadString();
         Debug.Log(data);
+    }
+
+    public static void GetInventory(int from, Packet packet) {
+        Mysql mysql = FindObjectOfType<Mysql>();
+        List<InventorySlot> slots = mysql.ReadInventory(from);
+        Inventory inventory = Server.clients[from].player.inventory;
+
+        foreach (InventorySlot s in slots) {
+            inventory.Add(s);    
+        }
+        
+        ServerSend.Inventory(from, inventory);
+
+        Item wood = new Item();
+        wood.name = "Wood log";
+        wood.iconName = "wood.png";
+        InventorySlot slot = inventory.Add(wood);
+
+        ServerSend.AddToInventory(from, slot);
     }
 }

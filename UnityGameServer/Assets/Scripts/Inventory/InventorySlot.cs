@@ -2,9 +2,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-[Serializable]
-public class InventorySlot
-{
+public class InventorySlot:MonoBehaviour
+{    
     public Image icon;
     public Item item;
     public int slotID;
@@ -22,5 +21,10 @@ public class InventorySlot
         item = null;
         icon.sprite = null;
         icon.enabled = false;
+    }
+
+    public override string ToString()
+    {
+        return $"name={item.name}, quantity={quantity}";
     }
 }

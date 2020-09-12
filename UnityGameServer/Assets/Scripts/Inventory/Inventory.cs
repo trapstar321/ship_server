@@ -29,25 +29,41 @@ public class Inventory : MonoBehaviour
 
     public List<InventorySlot> items = new List<InventorySlot>();
 
-    public bool Add (Item item)
+    public InventorySlot Add (Item item)
     {
+        InventorySlot s = null;
         if (!item.isDefaultItem)
         {
-            if (items.Count >= space)
-            {
-                Debug.Log("Not enough room");
-                return false;
-            }
-
             foreach (InventorySlot slot in items) {
-                if (slot.item == null)
+                if (slot.item == null) {
                     slot.item = item;
+                    s = slot;
+                    break;
+                }
             }
             
             if(onItemChangedCallback != null)
                 onItemChangedCallback.Invoke();
         }
-        return true;
+        return s;
+    }
+
+    public InventorySlot Add(InventorySlot slot)
+    {   
+        foreach (InventorySlot s in items)
+        {
+            if (s.slotID == slot.slotID)
+            {
+                s.item = slot.item;
+                s.quantity = slot.quantity;
+                slot = s;
+                break;
+            }
+        }
+
+        if (onItemChangedCallback != null)
+            onItemChangedCallback.Invoke();
+        return slot;
     }
 
     public void Remove(int slotID)

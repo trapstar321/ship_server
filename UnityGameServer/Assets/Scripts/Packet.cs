@@ -26,7 +26,8 @@ public enum ServerPackets
     enemyHealth,
     wavesMesh,
     time,
-    inventory
+    inventory,
+    addToInventory
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -38,7 +39,8 @@ public enum ClientPackets
     playerThrowItem,
     joystick,
     position,
-    test
+    test,
+    getInventory
 }
 
 public class Packet : IDisposable
@@ -190,7 +192,14 @@ public class Packet : IDisposable
         buffer.AddRange(data); // Add the string itself
     }
 
-    public void Write(List<InventorySlot> _value)
+    public void Write(List<SerializableObjects.InventorySlot> _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(SerializableObjects.InventorySlot _value)
     {
         byte[] data = ObjectToByteArray(_value);
         Write(data.Length); // Add the length of the string to the packet

@@ -311,7 +311,58 @@ public class ServerSend
     {
         using (Packet _packet = new Packet((int)ServerPackets.inventory))
         {
-            _packet.Write(inventory.items);
+            List<SerializableObjects.InventorySlot> items = new List<SerializableObjects.InventorySlot>();
+
+            foreach (InventorySlot slot in inventory.items) {
+                SerializableObjects.Item item = null;
+
+                if (slot.item != null)
+                {
+                    item = new SerializableObjects.Item()
+                    {
+                        iconName = slot.item.iconName,
+                        isDefaultItem = slot.item.isDefaultItem,
+                        name = slot.item.name
+                    };
+                }
+
+                items.Add(new SerializableObjects.InventorySlot()
+                {
+                    slotID = slot.slotID,
+                    quantity = slot.quantity,
+                    item = item
+                }) ;
+            }
+
+            _packet.Write(items);
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void AddToInventory(int to, InventorySlot slot)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.addToInventory))
+        {
+            SerializableObjects.Item item = null;
+
+            if (slot.item != null)
+            {
+                item = new SerializableObjects.Item()
+                {
+                    iconName = slot.item.iconName,
+                    isDefaultItem = slot.item.isDefaultItem,
+                    name = slot.item.name
+                };
+            }
+
+            SerializableObjects.InventorySlot sslot = new SerializableObjects.InventorySlot()
+            {
+                slotID = slot.slotID,
+                quantity = slot.quantity,
+                item = item
+            };
+
+            _packet.Write(sslot);
             SendTCPData(to, _packet);
         }
     }

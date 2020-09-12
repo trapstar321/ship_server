@@ -30,7 +30,7 @@ public class Player : MonoBehaviour
 
     private float visibilityRadius;
 
-    private Inventory inventory;    
+    public Inventory inventory;    
 
     void Awake() {
         //mBody = GetComponent<Rigidbody>();        
@@ -52,20 +52,7 @@ public class Player : MonoBehaviour
         username = _username;
         health = maxHealth;
 
-        inputs = new bool[5];
-
-        Item wood = new Item();
-        wood.name = "Wood log";
-        wood.iconName = "wood.png";
-
-        Item plank = new Item();
-        wood.name = "Wood plank";
-        wood.iconName = "WoodPlank.png";
-
-        inventory.Add(wood);
-        inventory.Add(plank);
-
-        ServerSend.Inventory(_id, inventory);
+        inputs = new bool[5];        
     }
 
     /// <summary>Processes player input and moves the player.</summary>
