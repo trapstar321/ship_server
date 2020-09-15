@@ -18,9 +18,7 @@ public class Mysql : MonoBehaviour
         string cs = $"server={server};userid={userid};password={password};database={database}";
 
         con = new MySqlConnection(cs);
-        con.Open();
-
-        DragAndDrop(1, new InventorySlot() { slotID = 1 }, new InventorySlot() { slotID = 2 });
+        con.Open();        
     }
 
     void Start()

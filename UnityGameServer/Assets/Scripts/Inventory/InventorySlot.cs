@@ -12,15 +12,21 @@ public class InventorySlot:MonoBehaviour
     public void AddItem(Item newItem)
     {
         item = newItem;
-        icon.sprite = item.icon;
-        icon.enabled = true;
+        if (icon != null)
+        {
+            icon.sprite = item.icon;
+            icon.enabled = true;
+        }
     }
 
     public void ClearSlot()
     {
         item = null;
-        icon.sprite = null;
-        icon.enabled = false;
+        if (icon != null)
+        {
+            icon.sprite = null;
+            icon.enabled = false;
+        }
     }
 
     public override string ToString()
