@@ -40,7 +40,9 @@ public enum ClientPackets
     joystick,
     position,
     test,
-    getInventory
+    getInventory,
+    dropItem,
+    dragAndDrop
 }
 
 public class Packet : IDisposable
@@ -426,6 +428,38 @@ public class Packet : IDisposable
     public Quaternion ReadQuaternion(bool _moveReadPos = true)
     {
         return new Quaternion(ReadFloat(_moveReadPos), ReadFloat(_moveReadPos), ReadFloat(_moveReadPos), ReadFloat(_moveReadPos));
+    }
+
+    public SerializableObjects.InventorySlot ReadInventorySlot(bool _moveReadPos = true)
+    {
+        try
+        {
+            int _length = ReadInt(); // Get the length of the string
+            byte[] data = new byte[_length];
+            Array.Copy(readableBuffer, readPos, data, 0, _length);
+            if (_moveReadPos && data.Length > 0)
+            {
+                // If _moveReadPos is true string is not empty
+                readPos += _length; // Increase readPos by the length of the string
+            }
+            return FromByteArray<SerializableObjects.InventorySlot>(data); // Return the string
+        }
+        catch
+        {
+            throw new Exception("Could not read value of type 'SerializableObjects.InventorySlot'!");
+        }
+    }
+
+    public T FromByteArray<T>(byte[] data)
+    {
+        if (data == null)
+            return default(T);
+        BinaryFormatter bf = new BinaryFormatter();
+        using (MemoryStream ms = new MemoryStream(data))
+        {
+            object obj = bf.Deserialize(ms);
+            return (T)obj;
+        }
     }
     #endregion
 

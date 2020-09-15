@@ -79,11 +79,49 @@ public class ServerHandle: MonoBehaviour
         
         ServerSend.Inventory(from, inventory);
 
-        Item wood = new Item();
+        /*Item wood = new Item();
         wood.name = "Wood log";
         wood.iconName = "wood.png";
         InventorySlot slot = inventory.Add(wood);
 
-        ServerSend.AddToInventory(from, slot);
+        ServerSend.AddToInventory(from, slot);*/
+    }
+
+    public static void DropItem(int from, Packet packet) {
+        Mysql mysql = FindObjectOfType<Mysql>();
+        Inventory inventory = Server.clients[from].player.inventory;
+        SerializableObjects.InventorySlot slot = packet.ReadInventorySlot();
+
+        inventory.Remove(slot.slotID);        
+
+        InventorySlot s = SlotFromSerializable(slot);
+        mysql.DropItem(from, s);
+    }
+
+    public static void DragAndDrop(int from, Packet packet)
+    {
+        Mysql mysql = FindObjectOfType<Mysql>();
+        Inventory inventory = Server.clients[from].player.inventory;
+        SerializableObjects.InventorySlot slot1 = packet.ReadInventorySlot();
+        SerializableObjects.InventorySlot slot2 = packet.ReadInventorySlot();        
+
+        InventorySlot s1 = SlotFromSerializable(slot1);
+        InventorySlot s2 = SlotFromSerializable(slot2);
+
+        inventory.DragAndDrop(s1, s2);
+        mysql.DragAndDrop(from, s1, s2);
+    }
+
+    protected static InventorySlot SlotFromSerializable(SerializableObjects.InventorySlot slot) {
+        Item item = new Item();
+        item.id = slot.item.id;
+        item.name = slot.item.name;
+
+        InventorySlot s = new InventorySlot();
+        s.item = item;
+        s.quantity = slot.quantity;
+        s.slotID = slot.slotID;
+
+        return s;
     }
 }

@@ -134,7 +134,9 @@ public class Server
             { (int)ClientPackets.joystick, ServerHandle.Joystick },
             { (int)ClientPackets.position, ServerHandle.Position },
             { (int)ClientPackets.test, ServerHandle.test },
-            { (int)ClientPackets.getInventory, ServerHandle.GetInventory }
+            { (int)ClientPackets.getInventory, ServerHandle.GetInventory },
+            { (int)ClientPackets.dropItem, ServerHandle.DropItem },
+            { (int)ClientPackets.dragAndDrop, ServerHandle.DragAndDrop }
         };
         Debug.Log("Initialized packets.");
     }

@@ -71,11 +71,28 @@ public class Inventory : MonoBehaviour
         for(int i=0; i < items.Count; i++)
         {
             if (slotID == items[i].slotID) {
-                items.RemoveAt(i);
+                items[i].ClearSlot();
             }
         }
         
         if (onItemChangedCallback != null)
             onItemChangedCallback.Invoke();
+    }
+
+    public void DragAndDrop(InventorySlot s1, InventorySlot s2) {
+        for (int i = 0; i < items.Count; i++)
+        {
+            if (s1.slotID == items[i].slotID)
+            {
+                items[i].ClearSlot();
+                items[i].AddItem(s2.item);
+            }
+
+            if (s2.slotID == items[i].slotID)
+            {
+                items[i].ClearSlot();
+                items[i].AddItem(s1.item);
+            }
+        }
     }
 }

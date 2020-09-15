@@ -314,24 +314,7 @@ public class ServerSend
             List<SerializableObjects.InventorySlot> items = new List<SerializableObjects.InventorySlot>();
 
             foreach (InventorySlot slot in inventory.items) {
-                SerializableObjects.Item item = null;
-
-                if (slot.item != null)
-                {
-                    item = new SerializableObjects.Item()
-                    {
-                        iconName = slot.item.iconName,
-                        isDefaultItem = slot.item.isDefaultItem,
-                        name = slot.item.name
-                    };
-                }
-
-                items.Add(new SerializableObjects.InventorySlot()
-                {
-                    slotID = slot.slotID,
-                    quantity = slot.quantity,
-                    item = item
-                }) ;
+                items.Add(SlotToSerializable(slot)) ;
             }
 
             _packet.Write(items);
@@ -343,28 +326,33 @@ public class ServerSend
     {
         using (Packet _packet = new Packet((int)ServerPackets.addToInventory))
         {
-            SerializableObjects.Item item = null;
-
-            if (slot.item != null)
-            {
-                item = new SerializableObjects.Item()
-                {
-                    iconName = slot.item.iconName,
-                    isDefaultItem = slot.item.isDefaultItem,
-                    name = slot.item.name
-                };
-            }
-
-            SerializableObjects.InventorySlot sslot = new SerializableObjects.InventorySlot()
-            {
-                slotID = slot.slotID,
-                quantity = slot.quantity,
-                item = item
-            };
+            SerializableObjects.InventorySlot sslot = SlotToSerializable(slot);
 
             _packet.Write(sslot);
             SendTCPData(to, _packet);
         }
+    }
+
+    protected static SerializableObjects.InventorySlot SlotToSerializable(InventorySlot slot) {
+        SerializableObjects.Item item = null;
+
+        if (slot.item != null)
+        {
+            item = new SerializableObjects.Item()
+            {
+                id = slot.item.id,
+                iconName = slot.item.iconName,
+                isDefaultItem = slot.item.isDefaultItem,
+                name = slot.item.name
+            };
+        }
+
+        return new SerializableObjects.InventorySlot()
+        {
+            slotID = slot.slotID,
+            quantity = slot.quantity,
+            item = item
+        };
     }
 
     public static void Time(float time)
