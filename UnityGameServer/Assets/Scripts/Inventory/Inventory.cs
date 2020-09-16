@@ -79,20 +79,30 @@ public class Inventory : MonoBehaviour
             onItemChangedCallback.Invoke();
     }
 
-    public void DragAndDrop(InventorySlot s1, InventorySlot s2) {
+    public void DragAndDrop(InventorySlot slot1, InventorySlot slot2) {
+        Item item1 = slot1.item;
+        Item item2 = slot2.item;
+
+        int tmp_quantity = slot1.quantity;
+
+        slot1.ClearSlot();
+        if(item2!=null)
+            slot1.AddItem(item2);
+        slot1.quantity = slot2.quantity;
+
+        slot2.ClearSlot();
+        if(item1!=null)
+            slot2.AddItem(item1);
+        slot2.quantity = tmp_quantity;
+    }
+
+    public InventorySlot FindSlot(int slotID)
+    {
         for (int i = 0; i < items.Count; i++)
         {
-            if (s1.slotID == items[i].slotID)
-            {
-                items[i].ClearSlot();
-                items[i].AddItem(s2.item);
-            }
-
-            if (s2.slotID == items[i].slotID)
-            {
-                items[i].ClearSlot();
-                items[i].AddItem(s1.item);
-            }
+            if (items[i].slotID == slotID)
+                return items[i];
         }
+        return null;
     }
 }

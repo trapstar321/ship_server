@@ -108,17 +108,28 @@ public class ServerHandle: MonoBehaviour
         InventorySlot s1 = SlotFromSerializable(slot1);
         InventorySlot s2 = SlotFromSerializable(slot2);
 
-        inventory.DragAndDrop(s1, s2);
-        mysql.DragAndDrop(from, s1, s2);
+        InventorySlot slot_1 = inventory.FindSlot(s1.slotID);
+        InventorySlot slot_2 = inventory.FindSlot(s2.slotID);        
+        
+        if(slot_1.item!=null && slot_2.item!=null)
+            mysql.DragAndDrop_Change(from, slot_1, slot_2);
+        else if(slot_1.item==null || slot_2.item==null)
+            mysql.DragAndDrop_Move(from, slot_1, slot_2);
+
+        inventory.DragAndDrop(slot_1, slot_2);
     }
 
     protected static InventorySlot SlotFromSerializable(SerializableObjects.InventorySlot slot) {
-        Item item = new Item();
-        item.id = slot.item.id;
-        item.name = slot.item.name;
-
         InventorySlot s = new InventorySlot();
-        s.item = item;
+
+        if (slot.item != null)
+        {
+            Item item = new Item();
+            item.id = slot.item.id;
+            item.name = slot.item.name;
+            s.item = item;
+        }
+
         s.quantity = slot.quantity;
         s.slotID = slot.slotID;
 

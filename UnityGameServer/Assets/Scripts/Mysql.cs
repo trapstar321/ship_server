@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -33,7 +34,7 @@ public class Mysql : MonoBehaviour
     }
 
     public List<InventorySlot> ReadInventory(int playerID) {
-        string sql = @"SELECT b.SLOT_ID, b.QUANTITY, c.id, c.item_id, d.* 
+        string sql = @"SELECT b.SLOT_ID, b.QUANTITY, c.id as item_id, d.* 
                         FROM inventory a 
                         inner join inventory_slot as b 
                         on a.slot_id=b.id 
@@ -132,7 +133,60 @@ public class Mysql : MonoBehaviour
         cmd.ExecuteNonQuery();
     }
 
-    public void DragAndDrop(int player, InventorySlot slot1, InventorySlot slot2) {
+    public void DragAndDrop_Move(int player, InventorySlot slot1, InventorySlot slot2)
+    {
+        InventorySlot add = null;
+        InventorySlot remove = null;
+
+        add = slot1.item == null ? slot1 : slot2;
+        remove = slot1.item != null ? slot1 : slot2;
+
+        string sql = @"select b.id from inventory as a
+                            inner join inventory_slot as b
+                            on a.slot_id=b.id
+                            where a.player_id=@player_id and b.slot_id=@slot_id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+        cmd.Parameters.AddWithValue("@player_id", player);
+        cmd.Parameters.AddWithValue("@slot_id", remove.slotID);
+
+        MySqlDataReader reader = cmd.ExecuteReader();
+
+        int id = 0;
+
+        while (reader.Read())
+        {
+            id = reader.GetInt32("id");            
+        }
+
+        reader.Close();
+
+        cmd.CommandText = "delete from inventory where player_id=@player_id and slot_id=@slot_id";
+        cmd.Parameters.Clear();
+        cmd.Parameters.AddWithValue("@player_id", player);
+        cmd.Parameters.AddWithValue("@slot_id", id);
+        cmd.ExecuteNonQuery();
+
+        cmd.CommandText = "delete from inventory_slot where id=@id";
+        cmd.Parameters.Clear();
+        cmd.Parameters.AddWithValue("@id", id);
+        cmd.ExecuteNonQuery();
+
+        cmd.CommandText = "insert into inventory_slot(item_id, slot_id, quantity)values(@item_id, @slot_id, @quantity);select last_insert_id();";
+        cmd.Parameters.AddWithValue("@item_id", remove.item.id);
+        cmd.Parameters.AddWithValue("@slot_id", add.slotID);
+        cmd.Parameters.AddWithValue("@quantity", remove.quantity);
+        int new_id = Convert.ToInt32(cmd.ExecuteScalar());
+
+        cmd.CommandText = "insert into inventory(player_id, slot_id)values(@player_id, @slot_id)";
+        cmd.Parameters.Clear();
+        cmd.Parameters.AddWithValue("@player_id", player);
+        cmd.Parameters.AddWithValue("@slot_id", new_id);
+        cmd.ExecuteNonQuery();
+    }
+
+    public void DragAndDrop_Change(int player, InventorySlot slot1, InventorySlot slot2) {
         string sql = @"select b.id, b.slot_id from inventory as a
                         inner join inventory_slot as b
                         on a.slot_id=b.id
@@ -183,6 +237,6 @@ public class Mysql : MonoBehaviour
         cmd.Parameters.Clear();
         cmd.Parameters.AddWithValue("@slot_id", slot_id_1);
         cmd.Parameters.AddWithValue("@id", id_2);
-        cmd.ExecuteNonQuery();
+        cmd.ExecuteNonQuery();        
     }
 }
