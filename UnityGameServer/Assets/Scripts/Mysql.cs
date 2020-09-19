@@ -61,7 +61,7 @@ public class Mysql : MonoBehaviour
 
             Item item = new Item();            
             item.id = id;
-            item.item_id = id;
+            item.item_id = item_id;
             item.name = name;
             item.iconName = icon_name;
             item.isDefaultItem = is_default_item;
