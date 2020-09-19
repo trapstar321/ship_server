@@ -341,6 +341,7 @@ public class ServerSend
             item = new SerializableObjects.Item()
             {
                 id = slot.item.id,
+                item_id = slot.item.item_id,
                 iconName = slot.item.iconName,
                 isDefaultItem = slot.item.isDefaultItem,
                 name = slot.item.name

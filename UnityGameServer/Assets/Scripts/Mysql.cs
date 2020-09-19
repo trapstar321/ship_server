@@ -34,7 +34,7 @@ public class Mysql : MonoBehaviour
     }
 
     public List<InventorySlot> ReadInventory(int playerID) {
-        string sql = @"SELECT b.SLOT_ID, b.QUANTITY, c.id as item_id, d.* 
+        string sql = @"SELECT b.SLOT_ID, b.QUANTITY, c.id, d.id as item_id, d.name, d.icon_name, d.is_default_item 
                         FROM inventory a 
                         inner join inventory_slot as b 
                         on a.slot_id=b.id 
@@ -51,6 +51,7 @@ public class Mysql : MonoBehaviour
         List<InventorySlot> slots = new List<InventorySlot>();
         while (rdr.Read())
         {
+            int id = rdr.GetInt32("ID");
             int item_id = rdr.GetInt32("ITEM_ID");
             int slot_id = rdr.GetInt32("SLOT_ID");
             int quantity = rdr.GetInt32("QUANTITY");
@@ -58,8 +59,9 @@ public class Mysql : MonoBehaviour
             string icon_name = rdr.GetString("ICON_NAME");
             bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
 
-            Item item = new Item();
-            item.id = item_id;
+            Item item = new Item();            
+            item.id = id;
+            item.item_id = id;
             item.name = name;
             item.iconName = icon_name;
             item.isDefaultItem = is_default_item;
