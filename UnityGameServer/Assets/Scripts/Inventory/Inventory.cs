@@ -25,7 +25,7 @@ public class Inventory : MonoBehaviour
     public delegate void OnItemChanged();
     public OnItemChanged onItemChangedCallback;
 
-    public int space = 20;
+    public int space = 80;
 
     public List<InventorySlot> items = new List<InventorySlot>();
 
@@ -83,17 +83,25 @@ public class Inventory : MonoBehaviour
         Item item1 = slot1.item;
         Item item2 = slot2.item;
 
-        int tmp_quantity = slot1.quantity;
+        if (slot1.item?.item_id == slot2.item?.item_id)
+        {            
+            slot2.quantity += slot1.quantity;
+            slot1.ClearSlot();
+        }
+        else
+        {
+            int tmp_quantity = slot1.quantity;
 
-        slot1.ClearSlot();
-        if(item2!=null)
-            slot1.AddItem(item2);
-        slot1.quantity = slot2.quantity;
+            slot1.ClearSlot();
+            if (item2 != null)
+                slot1.AddItem(item2);
+            slot1.quantity = slot2.quantity;
 
-        slot2.ClearSlot();
-        if(item1!=null)
-            slot2.AddItem(item1);
-        slot2.quantity = tmp_quantity;
+            slot2.ClearSlot();
+            if (item1 != null)
+                slot2.AddItem(item1);
+            slot2.quantity = tmp_quantity;
+        }
     }
 
     public InventorySlot FindSlot(int slotID)

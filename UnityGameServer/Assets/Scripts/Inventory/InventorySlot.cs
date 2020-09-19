@@ -22,6 +22,7 @@ public class InventorySlot:MonoBehaviour
     public void ClearSlot()
     {
         item = null;
+        quantity = 0;
         if (icon != null)
         {
             icon.sprite = null;

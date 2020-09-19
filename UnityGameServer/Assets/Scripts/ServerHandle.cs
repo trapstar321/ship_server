@@ -110,10 +110,19 @@ public class ServerHandle: MonoBehaviour
 
         InventorySlot slot_1 = inventory.FindSlot(s1.slotID);
         InventorySlot slot_2 = inventory.FindSlot(s2.slotID);        
-        
-        if(slot_1.item!=null && slot_2.item!=null)
-            mysql.DragAndDrop_Change(from, slot_1, slot_2);
-        else if(slot_1.item==null || slot_2.item==null)
+
+        if (slot_1.item != null && slot_2.item != null)
+        {
+            if (slot_1.item.item_id == slot_2.item.item_id)
+            {
+                mysql.DragAndDrop_Stack(from, slot_1, slot_2);
+            }
+            else
+            {
+                mysql.DragAndDrop_Change(from, slot_1, slot_2);
+            }
+        }
+        else if (slot_1.item == null || slot_2.item == null)
             mysql.DragAndDrop_Move(from, slot_1, slot_2);
 
         inventory.DragAndDrop(slot_1, slot_2);
