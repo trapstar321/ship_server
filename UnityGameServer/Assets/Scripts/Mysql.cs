@@ -96,44 +96,12 @@ public class Mysql : MonoBehaviour
             slot_id = reader.GetInt32("id");
         }
 
-        reader.Close();
+        reader.Close();        
 
-        sql = "select item_id from inventory_slot where id=@slot_id";
+        sql = "update inventory_slot set item_id=null, quantity=0 where id=@slot_id";
         cmd.CommandText = sql;
         cmd.Parameters.Clear();
         cmd.Parameters.AddWithValue("@slot_id", slot_id);
-        reader = cmd.ExecuteReader();
-
-        int item_id = 0;
-
-        while (reader.Read())
-        {
-            item_id = reader.GetInt32("item_id");
-        }
-
-        Debug.Log("Slot_ID=" + slot_id);
-        Debug.Log("Item_ID=" + item_id);
-
-        reader.Close();
-
-        sql = @"delete from inventory
-                where slot_id = @slot_id and player_id = @player_id";
-        cmd.CommandText = sql;
-        cmd.Parameters.Clear();
-        cmd.Parameters.AddWithValue("@slot_id", slot_id);
-        cmd.Parameters.AddWithValue("@player_id", player);
-        cmd.ExecuteNonQuery();
-
-        sql = "delete from inventory_slot where id=@slot_id";
-        cmd.CommandText = sql;
-        cmd.Parameters.Clear();
-        cmd.Parameters.AddWithValue("@slot_id", slot_id);
-        cmd.ExecuteNonQuery();
-
-        sql = "delete from player_item where id=@item_id";
-        cmd.CommandText = sql;
-        cmd.Parameters.Clear();
-        cmd.Parameters.AddWithValue("@item_id", item_id);
         cmd.ExecuteNonQuery();
     }
 
@@ -270,17 +238,11 @@ public class Mysql : MonoBehaviour
 
         reader.Close();        
 
-        sql = "delete from inventory where id=@id";
+        sql = "update inventory_slot set item_id=null, quantity=0 where id=@id";
         cmd.CommandText = sql;
         cmd.Parameters.Clear();
-        cmd.Parameters.AddWithValue("@id", id_1);        
-        cmd.ExecuteNonQuery();
-
-        sql = "delete from inventory_slot where id=@id";
-        cmd.CommandText = sql;
-        cmd.Parameters.Clear();
-        cmd.Parameters.AddWithValue("@id", slot_id_1);
-        cmd.ExecuteNonQuery();
+        cmd.Parameters.AddWithValue("@id", slot_id_1);        
+        cmd.ExecuteNonQuery();        
 
         sql = "update inventory_slot set quantity=@quantity where id=@id";
         cmd.CommandText = sql;
