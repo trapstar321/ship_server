@@ -19,7 +19,7 @@ create table item
 
 create table player_item
 (
-	ID int not null auto_increment,
+	ID bigint not null auto_increment,
     ITEM_ID int not null,
     PLAYER_ID int not null,
     PRIMARY KEY(id),
@@ -29,27 +29,19 @@ create table player_item
 
 create table inventory_slot
 (
-	ID int NOT NULL auto_increment,
-    ITEM_ID int Not null,
+	ID bigint NOT NULL auto_increment,
+    ITEM_ID bigint Not null,
     SLOT_ID int not null,
     QUANTITY int null,
     PRIMARY KEY(ID),
     FOREIGN KEY(ITEM_ID) references player_item(ID)
 )DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
 
-create table temporary_storage
-(
-	ID int NOT NULL auto_increment,
-    ITEM_ID int Not null,    
-    PRIMARY KEY(ID),
-    FOREIGN KEY(ITEM_ID) references player_item(ID)
-)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
-
 create table inventory
 (
-	ID int not null auto_increment,
+	ID bigint not null auto_increment,
     PLAYER_ID int not null,
-    SLOT_ID int not null,
+    SLOT_ID bigint not null,
     PRIMARY KEY(ID),
     foreign key(player_id) references player(id),
     foreign key(slot_id) references inventory_slot(id)
@@ -71,14 +63,40 @@ select 1, 1
 union all
 select 2,1
 
+use ship
+select* from inventory
+select* from inventory_slot
+select* from player_item
+
+delete from inventory where id=745
+delete from inventory_slot where id=752
+
+select b.id, b.slot_id from inventory as a
+inner join inventory_slot as b
+on a.slot_id=b.id
+where a.player_id=1 and b.slot_id=1
+
 insert into inventory_slot
 (item_id, slot_id, quantity)
 select 1, 1, 1
 union all
 select 2,2,1
+union all
+select 4,3,1
+union all
+select 5,4,1
+union all
+select 8,6,1
 
 insert into inventory
 (player_id, slot_id)
-select 1, 1
+select 1,758
 union all
-select 1,2
+select 1,759
+union all
+select 1,760
+union all
+select 1,761
+union all
+select 1,762
+

@@ -41,7 +41,7 @@ public class NetworkManager : MonoBehaviour
     }
 
     private void OnApplicationQuit()
-    {
+    {        
         Server.Stop();
     }
 
