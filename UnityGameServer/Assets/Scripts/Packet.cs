@@ -42,7 +42,8 @@ public enum ClientPackets
     test,
     getInventory,
     dropItem,
-    dragAndDrop
+    dragAndDrop,
+    searchChest
 }
 
 public class Packet : IDisposable

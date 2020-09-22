@@ -136,7 +136,8 @@ public class Server
             { (int)ClientPackets.test, ServerHandle.test },
             { (int)ClientPackets.getInventory, ServerHandle.GetInventory },
             { (int)ClientPackets.dropItem, ServerHandle.DropItem },
-            { (int)ClientPackets.dragAndDrop, ServerHandle.DragAndDrop }
+            { (int)ClientPackets.dragAndDrop, ServerHandle.DragAndDrop },
+            { (int)ClientPackets.searchChest, ServerHandle.SearchChest }
         };
         Debug.Log("Initialized packets.");
     }

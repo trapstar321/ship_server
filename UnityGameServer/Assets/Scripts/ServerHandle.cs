@@ -144,4 +144,8 @@ public class ServerHandle: MonoBehaviour
 
         return s;
     }
+
+    public static void SearchChest(int from, Packet packet) {
+        Server.clients[from].player.SearchChest();
+    }
 }

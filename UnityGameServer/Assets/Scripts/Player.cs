@@ -198,4 +198,12 @@ public class Player : MonoBehaviour
         itemAmount++;
         return true;
     }
+
+    public void SearchChest() {
+        RaycastHit hit;        
+        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out hit, 10))
+        {
+            string s = "";
+        }
+    }
 }
