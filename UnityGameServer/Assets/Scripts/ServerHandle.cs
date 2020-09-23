@@ -4,6 +4,13 @@ using UnityEngine;
 
 public class ServerHandle: MonoBehaviour
 {
+    private static SpawnManager spawnManager;
+
+    private void Awake()
+    {
+        spawnManager = FindObjectOfType<SpawnManager>();
+    }
+
     public static void WelcomeReceived(int _fromClient, Packet _packet)
     {
         int _clientIdCheck = _packet.ReadInt();
@@ -15,8 +22,8 @@ public class ServerHandle: MonoBehaviour
             Debug.Log($"Player (ID: {_fromClient}) has assumed the wrong client ID ({_clientIdCheck})!");
         }
         Server.clients[_fromClient].SendIntoGame("username");
-
-        ServerSend.WavesMesh(_fromClient, NetworkManager.wavesScript.GenerateMesh());
+        //ServerSend.WavesMesh(_fromClient, NetworkManager.wavesScript.GenerateMesh());
+        spawnManager.SendAllGameObjects(_fromClient);
     }
 
     public static void PlayerMovement(int _fromClient, Packet _packet)

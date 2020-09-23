@@ -364,5 +364,18 @@ public class ServerSend
             SendUDPDataToAll(_packet);
         }
     }
+
+    public static void SpawnGameObject(int _toClient, SpawnManager.Spawn spawn)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.spawnGameObject))
+        {
+            _packet.Write(spawn.id);
+            _packet.Write(Convert.ToInt32(spawn.type));
+            _packet.Write(spawn.gameObject.transform.position);
+            _packet.Write(spawn.gameObject.transform.rotation);
+
+            SendTCPData(_toClient, _packet);
+        }
+    }
     #endregion
 }

@@ -27,7 +27,8 @@ public enum ServerPackets
     wavesMesh,
     time,
     inventory,
-    addToInventory
+    addToInventory,
+    spawnGameObject
 }
 
 /// <summary>Sent from client to server.</summary>
