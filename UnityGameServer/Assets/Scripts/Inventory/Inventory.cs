@@ -9,14 +9,6 @@ public class Inventory : MonoBehaviour
 
     private void Awake()
     {
-        Debug.Log("Inventory init");
-        if (instance != null)
-        {
-            Debug.LogWarning("More then one instance of Inventory found!");
-            return;
-        }
-        instance = this;
-
         for (int i = 0; i < space; i++)
             items.Add(new InventorySlot() { slotID=i+1});
     }

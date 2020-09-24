@@ -177,14 +177,24 @@ public class ServerHandle: MonoBehaviour
         Mysql mysql = FindObjectOfType<Mysql>();
         ShipEquipment equipment = Server.clients[from].player.ship_equipment;
         Inventory inventory = Server.clients[from].player.inventory;
-        SerializableObjects.InventorySlot slot = packet.ReadInventorySlot();
+        SerializableObjects.Item item = packet.ReadItem();
 
-        InventorySlot sl = SlotFromSerializable(slot);        
+        Item it = ItemFromSerializable(item);        
 
-        if (sl.item != null) {
-            equipment.Remove(sl.item);
-            mysql.RemoveShipEquipment(from, sl.item);
+        if (it != null) {
+            equipment.Remove(it);
+            mysql.RemoveShipEquipment(from, it);
         }
+    }
+
+    protected static Item ItemFromSerializable(SerializableObjects.Item it)
+    {        
+        Item item = new Item();
+        item.id = it.id;
+        item.name = it.name;
+        item.item_type = it.item_type;           
+
+        return item;
     }
 
     protected static InventorySlot SlotFromSerializable(SerializableObjects.InventorySlot slot)
