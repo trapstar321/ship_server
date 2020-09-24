@@ -94,6 +94,27 @@ public class ServerHandle: MonoBehaviour
         ServerSend.AddToInventory(from, slot);*/
     }
 
+    public static void GetShipEquipment(int from, Packet packet)
+    {
+        Mysql mysql = FindObjectOfType<Mysql>();
+        List<Item> items = mysql.ReadShipEquipment(from);
+        ShipEquipment equipment = Server.clients[from].player.ship_equipment;
+
+        foreach (Item item in items)
+        {
+            equipment.Add(item);
+        }
+
+        ServerSend.ShipEquipment(from, items);
+
+        /*Item wood = new Item();
+        wood.name = "Wood log";
+        wood.iconName = "wood.png";
+        InventorySlot slot = inventory.Add(wood);
+
+        ServerSend.AddToInventory(from, slot);*/
+    }
+
     public static void DropItem(int from, Packet packet) {
         Mysql mysql = FindObjectOfType<Mysql>();
         Inventory inventory = Server.clients[from].player.inventory;
@@ -135,7 +156,39 @@ public class ServerHandle: MonoBehaviour
         inventory.DragAndDrop(slot_1, slot_2);
     }
 
-    protected static InventorySlot SlotFromSerializable(SerializableObjects.InventorySlot slot) {
+    public static void AddShipEquipment(int from, Packet packet)
+    {
+        Mysql mysql = FindObjectOfType<Mysql>();
+        ShipEquipment equipment = Server.clients[from].player.ship_equipment;
+        Inventory inventory = Server.clients[from].player.inventory;
+        SerializableObjects.InventorySlot slot = packet.ReadInventorySlot();
+
+        InventorySlot sl = SlotFromSerializable(slot);
+        sl = inventory.FindSlot(sl.slotID);
+
+        if (sl.item != null)
+        {
+            equipment.Add(sl.item);
+            mysql.AddShipEquipment(from, sl.item);
+        }
+    }
+
+    public static void RemoveShipEquipment(int from, Packet packet) {
+        Mysql mysql = FindObjectOfType<Mysql>();
+        ShipEquipment equipment = Server.clients[from].player.ship_equipment;
+        Inventory inventory = Server.clients[from].player.inventory;
+        SerializableObjects.InventorySlot slot = packet.ReadInventorySlot();
+
+        InventorySlot sl = SlotFromSerializable(slot);        
+
+        if (sl.item != null) {
+            equipment.Remove(sl.item);
+            mysql.RemoveShipEquipment(from, sl.item);
+        }
+    }
+
+    protected static InventorySlot SlotFromSerializable(SerializableObjects.InventorySlot slot)
+    {
         InventorySlot s = new InventorySlot();
 
         if (slot.item != null)
@@ -143,7 +196,8 @@ public class ServerHandle: MonoBehaviour
             Item item = new Item();
             item.id = slot.item.id;
             item.name = slot.item.name;
-            s.item = item;
+            item.item_type = slot.item.item_type;
+            s.item = item;            
         }
 
         s.quantity = slot.quantity;

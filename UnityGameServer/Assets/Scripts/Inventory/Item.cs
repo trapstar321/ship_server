@@ -11,5 +11,5 @@ public class Item : ScriptableObject
     public Sprite icon = null;
     public bool isDefaultItem = false;
     public string iconName;
-
+    public string item_type;
 }

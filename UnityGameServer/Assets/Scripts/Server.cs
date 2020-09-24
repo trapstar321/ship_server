@@ -137,7 +137,10 @@ public class Server
             { (int)ClientPackets.getInventory, ServerHandle.GetInventory },
             { (int)ClientPackets.dropItem, ServerHandle.DropItem },
             { (int)ClientPackets.dragAndDrop, ServerHandle.DragAndDrop },
-            { (int)ClientPackets.searchChest, ServerHandle.SearchChest }
+            { (int)ClientPackets.searchChest, ServerHandle.SearchChest },
+            { (int)ClientPackets.addShipEquipment, ServerHandle.AddShipEquipment },
+            { (int)ClientPackets.removeShipEquipment, ServerHandle.RemoveShipEquipment },
+            { (int)ClientPackets.getShipEquipment, ServerHandle.GetShipEquipment }
         };
         Debug.Log("Initialized packets.");
     }

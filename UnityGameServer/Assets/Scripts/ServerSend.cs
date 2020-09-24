@@ -322,6 +322,22 @@ public class ServerSend
         }
     }
 
+    public static void ShipEquipment(int to, List<Item> items)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.shipEquipment))
+        {
+            List<SerializableObjects.Item> it = new List<SerializableObjects.Item>();
+
+            foreach (Item i in items)
+            {
+                it.Add(ItemToSerializable(i));
+            }
+
+            _packet.Write(it);
+            SendTCPData(to, _packet);
+        }
+    }
+
     public static void AddToInventory(int to, InventorySlot slot)
     {
         using (Packet _packet = new Packet((int)ServerPackets.addToInventory))
@@ -344,7 +360,8 @@ public class ServerSend
                 item_id = slot.item.item_id,
                 iconName = slot.item.iconName,
                 isDefaultItem = slot.item.isDefaultItem,
-                name = slot.item.name
+                name = slot.item.name,
+                item_type = slot.item.item_type
             };
         }
 
@@ -353,6 +370,19 @@ public class ServerSend
             slotID = slot.slotID,
             quantity = slot.quantity,
             item = item
+        };
+    }
+
+    protected static SerializableObjects.Item ItemToSerializable(Item item)
+    {
+        return new SerializableObjects.Item()
+        {
+            id = item.id,
+            item_id = item.item_id,
+            iconName = item.iconName,
+            isDefaultItem = item.isDefaultItem,
+            name = item.name,
+            item_type = item.item_type
         };
     }
 

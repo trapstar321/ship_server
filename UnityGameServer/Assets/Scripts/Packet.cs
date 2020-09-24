@@ -28,7 +28,8 @@ public enum ServerPackets
     time,
     inventory,
     addToInventory,
-    spawnGameObject
+    spawnGameObject,
+    shipEquipment
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -44,7 +45,10 @@ public enum ClientPackets
     getInventory,
     dropItem,
     dragAndDrop,
-    searchChest
+    searchChest,
+    addShipEquipment,
+    removeShipEquipment,
+    getShipEquipment
 }
 
 public class Packet : IDisposable
@@ -204,6 +208,13 @@ public class Packet : IDisposable
     }
 
     public void Write(SerializableObjects.InventorySlot _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(List<SerializableObjects.Item> _value)
     {
         byte[] data = ObjectToByteArray(_value);
         Write(data.Length); // Add the length of the string to the packet
@@ -445,6 +456,26 @@ public class Packet : IDisposable
                 readPos += _length; // Increase readPos by the length of the string
             }
             return FromByteArray<SerializableObjects.InventorySlot>(data); // Return the string
+        }
+        catch
+        {
+            throw new Exception("Could not read value of type 'SerializableObjects.InventorySlot'!");
+        }
+    }
+
+    public SerializableObjects.Item ReadItem(bool _moveReadPos = true)
+    {
+        try
+        {
+            int _length = ReadInt(); // Get the length of the string
+            byte[] data = new byte[_length];
+            Array.Copy(readableBuffer, readPos, data, 0, _length);
+            if (_moveReadPos && data.Length > 0)
+            {
+                // If _moveReadPos is true string is not empty
+                readPos += _length; // Increase readPos by the length of the string
+            }
+            return FromByteArray<SerializableObjects.Item>(data); // Return the string
         }
         catch
         {

@@ -30,13 +30,15 @@ public class Player : MonoBehaviour
 
     private float visibilityRadius;
 
-    public Inventory inventory;    
+    public Inventory inventory;
+    public ShipEquipment ship_equipment;
 
     void Awake() {
         //mBody = GetComponent<Rigidbody>();        
         visibilityRadius = NetworkManager.visibilityRadius;
         //Instantiate(inventory);
         inventory = FindObjectOfType<Inventory>();
+        ship_equipment = FindObjectOfType<ShipEquipment>();
     }
 
     private void Start()
