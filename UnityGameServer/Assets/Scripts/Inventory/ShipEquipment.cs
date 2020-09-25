@@ -95,4 +95,34 @@ public class ShipEquipment : MonoBehaviour
                 return;
         }
     }
+
+    public Item GetItem(string type)
+    {
+        switch (type)
+        {
+            case "bow_sprite":
+                return bow_sprite;                
+            case "jib_sail":
+                return jib_sail;                
+            case "fore_sail":
+                return fore_sail;                
+            case "rudder":
+                return rudder;                
+            case "keel":
+                return keel;                
+            case "hull":
+                return hull;                
+            case "main_mast":
+                return main_mast;                
+            case "rigging":
+                return rigging;                
+            case "captains_cabin":
+                return captains_cabin;                
+            case "main_sail":
+                return main_sail;                
+            case "crows_nest":
+                return crows_nest;                
+        }
+        return null;
+    }
 }

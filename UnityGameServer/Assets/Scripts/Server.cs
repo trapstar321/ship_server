@@ -140,7 +140,9 @@ public class Server
             { (int)ClientPackets.searchChest, ServerHandle.SearchChest },
             { (int)ClientPackets.addShipEquipment, ServerHandle.AddShipEquipment },
             { (int)ClientPackets.removeShipEquipment, ServerHandle.RemoveShipEquipment },
-            { (int)ClientPackets.getShipEquipment, ServerHandle.GetShipEquipment }
+            { (int)ClientPackets.getShipEquipment, ServerHandle.GetShipEquipment },
+            { (int)ClientPackets.removeItem, ServerHandle.RemoveItem },
+            { (int)ClientPackets.replaceShipEquipment, ServerHandle.ReplaceShipEquipment },
         };
         Debug.Log("Initialized packets.");
     }

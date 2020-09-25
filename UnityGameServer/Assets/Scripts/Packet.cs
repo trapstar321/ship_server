@@ -48,7 +48,9 @@ public enum ClientPackets
     searchChest,
     addShipEquipment,
     removeShipEquipment,
-    getShipEquipment
+    getShipEquipment,
+    removeItem,
+    replaceShipEquipment
 }
 
 public class Packet : IDisposable

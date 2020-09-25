@@ -290,6 +290,83 @@ public class Mysql : MonoBehaviour
         cmd.ExecuteNonQuery();
     }
 
+    public void RemoveInventoryItem(int player, int slotid) {
+        string sql = @"select b.id from inventory as a
+                        inner join inventory_slot as b
+                        on a.slot_id=b.id
+                        where a.player_id=@player_id and b.slot_id=@slot_id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+        cmd.Parameters.Clear();
+        cmd.Parameters.AddWithValue("@player_id", player);
+        cmd.Parameters.AddWithValue("@slot_id", slotid);
+        MySqlDataReader reader = cmd.ExecuteReader();
+
+        int id = 0;        
+
+        while (reader.Read())
+        {
+            id = reader.GetInt32("id");            
+        }
+
+        reader.Close();
+
+        sql = "update inventory_slot set item_id=null where id=@id";
+        cmd.CommandText = sql;
+        cmd.Parameters.Clear();
+        cmd.Parameters.AddWithValue("@id", id);
+        cmd.ExecuteNonQuery();
+    }
+
+    public void AddItem(int player, InventorySlot slot) {
+        string sql = @"select b.id from inventory as a
+                        inner join inventory_slot as b
+                        on a.slot_id=b.id
+                        where a.player_id=@player_id and b.slot_id=@slot_id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+        cmd.Parameters.Clear();
+        cmd.Parameters.AddWithValue("@player_id", player);
+        cmd.Parameters.AddWithValue("@slot_id", slot.slotID);
+        MySqlDataReader reader = cmd.ExecuteReader();
+
+        int id = 0;
+
+        while (reader.Read())
+        {
+            id = reader.GetInt32("id");
+        }
+
+        reader.Close();
+
+        if (id != 0)
+        {
+            sql = "update inventory_slot set item_id=@item_id where id=@id";
+            cmd.CommandText = sql;
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@item_id", slot.item.id);
+            cmd.Parameters.AddWithValue("@id", id);
+            cmd.ExecuteNonQuery();
+        }
+        else {
+            sql = "insert into inventory_slot(item_id, slot_id, quantity)values(@item_id, @slot_id, 1);select last_insert_id();";
+            cmd.CommandText = sql;
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@item_id", slot.item.id);
+            cmd.Parameters.AddWithValue("@slot_id", slot.slotID);
+            id = Convert.ToInt32(cmd.ExecuteScalar());
+
+            sql = "insert into inventory(player_id, slot_id)values(@player_id, @slot_id)";
+            cmd.CommandText = sql;
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@player_id", player);
+            cmd.Parameters.AddWithValue("@slot_id", id);
+            cmd.ExecuteNonQuery();
+        }
+    }
+
     public void AddShipEquipment(int player, Item item) {
         string sql = @"select a.id from ship_equipment as a
                        where a.player_id=@player_id and a.item_type=@item_type";
