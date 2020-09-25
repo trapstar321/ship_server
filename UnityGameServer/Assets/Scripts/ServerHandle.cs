@@ -126,6 +126,19 @@ public class ServerHandle: MonoBehaviour
         mysql.DropItem(from, s);
     }
 
+    public static void AddItem(int from, Packet packet)
+    {
+        Mysql mysql = FindObjectOfType<Mysql>();
+        Inventory inventory = Server.clients[from].player.inventory;
+        ShipEquipment equipment = Server.clients[from].player.ship_equipment;
+
+        SerializableObjects.Item item = packet.ReadItem();        
+
+        Item it = equipment.GetItem(item.item_type);
+        InventorySlot sl = inventory.Add(it);
+        mysql.AddItem(from, sl);
+    }
+
     public static void RemoveItem(int from, Packet packet) {
         Mysql mysql = FindObjectOfType<Mysql>();
         Inventory inventory = Server.clients[from].player.inventory;
@@ -145,14 +158,17 @@ public class ServerHandle: MonoBehaviour
 
         Item new_ = slot.item;
         Item old = equipment.GetItem(new_.item_type);
-
+        
         mysql.RemoveInventoryItem(from, slot.slotID);
         mysql.AddShipEquipment(from, new_);
 
         inventory.Remove(slot.slotID);
-        slot = inventory.Add(old);
-        equipment.Add(new_);
-        mysql.AddItem(from, slot);
+        if (old != null)
+        {
+            slot = inventory.Add(old);
+            mysql.AddItem(from, slot);
+        }
+        equipment.Add(new_);        
     }
 
     public static void DragAndDrop(int from, Packet packet)

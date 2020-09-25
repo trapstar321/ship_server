@@ -143,6 +143,7 @@ public class Server
             { (int)ClientPackets.getShipEquipment, ServerHandle.GetShipEquipment },
             { (int)ClientPackets.removeItem, ServerHandle.RemoveItem },
             { (int)ClientPackets.replaceShipEquipment, ServerHandle.ReplaceShipEquipment },
+            { (int)ClientPackets.addItem, ServerHandle.AddItem },
         };
         Debug.Log("Initialized packets.");
     }

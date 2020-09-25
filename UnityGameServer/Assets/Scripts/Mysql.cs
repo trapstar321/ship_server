@@ -163,20 +163,45 @@ public class Mysql : MonoBehaviour
 
         MySqlDataReader reader = cmd.ExecuteReader();
 
-        int id = 0;
+        int id_1 = 0;
 
         while (reader.Read())
         {
-            id = reader.GetInt32("id");
+            id_1 = reader.GetInt32("id");
+        }
+
+        reader.Close();
+        
+        cmd.CommandText = sql;
+        cmd.Parameters.Clear();
+        cmd.Parameters.AddWithValue("@player_id", player);
+        cmd.Parameters.AddWithValue("@slot_id", add.slotID);
+
+        reader = cmd.ExecuteReader();
+
+        int id_2 = 0;
+
+        while (reader.Read())
+        {
+            id_2 = reader.GetInt32("id");
         }
 
         reader.Close();
 
         cmd.CommandText = "update inventory_slot set slot_id=@new_slot_id where id=@slot_id";
         cmd.Parameters.Clear();
-        cmd.Parameters.AddWithValue("@slot_id", id);
+        cmd.Parameters.AddWithValue("@slot_id", id_1);
         cmd.Parameters.AddWithValue("@new_slot_id", add.slotID);
         cmd.ExecuteNonQuery();
+
+        if (id_2 != 0)
+        {
+            cmd.CommandText = "update inventory_slot set slot_id=@new_slot_id where id=@slot_id";
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@slot_id", id_2);
+            cmd.Parameters.AddWithValue("@new_slot_id", remove.slotID);
+            cmd.ExecuteNonQuery();
+        }
     }
 
     public void DragAndDrop_Change(int player, InventorySlot slot1, InventorySlot slot2)

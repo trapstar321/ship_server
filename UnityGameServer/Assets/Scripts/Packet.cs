@@ -50,7 +50,8 @@ public enum ClientPackets
     removeShipEquipment,
     getShipEquipment,
     removeItem,
-    replaceShipEquipment
+    replaceShipEquipment,
+    addItem
 }
 
 public class Packet : IDisposable
