@@ -96,6 +96,7 @@ GameObject:
   - component: {fileID: 2043240255799629940}
   - component: {fileID: -5483953056863147012}
   - component: {fileID: -1060104058818237322}
+  - component: {fileID: -8693178771159752401}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -145,6 +146,8 @@ MonoBehaviour:
   maxItemAmount: 3
   moveForce: 10
   inventory: {fileID: 0}
+  ship_equipment: {fileID: 0}
+  player_equipment: {fileID: 0}
 --- !u!143 &2319307683833354698
 CharacterController:
   m_ObjectHideFlags: 0
@@ -243,6 +246,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bbc3d72948a2914b8bbd42524feb0a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bow_sprite: {fileID: 0}
+  jib_sail: {fileID: 0}
+  fore_sail: {fileID: 0}
+  rudder: {fileID: 0}
+  keel: {fileID: 0}
+  hull: {fileID: 0}
+  main_mast: {fileID: 0}
+  rigging: {fileID: 0}
+  captains_cabin: {fileID: 0}
+  main_sail: {fileID: 0}
+  crows_nest: {fileID: 0}
+--- !u!114 &-8693178771159752401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4187005777591049097}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c43f53041cd2844194eb21cdc1f20de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  helmet: {fileID: 0}
+  boots: {fileID: 0}
+  hands: {fileID: 0}
+  top: {fileID: 0}
+  legs: {fileID: 0}
 --- !u!1 &5842331344950954625
 GameObject:
   m_ObjectHideFlags: 0

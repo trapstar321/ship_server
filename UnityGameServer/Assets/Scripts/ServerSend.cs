@@ -338,6 +338,22 @@ public class ServerSend
         }
     }
 
+    public static void PlayerEquipment(int to, List<Item> items)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.playerEquipment))
+        {
+            List<SerializableObjects.Item> it = new List<SerializableObjects.Item>();
+
+            foreach (Item i in items)
+            {
+                it.Add(ItemToSerializable(i));
+            }
+
+            _packet.Write(it);
+            SendTCPData(to, _packet);
+        }
+    }
+
     public static void AddToInventory(int to, InventorySlot slot)
     {
         using (Packet _packet = new Packet((int)ServerPackets.addToInventory))

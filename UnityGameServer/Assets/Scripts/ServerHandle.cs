@@ -115,6 +115,27 @@ public class ServerHandle: MonoBehaviour
         ServerSend.AddToInventory(from, slot);*/
     }
 
+    public static void GetPlayerEquipment(int from, Packet packet)
+    {
+        Mysql mysql = FindObjectOfType<Mysql>();
+        List<Item> items = mysql.ReadPlayerEquipment(from);
+        PlayerEquipment equipment = Server.clients[from].player.player_equipment;
+
+        foreach (Item item in items)
+        {
+            equipment.Add(item);
+        }
+
+        ServerSend.PlayerEquipment(from, items);
+
+        /*Item wood = new Item();
+        wood.name = "Wood log";
+        wood.iconName = "wood.png";
+        InventorySlot slot = inventory.Add(wood);
+
+        ServerSend.AddToInventory(from, slot);*/
+    }
+
     public static void DropItem(int from, Packet packet) {
         Mysql mysql = FindObjectOfType<Mysql>();
         Inventory inventory = Server.clients[from].player.inventory;
@@ -130,11 +151,19 @@ public class ServerHandle: MonoBehaviour
     {
         Mysql mysql = FindObjectOfType<Mysql>();
         Inventory inventory = Server.clients[from].player.inventory;
-        ShipEquipment equipment = Server.clients[from].player.ship_equipment;
+        ShipEquipment sequipment = Server.clients[from].player.ship_equipment;
+        PlayerEquipment pequipment = Server.clients[from].player.player_equipment;
 
-        SerializableObjects.Item item = packet.ReadItem();        
+        string eq = packet.ReadString();
+        SerializableObjects.Item item = packet.ReadItem();
 
-        Item it = equipment.GetItem(item.item_type);
+        Item it = null;
+
+        if(eq.Equals("ship_equipment"))
+            it = sequipment.GetItem(item.item_type);
+        else if(eq.Equals("player_equipment"))
+            it = pequipment.GetItem(item.item_type);
+
         InventorySlot sl = inventory.Add(it);
         mysql.AddItem(from, sl);
     }
@@ -169,6 +198,30 @@ public class ServerHandle: MonoBehaviour
             mysql.AddItem(from, slot);
         }
         equipment.Add(new_);        
+    }
+
+    public static void ReplacePlayerEquipment(int from, Packet packet)
+    {
+        Mysql mysql = FindObjectOfType<Mysql>();
+        Inventory inventory = Server.clients[from].player.inventory;
+        PlayerEquipment equipment = Server.clients[from].player.player_equipment;
+
+        SerializableObjects.InventorySlot sl = packet.ReadInventorySlot();
+        InventorySlot slot = inventory.FindSlot(sl.slotID);
+
+        Item new_ = slot.item;
+        Item old = equipment.GetItem(new_.item_type);
+
+        mysql.RemoveInventoryItem(from, slot.slotID);
+        mysql.AddPlayerEquipment(from, new_);
+
+        inventory.Remove(slot.slotID);
+        if (old != null)
+        {
+            slot = inventory.Add(old);
+            mysql.AddItem(from, slot);
+        }
+        equipment.Add(new_);
     }
 
     public static void DragAndDrop(int from, Packet packet)
@@ -229,6 +282,22 @@ public class ServerHandle: MonoBehaviour
         if (it != null) {
             equipment.Remove(it);
             mysql.RemoveShipEquipment(from, it);
+        }
+    }
+
+    public static void RemovePlayerEquipment(int from, Packet packet)
+    {
+        Mysql mysql = FindObjectOfType<Mysql>();
+        PlayerEquipment equipment = Server.clients[from].player.player_equipment;
+        Inventory inventory = Server.clients[from].player.inventory;
+        SerializableObjects.Item item = packet.ReadItem();
+
+        Item it = ItemFromSerializable(item);
+
+        if (it != null)
+        {
+            equipment.Remove(it);
+            mysql.RemovePlayerEquipment(from, it);
         }
     }
 

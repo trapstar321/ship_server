@@ -59,6 +59,18 @@ create table ship_equipment
     FOREIGN KEY(PLAYER_ID) references player(ID)
 )DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
 
+create table player_equipment
+(
+	ID bigint NOT NULL auto_increment,
+    ITEM_ID int null,   
+    PLAYER_ID int not null,
+    ITEM_TYPE varchar(1000) not null,
+    PRIMARY KEY(ID),
+    FOREIGN KEY(ITEM_ID) references player_item(ID),
+    FOREIGN KEY(PLAYER_ID) references player(ID)
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
+
+
 insert into item
 (name, icon_name, is_default_item)
 select 'Wood log', 'wood.png', 0
@@ -124,6 +136,16 @@ update item set item_type='resource' where id in (1,2)
 
 insert into item
 (name, icon_name, is_default_item, item_type)
+select 'Legs', 'legs.png', 0, 'legs'
+union all
+select 'Helmet', 'helmet.png', 0, 'helmet'
+union all
+select 'Top', 'top.png', 0, 'top'
+union all
+select 'Hands', 'hands.png', 0, 'hands'
+union all
+select 'Boots', 'boots.png', 0, 'boots'
+union all
 select 'Gold crows nest', 'crows_nest_gold.png', 0, 'crows_nest'
 union all
 select 'Bow sprite', 'bow_sprite.png', 0, 'bow_sprite'
@@ -150,78 +172,38 @@ select 'Crows nest', 'crows_nest.png', 0, 'crows_nest'
 
 insert into player_item
 (item_id, player_id)
-select 18,1
+select 19,1
 union all
-select 3, 1
+select 20,1
 union all
-select 4, 1
+select 21,1
 union all
-select 5, 1
+select 22,1
 union all
-select 6, 1
-union all
-select 7, 1
-union all
-select 8, 1
-union all
-select 9, 1
-union all
-select 10, 1
-union all
-select 11, 1
-union all
-select 12, 1
-union all
-select 13, 1
+select 23,1
 
 insert into inventory_slot
 (item_id, slot_id, quantity)
-select 23,13,1
+select 24,20,1
 union all
-select 8, 1, 1
+select 25,21,1
 union all
-select 9, 2, 1
+select 26,22,1
 union all
-select 10, 3, 1
+select 27,23,1
 union all
-select 11, 4, 1
-union all
-select 12, 5, 1
-union all
-select 13, 6, 1
-union all
-select 14, 7, 1
-union all
-select 15, 8, 1
-union all
-select 16, 9, 1
-union all
-select 17, 11, 1
-union all
-select 18, 12, 1
+select 28,24,1
 
 insert into inventory
 (player_id, slot_id)
-select 1, 260
+select 1,282
 union all
-select 1, 245
+select 1,283
 union all
-select 1,246
+select 1,284
 union all
-select 1,247
+select 1,285
 union all
-select 1, 248
-union all
-select 1, 249
-union all
-select 1, 250
-union all
-select 1, 251
-union all
-select 1,252
-union all
-select 1, 253
-union all
-select 1, 254
-union all
-select 1,255
+select 1,286
+
+select* from player_equipment

@@ -29,7 +29,8 @@ public enum ServerPackets
     inventory,
     addToInventory,
     spawnGameObject,
-    shipEquipment
+    shipEquipment,
+    playerEquipment
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -51,7 +52,10 @@ public enum ClientPackets
     getShipEquipment,
     removeItem,
     replaceShipEquipment,
-    addItem
+    addItem,
+    getPlayerEquipment,
+    replacePlayerEquipment,
+    removePlayerEquipment
 }
 
 public class Packet : IDisposable

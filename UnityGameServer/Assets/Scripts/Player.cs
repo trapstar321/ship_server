@@ -32,6 +32,7 @@ public class Player : MonoBehaviour
 
     public Inventory inventory;
     public ShipEquipment ship_equipment;
+    public PlayerEquipment player_equipment;
 
     void Awake() {
         //mBody = GetComponent<Rigidbody>();        
@@ -39,6 +40,7 @@ public class Player : MonoBehaviour
         //Instantiate(inventory);
         inventory = FindObjectOfType<Inventory>();
         ship_equipment = FindObjectOfType<ShipEquipment>();
+        player_equipment = FindObjectOfType<PlayerEquipment>();
     }
 
     private void Start()

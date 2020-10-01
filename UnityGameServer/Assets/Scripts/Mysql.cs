@@ -110,7 +110,43 @@ public class Mysql : MonoBehaviour
         }
         rdr.Close();
         return items;
-    }    
+    }
+
+    public List<Item> ReadPlayerEquipment(int playerID)
+    {
+        string sql = @"select b.id, c.id as item_id, c.name, c.icon_name, c.is_default_item, c.item_type
+                        from player_equipment as a
+                        inner join player_item as b
+                        on a.item_id= b.id
+                        inner join item as c
+                        on b.item_id= c.id
+                        where a.player_id= " + playerID.ToString();
+
+        var cmd = new MySqlCommand(sql, con);
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        List<Item> items = new List<Item>();
+        while (rdr.Read())
+        {
+            int id = rdr.GetInt32("ID");
+            int item_id = rdr.GetInt32("ITEM_ID");
+            string name = rdr.GetString("NAME");
+            string icon_name = rdr.GetString("ICON_NAME");
+            string item_type = rdr.GetString("ITEM_TYPE");
+            bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
+
+            Item item = new Item();
+            item.id = id;
+            item.item_id = item_id;
+            item.name = name;
+            item.iconName = icon_name;
+            item.isDefaultItem = is_default_item;
+            item.item_type = item_type;
+            items.Add(item);
+        }
+        rdr.Close();
+        return items;
+    }
 
     public void DropItem(int player, InventorySlot slot)
     {
@@ -434,6 +470,50 @@ public class Mysql : MonoBehaviour
         }
     }
 
+    public void AddPlayerEquipment(int player, Item item)
+    {
+        string sql = @"select a.id from player_equipment as a
+                       where a.player_id=@player_id and a.item_type=@item_type";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.Parameters.AddWithValue("@player_id", player);
+        cmd.Parameters.AddWithValue("@item_type", item.item_type);
+
+        MySqlDataReader reader = cmd.ExecuteReader();
+
+        int id = 0;
+
+        while (reader.Read())
+        {
+            id = reader.GetInt32("id");
+        }
+
+        reader.Close();
+
+        if (id != 0)
+        {
+            sql = "UPDATE player_equipment set ITEM_ID=@item_id WHERE player_id=@player_id and item_type=@item_type";
+            cmd.CommandText = sql;
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@player_id", player);
+            cmd.Parameters.AddWithValue("@item_type", item.item_type);
+            cmd.Parameters.AddWithValue("@item_id", item.id);
+            cmd.ExecuteNonQuery();
+        }
+        else
+        {
+            sql = "INSERT INTO player_equipment(ITEM_ID, PLAYER_ID, ITEM_TYPE)VALUES(@item_id, @player_id,@item_type)";
+            cmd.CommandText = sql;
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@player_id", player);
+            cmd.Parameters.AddWithValue("@item_type", item.item_type);
+            cmd.Parameters.AddWithValue("@item_id", item.id);
+            cmd.ExecuteNonQuery();
+        }
+    }
+
     public void RemoveShipEquipment(int player, Item item)
     {
         string sql = @"select a.id from ship_equipment as a
@@ -463,6 +543,39 @@ public class Mysql : MonoBehaviour
             cmd.Parameters.Clear();
             cmd.Parameters.AddWithValue("@player_id", player);
             cmd.Parameters.AddWithValue("@item_type", item.item_type);            
+            cmd.ExecuteNonQuery();
+        }
+    }
+
+    public void RemovePlayerEquipment(int player, Item item)
+    {
+        string sql = @"select a.id from player_equipment as a
+                       where a.player_id=@player_id and a.item_type=@item_type";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.Parameters.AddWithValue("@player_id", player);
+        cmd.Parameters.AddWithValue("@item_type", item.item_type);
+
+        MySqlDataReader reader = cmd.ExecuteReader();
+
+        int id = 0;
+
+        while (reader.Read())
+        {
+            id = reader.GetInt32("id");
+        }
+
+        reader.Close();
+
+        if (id != 0)
+        {
+            sql = "UPDATE player_equipment set ITEM_ID=null WHERE player_id=@player_id and item_type=@item_type";
+            cmd.CommandText = sql;
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@player_id", player);
+            cmd.Parameters.AddWithValue("@item_type", item.item_type);
             cmd.ExecuteNonQuery();
         }
     }
