@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class ItemDialog : MonoBehaviour
 {
     private Item item;
+    public GameObject itemsTable;
 
     // Start is called before the first frame update 
     void Start()
@@ -47,10 +48,28 @@ public class ItemDialog : MonoBehaviour
         string iconName = transform.Find("iconNameInput").GetComponent<InputField>().text;
         string itemType = transform.Find("itemTypeInput").GetComponent<InputField>().text;
 
-        if (item == null) { 
-            
+        Mysql mysql = FindObjectOfType<Mysql>();
+
+        Item it = new Item();
+        it.name = name;
+        it.iconName = iconName;
+        it.item_type = itemType;
+
+        if (item != null)
+            it.item_id = item.item_id;
+
+        if (item == null)
+        {
+            mysql.AddItem(it);
+        }
+        else {
+            mysql.EditItem(it);
         }
 
         item = null;
+        transform.gameObject.SetActive(false);
+
+        ItemsTable script = itemsTable.GetComponent<ItemsTable>();
+        script.Reload();
     }
 }

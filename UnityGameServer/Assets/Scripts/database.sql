@@ -51,25 +51,13 @@ create table inventory
 create table ship_equipment
 (
 	ID bigint NOT NULL auto_increment,
-    ITEM_ID int null,   
+    ITEM_ID bigint null,   
     PLAYER_ID int not null,
     ITEM_TYPE varchar(1000) not null,
     PRIMARY KEY(ID),
     FOREIGN KEY(ITEM_ID) references player_item(ID),
     FOREIGN KEY(PLAYER_ID) references player(ID)
 )DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
-
-create table player_equipment
-(
-	ID bigint NOT NULL auto_increment,
-    ITEM_ID int null,   
-    PLAYER_ID int not null,
-    ITEM_TYPE varchar(1000) not null,
-    PRIMARY KEY(ID),
-    FOREIGN KEY(ITEM_ID) references player_item(ID),
-    FOREIGN KEY(PLAYER_ID) references player(ID)
-)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
-
 
 insert into item
 (name, icon_name, is_default_item)
@@ -79,7 +67,7 @@ select 'Wood plank', 'WoodPlank.png', 0
 
 insert into player
 (username)
-select 'player1'
+select 'player2'
 
 insert into player_item
 (item_id, player_id)
@@ -93,6 +81,10 @@ select* from inventory_slot
 select* from player_item
 select* from item
 select* from ship_equipment
+
+insert into ship_equipment
+(item_id, player_id, item_type)
+select 23, 2, 'crows_nest'
 
 delete from inventory where id=745
 delete from inventory_slot where id=752
@@ -127,25 +119,43 @@ union all
 select 1,762
 
 select* from item
+
+select* from inventory_slot as a
+inner join inventory as b
+on a.id=b.slot_id
+where b.player_id=1
+order by a.slot_id asc
+
+use ship
+select* from item
+
+select ID, NAME, ICON_NAME, IS_DEFAULT_ITEM, ITEM_TYPE
+from item
+
 select* from inventory_slot
-select* from player_item
 
-select* from inventory
+truncate table inventory_slot
 
-update item set item_type='resource' where id in (1,2)
+update inventory_slot set quantity=1 where id=38
+
+delete from inventory_slot where id between 111 and 159
+
+update inventory_slot set item_id=8 where id=69
+update inventory_slot set item_id=9 where id=70
+
+SELECT b.SLOT_ID, b.QUANTITY, c.id, d.id as item_id, d.name, d.icon_name, d.is_default_item, d.item_type 
+                        FROM inventory a 
+                        inner join inventory_slot as b 
+                        on a.slot_id=b.id 
+                        inner join player_item as c 
+                        on b.item_id=c.id 
+                        and a.PLAYER_ID=c.PLAYER_ID
+                        inner join item as d
+                        on c.item_id=d.id
+                        where a.player_id=1
 
 insert into item
 (name, icon_name, is_default_item, item_type)
-select 'Legs', 'legs.png', 0, 'legs'
-union all
-select 'Helmet', 'helmet.png', 0, 'helmet'
-union all
-select 'Top', 'top.png', 0, 'top'
-union all
-select 'Hands', 'hands.png', 0, 'hands'
-union all
-select 'Boots', 'boots.png', 0, 'boots'
-union all
 select 'Gold crows nest', 'crows_nest_gold.png', 0, 'crows_nest'
 union all
 select 'Bow sprite', 'bow_sprite.png', 0, 'bow_sprite'
@@ -172,38 +182,92 @@ select 'Crows nest', 'crows_nest.png', 0, 'crows_nest'
 
 insert into player_item
 (item_id, player_id)
-select 19,1
+select 3,2
 union all
-select 20,1
+select 4, 2
 union all
-select 21,1
+select 5, 2
 union all
-select 22,1
+select 6, 2
 union all
-select 23,1
+select 7, 2
+union all
+select 8, 2
+union all
+select 9, 2
+union all
+select 10, 2
+union all
+select 11, 2
+union all
+select 12, 2
+union all
+select 13, 2
+union all
+select 14, 2
 
 insert into inventory_slot
 (item_id, slot_id, quantity)
-select 24,20,1
+select 1, 1,1
 union all
-select 25,21,1
+select 2,2,1
 union all
-select 26,22,1
+select 3,3,1
 union all
-select 27,23,1
+select 4,4,1
 union all
-select 28,24,1
+select 5,5,1
+union all
+select 6,6,1
+union all
+select 7,7,1
+union all
+select 8,8,1
+union all
+select 9,9,1
+union all
+select 10,10,1
+union all
+select 11,11,1
+union all
+select 12,12,1
+union all
+select 13,13,1
+union all
+select 14,14,1
+union all
+select 15,15,1
+union all
+select 16,16,1
+union all
+select 17,17,1
+union all
+select 18,18,1
 
 insert into inventory
 (player_id, slot_id)
-select 1,282
-union all
-select 1,283
-union all
-select 1,284
-union all
-select 1,285
-union all
-select 1,286
+select 1, id
+from inventory_slot
 
-select* from player_equipment
+truncate table inventory
+truncate table ship_equipment
+truncate table inventory_slot
+
+select* from inventory_slot as a
+where slot_id in (2)
+inner join inventory as b
+on a.id=b.slot_id
+where b.player_id=1
+order by a.slot_id asc
+
+1
+2
+3
+4
+5
+6
+
+delete from inventory_slot where id between 483 and 545
+
+update inventory_slot set item_id=4 where id=485
+update inventory_slot set item_id=2,quantity=1 where id=524

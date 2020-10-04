@@ -202,6 +202,36 @@ public class Mysql : MonoBehaviour
         rdr.Close();
         return item;
     }
+
+    public void AddItem(Item item)
+    {
+        string sql = @"insert into item(NAME, ICON_NAME, IS_DEFAULT_ITEM, ITEM_TYPE)
+                       select @name, @icon_name, 0, @type";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.Parameters.AddWithValue("@name", item.name);
+        cmd.Parameters.AddWithValue("@icon_name", item.iconName);
+        cmd.Parameters.AddWithValue("@type", item.item_type);
+        cmd.ExecuteNonQuery();
+    }
+
+    public void EditItem(Item item)
+    {
+        string sql = @"update item set NAME=@name, ICON_NAME=@icon_name, ITEM_TYPE=@type
+                       where ID=@id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.Parameters.AddWithValue("@id", item.item_id);
+        cmd.Parameters.AddWithValue("@name", item.name);
+        cmd.Parameters.AddWithValue("@icon_name", item.iconName);
+        cmd.Parameters.AddWithValue("@type", item.item_type);
+        cmd.ExecuteNonQuery();
+    }
+
     public void DropItem(int player, InventorySlot slot)
     {
         string sql = @"select b.id from inventory as a
