@@ -50,9 +50,9 @@ public enum ClientPackets
     addShipEquipment,
     removeShipEquipment,
     getShipEquipment,
-    removeItem,
+    removeItemFromInventory,
     replaceShipEquipment,
-    addItem,
+    addItemToInventory,
     getPlayerEquipment,
     replacePlayerEquipment,
     removePlayerEquipment

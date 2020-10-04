@@ -148,6 +148,60 @@ public class Mysql : MonoBehaviour
         return items;
     }
 
+    public List<Item> ReadItems()
+    {
+        string sql = @"select ID, NAME, ICON_NAME, IS_DEFAULT_ITEM, ITEM_TYPE from item";
+
+        var cmd = new MySqlCommand(sql, con);
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        List<Item> items = new List<Item>();
+        while (rdr.Read())
+        {            
+            int item_id = rdr.GetInt32("ID");
+            string name = rdr.GetString("NAME");
+            string icon_name = rdr.GetString("ICON_NAME");
+            string item_type = rdr.GetString("ITEM_TYPE");
+            bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
+
+            Item item = new Item();            
+            item.item_id = item_id;
+            item.name = name;
+            item.iconName = icon_name;
+            item.isDefaultItem = is_default_item;
+            item.item_type = item_type;
+            items.Add(item);
+        }
+        rdr.Close();
+        return items;
+    }
+
+    public Item ReadItem(int id)
+    {
+        string sql = @"select ID, NAME, ICON_NAME, IS_DEFAULT_ITEM, ITEM_TYPE from item where id=@id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.Parameters.AddWithValue("@id", id);
+        MySqlDataReader rdr = cmd.ExecuteReader();        
+
+        Item item = new Item();
+        while (rdr.Read())
+        {
+            int item_id = rdr.GetInt32("ID");
+            string name = rdr.GetString("NAME");
+            string icon_name = rdr.GetString("ICON_NAME");
+            string item_type = rdr.GetString("ITEM_TYPE");
+            bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
+            
+            item.item_id = item_id;
+            item.name = name;
+            item.iconName = icon_name;
+            item.isDefaultItem = is_default_item;
+            item.item_type = item_type;            
+        }
+        rdr.Close();
+        return item;
+    }
     public void DropItem(int player, InventorySlot slot)
     {
         string sql = @"select b.id from inventory as a
@@ -380,7 +434,7 @@ public class Mysql : MonoBehaviour
         cmd.ExecuteNonQuery();
     }
 
-    public void AddItem(int player, InventorySlot slot) {
+    public void AddItemToInventory(int player, InventorySlot slot) {
         string sql = @"select b.id from inventory as a
                         inner join inventory_slot as b
                         on a.slot_id=b.id

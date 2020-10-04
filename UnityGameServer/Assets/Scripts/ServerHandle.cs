@@ -147,7 +147,7 @@ public class ServerHandle: MonoBehaviour
         mysql.DropItem(from, s);
     }
 
-    public static void AddItem(int from, Packet packet)
+    public static void AddItemToInventory(int from, Packet packet)
     {
         Mysql mysql = FindObjectOfType<Mysql>();
         Inventory inventory = Server.clients[from].player.inventory;
@@ -165,10 +165,10 @@ public class ServerHandle: MonoBehaviour
             it = pequipment.GetItem(item.item_type);
 
         InventorySlot sl = inventory.Add(it);
-        mysql.AddItem(from, sl);
+        mysql.AddItemToInventory(from, sl);
     }
 
-    public static void RemoveItem(int from, Packet packet) {
+    public static void RemoveItemFromInventory(int from, Packet packet) {
         Mysql mysql = FindObjectOfType<Mysql>();
         Inventory inventory = Server.clients[from].player.inventory;
 
@@ -195,7 +195,7 @@ public class ServerHandle: MonoBehaviour
         if (old != null)
         {
             slot = inventory.Add(old);
-            mysql.AddItem(from, slot);
+            mysql.AddItemToInventory(from, slot);
         }
         equipment.Add(new_);        
     }
@@ -219,7 +219,7 @@ public class ServerHandle: MonoBehaviour
         if (old != null)
         {
             slot = inventory.Add(old);
-            mysql.AddItem(from, slot);
+            mysql.AddItemToInventory(from, slot);
         }
         equipment.Add(new_);
     }
