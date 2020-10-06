@@ -377,7 +377,14 @@ public class ServerSend
                 iconName = slot.item.iconName,
                 isDefaultItem = slot.item.isDefaultItem,
                 name = slot.item.name,
-                item_type = slot.item.item_type
+                item_type = slot.item.item_type,
+                attack = slot.item.attack,
+                health = slot.item.health,
+                defence = slot.item.defence,
+                speed = slot.item.speed,
+                visibility = slot.item.visibility,
+                rotation = slot.item.rotation,
+                cannon_reload_speed = slot.item.cannon_reload_speed
             };
         }
 
@@ -398,7 +405,14 @@ public class ServerSend
             iconName = item.iconName,
             isDefaultItem = item.isDefaultItem,
             name = item.name,
-            item_type = item.item_type
+            item_type = item.item_type,
+            attack = item.attack,
+            health = item.health,
+            defence = item.defence,
+            speed = item.speed,
+            visibility = item.visibility,
+            rotation = item.rotation,
+            cannon_reload_speed = item.cannon_reload_speed
         };
     }
 

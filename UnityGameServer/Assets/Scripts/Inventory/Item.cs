@@ -12,4 +12,12 @@ public class Item : ScriptableObject
     public bool isDefaultItem = false;
     public string iconName;
     public string item_type;
+
+    public int attack;
+    public int defence;
+    public int health;
+    public int rotation;
+    public int speed;
+    public int visibility;
+    public int cannon_reload_speed;
 }

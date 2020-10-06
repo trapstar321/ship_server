@@ -49,6 +49,15 @@ public class ItemsTable : MonoBehaviour
             entryTransform.Find("nameText").GetComponent<Text>().text = items[i].name;
             entryTransform.Find("iconNameText").GetComponent<Text>().text = items[i].iconName;
             entryTransform.Find("itemTypeText").GetComponent<Text>().text = items[i].item_type;
+
+            entryTransform.Find("attackText").GetComponent<Text>().text = items[i].attack.ToString();
+            entryTransform.Find("healthText").GetComponent<Text>().text = items[i].health.ToString();
+            entryTransform.Find("defenceText").GetComponent<Text>().text = items[i].defence.ToString();
+            entryTransform.Find("rotationText").GetComponent<Text>().text = items[i].rotation.ToString();
+            entryTransform.Find("speedText").GetComponent<Text>().text = items[i].speed.ToString();
+            entryTransform.Find("visibilityText").GetComponent<Text>().text = items[i].visibility.ToString();
+            entryTransform.Find("cannonReloadSpeedText").GetComponent<Text>().text = items[i].cannon_reload_speed.ToString();
+
             Button editButton = entryTransform.Find("editButton").GetComponent<Button>();
             editButton.onClick.AddListener(() => itemDialogScript.EditItem(item_id));
         }

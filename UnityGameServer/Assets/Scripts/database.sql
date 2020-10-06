@@ -14,9 +14,26 @@ create table item
     NAME varchar(1000) not null,
     ICON_NAME varchar(1000) not null,
     IS_DEFAULT_ITEM tinyint not null,
-    ITEM_TYPE varchar(1000) not null
+    ITEM_TYPE varchar(1000) not null,
+    ATTACK int null,
+	HEALTH int null,
+	DEFENCE int null,
+	ROTATION int null,
+	SPEED int null,
+	VISIBILITY int null,
+	CANNON_RELOAD_SPEED int null
     PRIMARY KEY(id)
 )DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
+
+alter table item add ATTACK int null
+alter table item add HEALTH int null
+alter table item add DEFENCE int null
+alter table item add ROTATION int null
+alter table item add SPEED int null
+alter table item add VISIBILITY int null
+alter table item add CANNON_RELOAD_SPEED int null
+
+select* from item
 
 create table player_item
 (
@@ -49,6 +66,17 @@ create table inventory
 )DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
 
 create table ship_equipment
+(
+	ID bigint NOT NULL auto_increment,
+    ITEM_ID bigint null,   
+    PLAYER_ID int not null,
+    ITEM_TYPE varchar(1000) not null,
+    PRIMARY KEY(ID),
+    FOREIGN KEY(ITEM_ID) references player_item(ID),
+    FOREIGN KEY(PLAYER_ID) references player(ID)
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
+
+create table player_equipment
 (
 	ID bigint NOT NULL auto_increment,
     ITEM_ID bigint null,   
