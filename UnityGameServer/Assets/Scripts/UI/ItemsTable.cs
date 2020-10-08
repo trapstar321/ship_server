@@ -57,6 +57,7 @@ public class ItemsTable : MonoBehaviour
             entryTransform.Find("speedText").GetComponent<Text>().text = items[i].speed.ToString();
             entryTransform.Find("visibilityText").GetComponent<Text>().text = items[i].visibility.ToString();
             entryTransform.Find("cannonReloadSpeedText").GetComponent<Text>().text = items[i].cannon_reload_speed.ToString();
+            entryTransform.Find("critChanceText").GetComponent<Text>().text = items[i].crit_chance.ToString();
 
             Button editButton = entryTransform.Find("editButton").GetComponent<Button>();
             editButton.onClick.AddListener(() => itemDialogScript.EditItem(item_id));

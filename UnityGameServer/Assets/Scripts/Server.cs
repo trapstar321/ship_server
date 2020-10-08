@@ -147,6 +147,7 @@ public class Server
             { (int)ClientPackets.removePlayerEquipment, ServerHandle.RemovePlayerEquipment },
             { (int)ClientPackets.getPlayerEquipment, ServerHandle.GetPlayerEquipment },
             { (int)ClientPackets.replacePlayerEquipment, ServerHandle.ReplacePlayerEquipment },
+            { (int)ClientPackets.onGameStart, ServerHandle.OnGameStart },
         };
         Debug.Log("Initialized packets.");
     }

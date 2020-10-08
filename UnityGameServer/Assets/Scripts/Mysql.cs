@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using SerializableObjects;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -36,7 +37,7 @@ public class Mysql : MonoBehaviour
     public List<InventorySlot> ReadInventory(int playerID)
     {
         string sql = @"SELECT b.SLOT_ID, b.QUANTITY, c.id, d.id as item_id, d.name, d.icon_name, d.is_default_item, d.item_type,
-                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED
+                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE
                         FROM inventory a 
                         inner join inventory_slot as b 
                         on a.slot_id=b.id 
@@ -68,6 +69,7 @@ public class Mysql : MonoBehaviour
             int speed = rdr.GetInt32("SPEED");
             int visibility = rdr.GetInt32("VISIBILITY");
             int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
+            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
 
             Item item = new Item();
             item.id = id;
@@ -83,6 +85,7 @@ public class Mysql : MonoBehaviour
             item.speed = speed;
             item.visibility = visibility;
             item.cannon_reload_speed = cannon_reload_speed;
+            item.crit_chance = crit_chance;
 
             InventorySlot slot = new InventorySlot() { slotID = slot_id, quantity = quantity, item = item };
             slots.Add(slot);
@@ -94,7 +97,7 @@ public class Mysql : MonoBehaviour
     public List<Item> ReadShipEquipment(int playerID)
     {
         string sql = @"select b.id, c.id as item_id, c.name, c.icon_name, c.is_default_item, c.item_type,
-                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED
+                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE
                         from ship_equipment as a
                         inner join player_item as b
                         on a.item_id= b.id
@@ -121,6 +124,7 @@ public class Mysql : MonoBehaviour
             int speed = rdr.GetInt32("SPEED");
             int visibility = rdr.GetInt32("VISIBILITY");
             int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
+            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
 
             Item item = new Item();
             item.id = id;
@@ -136,6 +140,7 @@ public class Mysql : MonoBehaviour
             item.speed = speed;
             item.visibility = visibility;
             item.cannon_reload_speed = cannon_reload_speed;
+            item.crit_chance = crit_chance;
 
             items.Add(item);
         }
@@ -146,7 +151,7 @@ public class Mysql : MonoBehaviour
     public List<Item> ReadPlayerEquipment(int playerID)
     {
         string sql = @"select b.id, c.id as item_id, c.name, c.icon_name, c.is_default_item, c.item_type,
-                       ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED
+                       ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE
                         from player_equipment as a
                         inner join player_item as b
                         on a.item_id= b.id
@@ -173,6 +178,7 @@ public class Mysql : MonoBehaviour
             int speed = rdr.GetInt32("SPEED");
             int visibility = rdr.GetInt32("VISIBILITY");
             int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
+            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
 
             Item item = new Item();
             item.id = id;
@@ -188,6 +194,7 @@ public class Mysql : MonoBehaviour
             item.speed = speed;
             item.visibility = visibility;
             item.cannon_reload_speed = cannon_reload_speed;
+            item.crit_chance = crit_chance;
             items.Add(item);
         }
         rdr.Close();
@@ -197,7 +204,7 @@ public class Mysql : MonoBehaviour
     public List<Item> ReadItems()
     {
         string sql = @"select ID, NAME, ICON_NAME, IS_DEFAULT_ITEM, ITEM_TYPE, 
-                       ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED
+                       ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE
                        from item";
 
         var cmd = new MySqlCommand(sql, con);
@@ -218,6 +225,7 @@ public class Mysql : MonoBehaviour
             int speed = rdr.GetInt32("SPEED");
             int visibility = rdr.GetInt32("VISIBILITY");
             int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
+            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
 
             Item item = new Item();            
             item.item_id = item_id;
@@ -232,6 +240,7 @@ public class Mysql : MonoBehaviour
             item.speed = speed;
             item.visibility = visibility;
             item.cannon_reload_speed = cannon_reload_speed;
+            item.crit_chance = crit_chance;
             items.Add(item);
         }
         rdr.Close();
@@ -241,7 +250,7 @@ public class Mysql : MonoBehaviour
     public Item ReadItem(int id)
     {
         string sql = @"select ID, NAME, ICON_NAME, IS_DEFAULT_ITEM, ITEM_TYPE,
-                       ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED
+                       ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE
                        from item where id=@id";
 
         var cmd = new MySqlCommand(sql, con);
@@ -263,6 +272,7 @@ public class Mysql : MonoBehaviour
             int speed = rdr.GetInt32("SPEED");
             int visibility = rdr.GetInt32("VISIBILITY");
             int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
+            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
 
             item.item_id = item_id;
             item.name = name;
@@ -276,6 +286,7 @@ public class Mysql : MonoBehaviour
             item.speed = speed;
             item.visibility = visibility;
             item.cannon_reload_speed = cannon_reload_speed;
+            item.crit_chance = crit_chance;
         }
         rdr.Close();
         return item;
@@ -284,9 +295,9 @@ public class Mysql : MonoBehaviour
     public void AddItem(Item item)
     {
         string sql = @"insert into item(NAME, ICON_NAME, IS_DEFAULT_ITEM, ITEM_TYPE,
-                                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED)
+                                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE)
                        select @name, @icon_name, 0, @type, @attack, @health, @defence, @rotation, @speed, @visibility, 
-                              @cannon_reload_speed";
+                              @cannon_reload_speed,@crit_chance";
 
         var cmd = new MySqlCommand(sql, con);
         cmd.CommandText = sql;
@@ -301,6 +312,7 @@ public class Mysql : MonoBehaviour
         cmd.Parameters.AddWithValue("@speed", item.speed);
         cmd.Parameters.AddWithValue("@visibility", item.visibility);
         cmd.Parameters.AddWithValue("@cannon_reload_speed", item.cannon_reload_speed);
+        cmd.Parameters.AddWithValue("@crit_chance", item.crit_chance);
         cmd.ExecuteNonQuery();
     }
 
@@ -308,7 +320,7 @@ public class Mysql : MonoBehaviour
     {
         string sql = @"update item set NAME=@name, ICON_NAME=@icon_name, ITEM_TYPE=@type,
                                        ATTACK=@attack,HEALTH=@health,DEFENCE=@defence,ROTATION=@rotation,SPEED=@speed,
-                                       VISIBILITY=@visibility,CANNON_RELOAD_SPEED=@cannon_reload_speed
+                                       VISIBILITY=@visibility,CANNON_RELOAD_SPEED=@cannon_reload_speed,CRIT_CHANCE=@crit_chance
                        where ID=@id";
 
         var cmd = new MySqlCommand(sql, con);
@@ -325,6 +337,7 @@ public class Mysql : MonoBehaviour
         cmd.Parameters.AddWithValue("@speed", item.speed);
         cmd.Parameters.AddWithValue("@visibility", item.visibility);
         cmd.Parameters.AddWithValue("@cannon_reload_speed", item.cannon_reload_speed);
+        cmd.Parameters.AddWithValue("@crit_chance", item.crit_chance);
         cmd.ExecuteNonQuery();
     }
 
@@ -758,5 +771,91 @@ public class Mysql : MonoBehaviour
             cmd.Parameters.AddWithValue("@item_type", item.item_type);
             cmd.ExecuteNonQuery();
         }
+    }
+
+    public PlayerData ReadPlayerData(int id) {
+        string sql = @"select LEVEL,EXPERIENCE
+                       from player where id=@id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.Parameters.AddWithValue("@id", id);
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        PlayerData data=null;
+
+        while (rdr.Read())
+        {
+            int level = rdr.GetInt32("LEVEL");
+            int experience = rdr.GetInt32("EXPERIENCE");
+
+            data = new PlayerData();
+            data.level = level;
+            data.experience = experience;            
+        }
+        rdr.Close();
+        return data;
+    }
+
+    public List<BaseStat> ReadBaseStatsTable()
+    {
+        string sql = @"select LEVEL,ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE
+                       from base_stats";
+
+        var cmd = new MySqlCommand(sql, con);
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        List<BaseStat> stats = new List<BaseStat>();
+        while (rdr.Read())
+        {
+            int level = rdr.GetInt32("LEVEL");            
+            int attack = rdr.GetInt32("ATTACK");
+            int health = rdr.GetInt32("HEALTH");
+            int defence = rdr.GetInt32("DEFENCE");
+            int rotation = rdr.GetInt32("ROTATION");
+            int speed = rdr.GetInt32("SPEED");
+            int visibility = rdr.GetInt32("VISIBILITY");
+            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
+            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
+
+            BaseStat stat = new BaseStat();
+            stat.level = level;
+            stat.attack = attack;
+            stat.health = health;
+            stat.defence = defence;
+            stat.rotation = rotation;
+            stat.speed = speed;
+            stat.visibility = visibility;
+            stat.cannon_reload_speed = cannon_reload_speed;
+            stat.crit_chance = crit_chance;
+            stats.Add(stat);
+        }
+        rdr.Close();
+        return stats;
+    }
+
+    public List<Experience> ReadExperienceTable()
+    {
+        string sql = @"select LEVEL,FROM_,TO_
+                       from experience";
+
+        var cmd = new MySqlCommand(sql, con);
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        List<Experience> experience = new List<Experience>();
+        while (rdr.Read())
+        {
+            int level = rdr.GetInt32("LEVEL");
+            int from = rdr.GetInt32("FROM_");
+            int to = rdr.GetInt32("TO_");
+
+            Experience exp = new Experience();
+            exp.level = level;
+            exp.from = from;
+            exp.to = to;
+
+            experience.Add(exp);
+        }
+        rdr.Close();
+        return experience;
     }
 }

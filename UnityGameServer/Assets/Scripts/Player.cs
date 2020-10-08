@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SerializableObjects;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,8 +14,7 @@ public class Player : MonoBehaviour
     public float gravity = -9.81f;
     public float moveSpeed = 5f;
     public float jumpSpeed = 5f;
-    public float throwForce = 600f;
-    public float health;
+    public float throwForce = 600f;    
     public float maxHealth = 100f;
     public int itemAmount = 0;
     public int maxItemAmount = 3;
@@ -33,6 +33,19 @@ public class Player : MonoBehaviour
     public Inventory inventory;
     public ShipEquipment ship_equipment;
     public PlayerEquipment player_equipment;
+
+    private List<BaseStat> stats;
+    private List<Experience> exp;
+    private PlayerData data;
+
+    public float attack;
+    public float health;
+    public float defence;
+    public float rotation;
+    public float speed;
+    public float visibility;
+    public float cannon_reload_speed;
+    public float crit_chance;
 
     void Awake() {
         //mBody = GetComponent<Rigidbody>();        
@@ -209,5 +222,53 @@ public class Player : MonoBehaviour
         {
             string s = "";
         }
+    }
+
+    public void OnGameStart(List<BaseStat> stats, List<Experience> exp, PlayerData data) {
+        this.stats = stats;
+        this.exp = exp;
+        this.data = data;
+
+        LoadBaseStats();
+    }
+
+    protected void LoadBaseStats() {
+        int level = data.level;
+
+        foreach (BaseStat stat in stats) {
+            if (stat.level == level)
+            {
+                attack = stat.attack;
+                health = stat.health;
+                defence = stat.defence;
+                rotation = stat.rotation;
+                speed = stat.speed;
+                visibility = stat.visibility;
+                cannon_reload_speed = stat.cannon_reload_speed;
+                crit_chance = stat.crit_chance;
+            }
+        }
+    }
+
+    public void AddEquipment(Item item) {
+        attack += item.attack;
+        health += item.health;
+        defence += item.defence;
+        rotation += item.rotation;
+        speed += item.speed;
+        visibility += item.visibility;
+        cannon_reload_speed += item.cannon_reload_speed;
+        crit_chance += item.crit_chance;
+    }
+
+    public void RemoveEquipment(Item item) {
+        attack -= item.attack;
+        health -= item.health;
+        defence -= item.defence;
+        rotation -= item.rotation;
+        speed -= item.speed;
+        visibility -= item.visibility;
+        cannon_reload_speed -= item.cannon_reload_speed;
+        crit_chance -= item.crit_chance;
     }
 }

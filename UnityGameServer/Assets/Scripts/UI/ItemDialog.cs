@@ -33,6 +33,7 @@ public class ItemDialog : MonoBehaviour
         transform.Find("speedInput").GetComponent<InputField>().text = "";
         transform.Find("visibilityInput").GetComponent<InputField>().text = "";
         transform.Find("cannonReloadSpeedInput").GetComponent<InputField>().text = "";
+        transform.Find("critChanceInput").GetComponent<InputField>().text = "";
         transform.gameObject.SetActive(true);
     }
 
@@ -51,6 +52,7 @@ public class ItemDialog : MonoBehaviour
         transform.Find("speedInput").GetComponent<InputField>().text = item.speed.ToString();
         transform.Find("visibilityInput").GetComponent<InputField>().text = item.visibility.ToString();
         transform.Find("cannonReloadSpeedInput").GetComponent<InputField>().text = item.cannon_reload_speed.ToString();
+        transform.Find("critChanceInput").GetComponent<InputField>().text = item.crit_chance.ToString();
 
         transform.gameObject.SetActive(true);
     }
@@ -65,7 +67,7 @@ public class ItemDialog : MonoBehaviour
         string name = transform.Find("nameInput").GetComponent<InputField>().text;
         string iconName = transform.Find("iconNameInput").GetComponent<InputField>().text;
         string itemType = transform.Find("itemTypeInput").GetComponent<InputField>().text;
-        int attack, health, defence, rotation, speed, visibility, cannonReloadSpeed;
+        int attack, health, defence, rotation, speed, visibility, cannonReloadSpeed, critChance;
         Int32.TryParse(transform.Find("attackInput").GetComponent<InputField>().text, out attack);
         Int32.TryParse(transform.Find("healthInput").GetComponent<InputField>().text, out health);
         Int32.TryParse(transform.Find("defenceInput").GetComponent<InputField>().text, out defence);
@@ -73,6 +75,7 @@ public class ItemDialog : MonoBehaviour
         Int32.TryParse(transform.Find("speedInput").GetComponent<InputField>().text, out speed);
         Int32.TryParse(transform.Find("visibilityInput").GetComponent<InputField>().text, out visibility);
         Int32.TryParse(transform.Find("cannonReloadSpeedInput").GetComponent<InputField>().text, out cannonReloadSpeed);
+        Int32.TryParse(transform.Find("critChanceInput").GetComponent<InputField>().text, out critChance);
 
         Mysql mysql = FindObjectOfType<Mysql>();
 
@@ -87,6 +90,7 @@ public class ItemDialog : MonoBehaviour
         it.speed = speed;
         it.visibility = visibility;
         it.cannon_reload_speed = cannonReloadSpeed;
+        it.crit_chance = critChance;
 
         if (item != null)
             it.item_id = item.item_id;

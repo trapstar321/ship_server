@@ -4,53 +4,80 @@ using UnityEngine;
 
 public class ShipEquipment : MonoBehaviour
 {
-    public Item bow_sprite;
-    public Item jib_sail;
     public Item fore_sail;
     public Item rudder;
     public Item keel;
     public Item hull;
     public Item main_mast;
     public Item rigging;
-    public Item captains_cabin;
-    public Item main_sail;
     public Item crows_nest;
+    public Item cannon;
+
+    private Player player;
+
+    private void Awake()
+    {
+        player = transform.gameObject.GetComponent<Player>();
+    }
 
     public void Add(Item item)
     {
+        player.AddEquipment(item);
         switch (item.item_type)
         {
-            case "bow_sprite":
-                bow_sprite = item;
-                return;
-            case "jib_sail":
-                jib_sail = item;
-                return;
             case "fore_sail":
-                fore_sail = item;
+                if (fore_sail != null) {
+                    player.RemoveEquipment(fore_sail);
+                }
+                fore_sail = item;                
+                return;
+            case "cannon":
+                if (cannon != null)
+                {
+                    player.RemoveEquipment(cannon);
+                }
+                cannon = item;
                 return;
             case "rudder":
+                if (rudder != null)
+                {
+                    player.RemoveEquipment(rudder);
+                }
                 rudder = item;
                 return;
             case "keel":
+                if (keel != null)
+                {
+                    player.RemoveEquipment(keel);
+                }
                 keel = item;
                 return;
             case "hull":
+                if (hull != null)
+                {
+                    player.RemoveEquipment(hull);
+                }
                 hull = item;
                 return;
             case "main_mast":
+                if (main_mast != null)
+                {
+                    player.RemoveEquipment(main_mast);
+                }
                 main_mast = item;
                 return;
             case "rigging":
+                if (rigging != null)
+                {
+                    player.RemoveEquipment(rigging);
+                }
                 rigging = item;
                 return;
-            case "captains_cabin":
-                captains_cabin = item;
-                return;
-            case "main_sail":
-                main_sail = item;
-                return;
             case "crows_nest":
+                if (crows_nest != null)
+                {
+                    player.RemoveEquipment(crows_nest);
+                }
                 crows_nest = item;
                 return;
         }
@@ -58,16 +85,14 @@ public class ShipEquipment : MonoBehaviour
 
     public void Remove(Item item)
     {
+        player.RemoveEquipment(item);
         switch (item.item_type)
         {
-            case "bow_sprite":
-                bow_sprite = null;
-                return;
-            case "jib_sail":
-                jib_sail = null;
-                return;
             case "fore_sail":
                 fore_sail = null;
+                return;
+            case "cannon":
+                cannon = null;
                 return;
             case "rudder":
                 rudder = null;
@@ -84,12 +109,6 @@ public class ShipEquipment : MonoBehaviour
             case "rigging":
                 rigging = null;
                 return;
-            case "captains_cabin":
-                captains_cabin = null;
-                return;
-            case "main_sail":
-                main_sail = null;
-                return;
             case "crows_nest":
                 crows_nest = null;
                 return;
@@ -99,13 +118,11 @@ public class ShipEquipment : MonoBehaviour
     public Item GetItem(string type)
     {
         switch (type)
-        {
-            case "bow_sprite":
-                return bow_sprite;                
-            case "jib_sail":
-                return jib_sail;                
+        {               
             case "fore_sail":
-                return fore_sail;                
+                return fore_sail;
+            case "cannon":
+                return cannon;
             case "rudder":
                 return rudder;                
             case "keel":
@@ -115,11 +132,7 @@ public class ShipEquipment : MonoBehaviour
             case "main_mast":
                 return main_mast;                
             case "rigging":
-                return rigging;                
-            case "captains_cabin":
-                return captains_cabin;                
-            case "main_sail":
-                return main_sail;                
+                return rigging;               
             case "crows_nest":
                 return crows_nest;                
         }

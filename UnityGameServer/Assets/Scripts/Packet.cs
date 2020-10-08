@@ -30,7 +30,8 @@ public enum ServerPackets
     addToInventory,
     spawnGameObject,
     shipEquipment,
-    playerEquipment
+    playerEquipment,
+    onGameStart
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -55,7 +56,8 @@ public enum ClientPackets
     addItemToInventory,
     getPlayerEquipment,
     replacePlayerEquipment,
-    removePlayerEquipment
+    removePlayerEquipment,
+    onGameStart
 }
 
 public class Packet : IDisposable
@@ -222,6 +224,27 @@ public class Packet : IDisposable
     }
 
     public void Write(List<SerializableObjects.Item> _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(List<SerializableObjects.BaseStat> _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(List<SerializableObjects.Experience> _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(SerializableObjects.PlayerData _value)
     {
         byte[] data = ObjectToByteArray(_value);
         Write(data.Length); // Add the length of the string to the packet

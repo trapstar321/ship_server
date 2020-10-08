@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SerializableObjects;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -384,7 +385,8 @@ public class ServerSend
                 speed = slot.item.speed,
                 visibility = slot.item.visibility,
                 rotation = slot.item.rotation,
-                cannon_reload_speed = slot.item.cannon_reload_speed
+                cannon_reload_speed = slot.item.cannon_reload_speed,
+                crit_chance = slot.item.crit_chance 
             };
         }
 
@@ -412,7 +414,8 @@ public class ServerSend
             speed = item.speed,
             visibility = item.visibility,
             rotation = item.rotation,
-            cannon_reload_speed = item.cannon_reload_speed
+            cannon_reload_speed = item.cannon_reload_speed,
+            crit_chance = item.crit_chance
         };
     }
 
@@ -433,6 +436,18 @@ public class ServerSend
             _packet.Write(Convert.ToInt32(spawn.type));
             _packet.Write(spawn.gameObject.transform.position);
             _packet.Write(spawn.gameObject.transform.rotation);
+
+            SendTCPData(_toClient, _packet);
+        }
+    }
+
+    public static void OnGameStart(int _toClient, List<BaseStat> stats, List<Experience> exp, PlayerData data)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.onGameStart))
+        {
+            _packet.Write(stats);
+            _packet.Write(exp);
+            _packet.Write(data);            
 
             SendTCPData(_toClient, _packet);
         }

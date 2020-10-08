@@ -20,4 +20,5 @@ public class Item : ScriptableObject
     public int speed;
     public int visibility;
     public int cannon_reload_speed;
+    public int crit_chance;
 }

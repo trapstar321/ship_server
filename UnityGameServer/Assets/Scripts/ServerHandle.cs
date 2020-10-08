@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using SerializableObjects;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -332,5 +333,18 @@ public class ServerHandle: MonoBehaviour
 
     public static void SearchChest(int from, Packet packet) {
         Server.clients[from].player.SearchChest();
+    }
+
+    public static void OnGameStart(int from, Packet packet) {
+        Mysql mysql = FindObjectOfType<Mysql>();
+
+        List<BaseStat> stats = mysql.ReadBaseStatsTable();
+        List<Experience> exp = mysql.ReadExperienceTable();
+        PlayerData data = mysql.ReadPlayerData(from);        
+
+        ServerSend.OnGameStart(from, stats, exp, data);
+
+        Player player = Server.clients[from].player;
+        player.OnGameStart(stats, exp, data);
     }
 }

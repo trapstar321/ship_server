@@ -25,13 +25,14 @@ create table item
     PRIMARY KEY(id)
 )DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
 
-alter table item add ATTACK int null
-alter table item add HEALTH int null
-alter table item add DEFENCE int null
-alter table item add ROTATION int null
-alter table item add SPEED int null
-alter table item add VISIBILITY int null
-alter table item add CANNON_RELOAD_SPEED int null
+alter table item add ATTACK int not null default 0
+alter table item add HEALTH int not null default 0
+alter table item add DEFENCE int not null default 0
+alter table item add ROTATION int not null default 0
+alter table item add SPEED int not null default 0
+alter table item add VISIBILITY int not null default 0
+alter table item add CANNON_RELOAD_SPEED int not null default 0
+alter table item add CRIT_CHANCE int not null default 0
 
 select* from item
 
@@ -85,6 +86,20 @@ create table player_equipment
     PRIMARY KEY(ID),
     FOREIGN KEY(ITEM_ID) references player_item(ID),
     FOREIGN KEY(PLAYER_ID) references player(ID)
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
+
+create table base_stats
+(
+	ID bigint NOT NULL auto_increment,
+    LEVEL int NOT NULL,
+    ATTACK int not null default 0,
+	HEALTH int not null default 0,
+	DEFENCE int not null default 0,
+	ROTATION int not null default 0,
+	SPEED int not null default 0,
+	VISIBILITY int not null default 0,
+	CANNON_RELOAD_SPEED int not null default 0,
+	CRIT_CHANCE int not null default 0
 )DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
 
 insert into item
@@ -299,3 +314,5 @@ delete from inventory_slot where id between 483 and 545
 
 update inventory_slot set item_id=4 where id=485
 update inventory_slot set item_id=2,quantity=1 where id=524
+
+select* from player
