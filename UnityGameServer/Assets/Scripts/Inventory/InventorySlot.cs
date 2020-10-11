@@ -3,7 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class InventorySlot:MonoBehaviour
-{    
+{
+    public int id;
     public Image icon;
     public Item item;
     public int slotID;

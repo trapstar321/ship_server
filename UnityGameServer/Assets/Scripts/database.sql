@@ -99,7 +99,17 @@ create table base_stats
 	SPEED int not null default 0,
 	VISIBILITY int not null default 0,
 	CANNON_RELOAD_SPEED int not null default 0,
-	CRIT_CHANCE int not null default 0
+	CRIT_CHANCE int not null default 0,
+    PRIMARY KEY(ID)
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
+
+create table experience
+(
+	ID bigint NOT NULL auto_increment,
+    LEVEL int NOT NULL,
+    FROM_ int not null,
+    TO_ int not null,
+    PRIMARY KEY(ID)
 )DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
 
 insert into item
@@ -316,3 +326,8 @@ update inventory_slot set item_id=4 where id=485
 update inventory_slot set item_id=2,quantity=1 where id=524
 
 select* from player
+
+alter table player add LEVEL int
+alter table player add EXPERIENCE int
+
+update player set level=1, experience=0 where id in (1,2)

@@ -5,6 +5,7 @@ using UnityEngine;
 public class UIInputs : MonoBehaviour
 {
     public GameObject itemsTable;
+    public GameObject inventoryTable;
 
     // Start is called before the first frame update
     void Start()
@@ -18,6 +19,13 @@ public class UIInputs : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.I)) {            
             itemsTable.SetActive(!itemsTable.activeSelf);
             ItemsTable script = itemsTable.GetComponent<ItemsTable>();
+            script.Reload();
+        }
+
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            inventoryTable.SetActive(!inventoryTable.activeSelf);
+            InventoryTable script = inventoryTable.GetComponent<InventoryTable>();
             script.Reload();
         }
     }

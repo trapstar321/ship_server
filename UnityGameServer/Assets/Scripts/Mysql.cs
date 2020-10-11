@@ -36,7 +36,7 @@ public class Mysql : MonoBehaviour
 
     public List<InventorySlot> ReadInventory(int playerID)
     {
-        string sql = @"SELECT b.SLOT_ID, b.QUANTITY, c.id, d.id as item_id, d.name, d.icon_name, d.is_default_item, d.item_type,
+        string sql = @"SELECT b.id as INV_SLOT_ID, b.SLOT_ID, b.QUANTITY, c.id, d.id as item_id, d.name, d.icon_name, d.is_default_item, d.item_type,
                         ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE
                         FROM inventory a 
                         inner join inventory_slot as b 
@@ -46,7 +46,7 @@ public class Mysql : MonoBehaviour
                         and a.PLAYER_ID=c.PLAYER_ID
                         inner join item as d
                         on c.item_id=d.id
-                        where a.player_id=" + playerID.ToString();
+                        where a.player_id=" + playerID.ToString() + " order by slot_id asc";
 
         var cmd = new MySqlCommand(sql, con);
         MySqlDataReader rdr = cmd.ExecuteReader();
@@ -55,6 +55,7 @@ public class Mysql : MonoBehaviour
         while (rdr.Read())
         {
             int id = rdr.GetInt32("ID");
+            int inv_slot_id = rdr.GetInt32("INV_SLOT_ID");
             int item_id = rdr.GetInt32("ITEM_ID");
             int slot_id = rdr.GetInt32("SLOT_ID");
             int quantity = rdr.GetInt32("QUANTITY");
@@ -87,11 +88,66 @@ public class Mysql : MonoBehaviour
             item.cannon_reload_speed = cannon_reload_speed;
             item.crit_chance = crit_chance;
 
-            InventorySlot slot = new InventorySlot() { slotID = slot_id, quantity = quantity, item = item };
+            InventorySlot slot = new InventorySlot() { id= inv_slot_id, slotID = slot_id, quantity = quantity, item = item };
             slots.Add(slot);
         }
         rdr.Close();
         return slots;
+    }
+
+    public InventorySlot ReadInventorySlot(int id)
+    {
+        string sql = @"select a.id as inv_slot_id, c.id as item_id, slot_id, quantity, c.*
+                        from inventory_slot as a
+                        inner join player_item as b
+                        on a.item_id=b.id
+                        inner join item as c
+                        on b.item_id=c.id
+                        where a.id="+id.ToString();
+
+        var cmd = new MySqlCommand(sql, con);
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        InventorySlot slot=null;
+        while (rdr.Read())
+        {            
+            int inv_slot_id = rdr.GetInt32("INV_SLOT_ID");
+            int item_id = rdr.GetInt32("ITEM_ID");
+            int slot_id = rdr.GetInt32("SLOT_ID");
+            int quantity = rdr.GetInt32("QUANTITY");
+            string name = rdr.GetString("NAME");
+            string icon_name = rdr.GetString("ICON_NAME");
+            string item_type = rdr.GetString("ITEM_TYPE");
+            bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
+            int attack = rdr.GetInt32("ATTACK");
+            int health = rdr.GetInt32("HEALTH");
+            int defence = rdr.GetInt32("DEFENCE");
+            int rotation = rdr.GetInt32("ROTATION");
+            int speed = rdr.GetInt32("SPEED");
+            int visibility = rdr.GetInt32("VISIBILITY");
+            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
+            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
+
+            Item item = new Item();
+            item.id = id;
+            item.item_id = item_id;
+            item.name = name;
+            item.iconName = icon_name;
+            item.isDefaultItem = is_default_item;
+            item.item_type = item_type;
+            item.attack = attack;
+            item.health = health;
+            item.defence = defence;
+            item.rotation = rotation;
+            item.speed = speed;
+            item.visibility = visibility;
+            item.cannon_reload_speed = cannon_reload_speed;
+            item.crit_chance = crit_chance;
+
+            slot = new InventorySlot() { id = inv_slot_id, slotID = slot_id, quantity = quantity, item = item };            
+        }
+        rdr.Close();
+        return slot;
     }
 
     public List<Item> ReadShipEquipment(int playerID)
@@ -247,6 +303,54 @@ public class Mysql : MonoBehaviour
         return items;
     }
 
+    public List<Item> ReadPlayerItems(int player_id)
+    {
+        string sql = @"select a.id as id, b.id as item_id,b.* from player_item as a
+                        inner join item as b
+                        on a.item_id=b.id
+                        where a.player_id="+player_id;
+
+        var cmd = new MySqlCommand(sql, con);
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        List<Item> items = new List<Item>();
+        while (rdr.Read())
+        {
+            int id = rdr.GetInt32("ID");
+            int item_id = rdr.GetInt32("ITEM_ID");
+            string name = rdr.GetString("NAME");
+            string icon_name = rdr.GetString("ICON_NAME");
+            string item_type = rdr.GetString("ITEM_TYPE");
+            bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
+            int attack = rdr.GetInt32("ATTACK");
+            int health = rdr.GetInt32("HEALTH");
+            int defence = rdr.GetInt32("DEFENCE");
+            int rotation = rdr.GetInt32("ROTATION");
+            int speed = rdr.GetInt32("SPEED");
+            int visibility = rdr.GetInt32("VISIBILITY");
+            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
+            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
+
+            Item item = new Item();
+            item.id = id;
+            item.item_id = item_id;
+            item.name = name;
+            item.iconName = icon_name;
+            item.isDefaultItem = is_default_item;
+            item.item_type = item_type;
+            item.attack = attack;
+            item.health = health;
+            item.defence = defence;
+            item.rotation = rotation;
+            item.speed = speed;
+            item.visibility = visibility;
+            item.cannon_reload_speed = cannon_reload_speed;
+            item.crit_chance = crit_chance;
+            items.Add(item);
+        }
+        rdr.Close();
+        return items;
+    }
     public Item ReadItem(int id)
     {
         string sql = @"select ID, NAME, ICON_NAME, IS_DEFAULT_ITEM, ITEM_TYPE,
@@ -338,6 +442,19 @@ public class Mysql : MonoBehaviour
         cmd.Parameters.AddWithValue("@visibility", item.visibility);
         cmd.Parameters.AddWithValue("@cannon_reload_speed", item.cannon_reload_speed);
         cmd.Parameters.AddWithValue("@crit_chance", item.crit_chance);
+        cmd.ExecuteNonQuery();
+    }
+
+    public void AddPlayerItem(int player_id, Item item)
+    {
+        string sql = @"insert into player_item(ITEM_ID, PLAYER_ID)
+                       select @item_id, @player_id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.Parameters.AddWithValue("@item_id", item.item_id);
+        cmd.Parameters.AddWithValue("@player_id", player_id);        
         cmd.ExecuteNonQuery();
     }
 
@@ -621,6 +738,58 @@ public class Mysql : MonoBehaviour
         }
     }
 
+    public void SaveInventorySlot(int player, InventorySlot slot)
+    {
+        string sql = @"select b.id from inventory as a
+                        inner join inventory_slot as b
+                        on a.slot_id=b.id
+                        where a.player_id=@player_id and b.slot_id=@slot_id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+        cmd.Parameters.Clear();
+        cmd.Parameters.AddWithValue("@player_id", player);
+        cmd.Parameters.AddWithValue("@slot_id", slot.slotID);
+        MySqlDataReader reader = cmd.ExecuteReader();
+
+        int id = 0;
+
+        while (reader.Read())
+        {
+            id = reader.GetInt32("id");
+        }
+
+        reader.Close();
+
+        if (id != 0)
+        {
+            sql = "update inventory_slot set item_id=@item_id, quantity=@quantity where id=@id";
+            cmd.CommandText = sql;
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@item_id", slot.item.id);
+            cmd.Parameters.AddWithValue("@quantity", slot.quantity);
+            cmd.Parameters.AddWithValue("@id", id);
+            cmd.ExecuteNonQuery();
+        }
+        else
+        {
+            sql = "insert into inventory_slot(item_id, slot_id, quantity)values(@item_id, @slot_id, @quantity);select last_insert_id();";
+            cmd.CommandText = sql;
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@item_id", slot.item.id);
+            cmd.Parameters.AddWithValue("@slot_id", slot.slotID);
+            cmd.Parameters.AddWithValue("@quantity", slot.quantity);
+            id = Convert.ToInt32(cmd.ExecuteScalar());
+
+            sql = "insert into inventory(player_id, slot_id)values(@player_id, @slot_id)";
+            cmd.CommandText = sql;
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@player_id", player);
+            cmd.Parameters.AddWithValue("@slot_id", id);
+            cmd.ExecuteNonQuery();
+        }
+    }
+
     public void AddShipEquipment(int player, Item item) {
         string sql = @"select a.id from ship_equipment as a
                        where a.player_id=@player_id and a.item_type=@item_type";
@@ -857,5 +1026,28 @@ public class Mysql : MonoBehaviour
         }
         rdr.Close();
         return experience;
+    }
+
+    public List<Player> GetPlayers() {
+        string sql = @"select ID,USERNAME
+                       from player";
+
+        var cmd = new MySqlCommand(sql, con);
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        List<Player> players = new List<Player>();
+        while (rdr.Read())
+        {
+            int id = rdr.GetInt32("ID");
+            string username = rdr.GetString("USERNAME");            
+
+            Player player = new Player();
+            player.id = id;
+            player.username = username;
+
+            players.Add(player);
+        }
+        rdr.Close();
+        return players;
     }
 }
