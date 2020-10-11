@@ -31,7 +31,8 @@ public enum ServerPackets
     spawnGameObject,
     shipEquipment,
     playerEquipment,
-    onGameStart
+    onGameStart,
+    shoot
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -57,7 +58,8 @@ public enum ClientPackets
     getPlayerEquipment,
     replacePlayerEquipment,
     removePlayerEquipment,
-    onGameStart
+    onGameStart,
+    shoot
 }
 
 public class Packet : IDisposable

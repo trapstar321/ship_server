@@ -347,4 +347,9 @@ public class ServerHandle: MonoBehaviour
         Player player = Server.clients[from].player;
         player.OnGameStart(stats, exp, data);
     }
+
+    public static void Shoot(int from, Packet packet) {
+        CannonShot shootScript = Server.clients[from].player.GetComponent<CannonShot>();
+        shootScript.Shoot(packet.ReadString());
+    }
 }

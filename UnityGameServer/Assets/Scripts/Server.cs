@@ -148,6 +148,7 @@ public class Server
             { (int)ClientPackets.getPlayerEquipment, ServerHandle.GetPlayerEquipment },
             { (int)ClientPackets.replacePlayerEquipment, ServerHandle.ReplacePlayerEquipment },
             { (int)ClientPackets.onGameStart, ServerHandle.OnGameStart },
+            { (int)ClientPackets.shoot, ServerHandle.Shoot },
         };
         Debug.Log("Initialized packets.");
     }

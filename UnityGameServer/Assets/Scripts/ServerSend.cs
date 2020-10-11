@@ -452,5 +452,16 @@ public class ServerSend
             SendTCPData(_toClient, _packet);
         }
     }
+
+    public static void Shoot(int from, string position, Vector3 pos)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.shoot))
+        {
+            _packet.Write(from);
+            _packet.Write(position);
+
+            SendTCPDataRadius(from, _packet, pos, NetworkManager.visibilityRadius);
+        }
+    }
     #endregion
 }
