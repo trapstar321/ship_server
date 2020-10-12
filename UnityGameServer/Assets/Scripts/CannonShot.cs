@@ -52,11 +52,13 @@ public class CannonShot : MonoBehaviour
         cannonBallCopy.name = "CB_Player_" + player.id.ToString();
         cannonballRB = cannonBallCopy.GetComponent<Rigidbody>();
         cannonballRB.AddForce(_cannon1.forward * firePower);
+        cannonBallCopy.GetComponent<CannonBall>().player = GetComponent<Player>();
         //Instantiate(explosion, shotPos.position, shotPos.rotation);
 
-        GameObject cannonBallCopy2 = Instantiate(CannonBall, _cannon2.position, _cannon2.rotation) as GameObject;
+        GameObject cannonBallCopy2 = Instantiate(CannonBall, _cannon2.position, _cannon2.rotation) as GameObject;        
         cannonBallCopy2.name = "CB_Player_" + player.id.ToString();
         cannonballRB = cannonBallCopy2.GetComponent<Rigidbody>();
-        cannonballRB.AddForce(_cannon2.forward * firePower);        
+        cannonballRB.AddForce(_cannon2.forward * firePower);
+        cannonBallCopy2.GetComponent<CannonBall>().player = GetComponent<Player>();
     }
 }

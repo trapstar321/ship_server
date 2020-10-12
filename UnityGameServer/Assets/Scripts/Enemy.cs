@@ -193,7 +193,7 @@ public class Enemy : MonoBehaviour
             {
                 if (Random.value <= shootAccuracy)
                 {
-                    _hit.collider.GetComponent<Player>().TakeDamage(50f);
+                    //_hit.collider.GetComponent<Player>().TakeDamage(50f);
                 }
             }
         }

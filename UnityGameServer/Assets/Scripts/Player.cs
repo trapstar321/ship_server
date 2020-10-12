@@ -47,6 +47,8 @@ public class Player : MonoBehaviour
     public float cannon_reload_speed;
     public float crit_chance;
 
+    public List<GameObject> bullets = new List<GameObject>();
+
     void Awake() {
         //mBody = GetComponent<Rigidbody>();        
         visibilityRadius = NetworkManager.visibilityRadius;
@@ -70,6 +72,12 @@ public class Player : MonoBehaviour
         health = maxHealth;
 
         inputs = new bool[5];        
+    }
+
+    public void Update()
+    {
+        for (int i = 0; i < bullets.Count; i++)
+            DestroyImmediate(bullets[i]);
     }
 
     /// <summary>Processes player input and moves the player.</summary>
@@ -153,7 +161,7 @@ public class Player : MonoBehaviour
         {
             if (_hit.collider.CompareTag("Player"))
             {
-                _hit.collider.GetComponent<Player>().TakeDamage(50f);
+                //_hit.collider.GetComponent<Player>().TakeDamage(50f);
             }
             else if (_hit.collider.CompareTag("Enemy"))
             {
@@ -176,24 +184,22 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void TakeDamage(float _damage)
+    private void TakeDamage(Player player)
     {
-        if (health <= 0f)
+        float damage = 0f;
+        float randValue = UnityEngine.Random.value;
+        if (randValue < player.crit_chance / 100)
         {
-            return;
+            damage = player.attack * 2 - defence;
+            health -= damage;
         }
 
-        health -= _damage;
-        if (health <= 0f)
+        else
         {
-            health = 0f;
-            controller.enabled = false;
-            transform.position = new Vector3(0f, 25f, 0f);
-            ServerSend.PlayerPosition(this, visibilityRadius);
-            StartCoroutine(Respawn());
+            damage = player.attack - defence;
+            health -= damage;
         }
-
-        ServerSend.PlayerHealth(this);
+        ServerSend.TakeDamage(player.id, transform.position, damage);
     }
 
     private IEnumerator Respawn()
@@ -214,6 +220,15 @@ public class Player : MonoBehaviour
 
         itemAmount++;
         return true;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Vector3 tempPos = other.transform.position - new Vector3(0f, 0.5f, 0f);
+        TakeDamage(other.gameObject.GetComponent<CannonBall>().player);
+        Debug.Log("Hit by " + other.name);      
+
+        bullets.Add(other.gameObject);
     }
 
     public void SearchChest() {
@@ -240,6 +255,7 @@ public class Player : MonoBehaviour
             {
                 attack = stat.attack;
                 health = stat.health;
+                maxHealth = stat.health;
                 defence = stat.defence;
                 rotation = stat.rotation;
                 speed = stat.speed;
@@ -253,6 +269,7 @@ public class Player : MonoBehaviour
     public void AddEquipment(Item item) {
         attack += item.attack;
         health += item.health;
+        maxHealth += item.health;
         defence += item.defence;
         rotation += item.rotation;
         speed += item.speed;
@@ -264,6 +281,7 @@ public class Player : MonoBehaviour
     public void RemoveEquipment(Item item) {
         attack -= item.attack;
         health -= item.health;
+        maxHealth -= item.health;
         defence -= item.defence;
         rotation -= item.rotation;
         speed -= item.speed;

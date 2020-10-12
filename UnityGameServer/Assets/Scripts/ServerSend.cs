@@ -463,5 +463,16 @@ public class ServerSend
             SendTCPDataRadius(from, _packet, pos, NetworkManager.visibilityRadius);
         }
     }
+
+    public static void TakeDamage(int from, Vector3 pos, float damage)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.takeDamage))
+        {
+            _packet.Write(from);
+            _packet.Write(damage);
+
+            SendTCPDataRadius(from, _packet, pos, NetworkManager.visibilityRadius);
+        }
+    }
     #endregion
 }

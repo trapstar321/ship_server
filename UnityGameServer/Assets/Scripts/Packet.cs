@@ -32,7 +32,8 @@ public enum ServerPackets
     shipEquipment,
     playerEquipment,
     onGameStart,
-    shoot
+    shoot,
+    takeDamage
 }
 
 /// <summary>Sent from client to server.</summary>
