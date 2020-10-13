@@ -464,14 +464,14 @@ public class ServerSend
         }
     }
 
-    public static void TakeDamage(int from, Vector3 pos, float damage)
+    public static void TakeDamage(int receiver, Vector3 pos, float damage)
     {
         using (Packet _packet = new Packet((int)ServerPackets.takeDamage))
         {
-            _packet.Write(from);
+            _packet.Write(receiver);
             _packet.Write(damage);
 
-            SendTCPDataRadius(from, _packet, pos, NetworkManager.visibilityRadius);
+            SendTCPDataToAll(_packet);
         }
     }
     #endregion

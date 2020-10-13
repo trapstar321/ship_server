@@ -103,6 +103,12 @@ create table base_stats
     PRIMARY KEY(ID)
 )DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
 
+select* from base_stats
+
+insert into base_stats
+(level, attack, health, defence, rotation, speed, visibility, cannon_reload_speed, crit_chance)
+select 1, 100, 500, 20, 2, 10, 50, 4, 20
+
 create table experience
 (
 	ID bigint NOT NULL auto_increment,

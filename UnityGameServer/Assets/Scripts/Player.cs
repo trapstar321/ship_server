@@ -199,7 +199,7 @@ public class Player : MonoBehaviour
             damage = player.attack - defence;
             health -= damage;
         }
-        ServerSend.TakeDamage(player.id, transform.position, damage);
+        ServerSend.TakeDamage(id, transform.position, damage);
     }
 
     private IEnumerator Respawn()
