@@ -138,4 +138,17 @@ public class ShipEquipment : MonoBehaviour
         }
         return null;
     }
+
+    public List<Item> Items() {
+        List<Item> items = new List<Item>();
+        if (fore_sail != null) items.Add(fore_sail);
+        if (cannon != null) items.Add(cannon);
+        if (rudder != null) items.Add(rudder);
+        if (keel != null) items.Add(keel);
+        if (hull != null) items.Add(hull);
+        if (main_mast != null) items.Add(main_mast);
+        if (rigging != null) items.Add(rigging);
+        if (crows_nest != null) items.Add(crows_nest);
+        return items;
+    }
 }

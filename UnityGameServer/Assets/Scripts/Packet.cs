@@ -33,7 +33,8 @@ public enum ServerPackets
     playerEquipment,
     onGameStart,
     shoot,
-    takeDamage
+    takeDamage,
+    healthStat
 }
 
 /// <summary>Sent from client to server.</summary>

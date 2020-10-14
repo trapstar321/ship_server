@@ -59,4 +59,15 @@ public class NetworkManager : MonoBehaviour
     {
         return Instantiate(projectilePrefab, _shootOrigin.position + _shootOrigin.forward * 0.7f, Quaternion.identity).GetComponent<Projectile>();
     }
+
+    public static void SendHealthStats(int from) {
+        //send player stats to all
+        ServerSend.HealthStats(from);
+
+        //send all player stats to player
+        foreach (Client client in Server.clients.Values) {
+            if(client.player!=null && client.id!=from)
+                ServerSend.HealthStats(client.id, from);
+        }
+    }
 }
