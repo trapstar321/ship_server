@@ -46,6 +46,7 @@ public class Player : MonoBehaviour
     public float visibility;
     public float cannon_reload_speed;
     public float crit_chance;
+    public float cannon_force;
 
     public List<GameObject> bullets = new List<GameObject>();
 
@@ -55,7 +56,7 @@ public class Player : MonoBehaviour
         //Instantiate(inventory);
         inventory = FindObjectOfType<Inventory>();
         ship_equipment = FindObjectOfType<ShipEquipment>();
-        player_equipment = FindObjectOfType<PlayerEquipment>();
+        player_equipment = FindObjectOfType<PlayerEquipment>();        
     }
 
     private void Start()
@@ -71,7 +72,11 @@ public class Player : MonoBehaviour
         username = _username;
         health = maxHealth;
 
-        inputs = new bool[5];        
+        inputs = new bool[5];
+
+        LoadInventory();
+        LoadPlayerEquipment();
+        LoadShipEquipment();
     }
 
     public void Update()
@@ -265,6 +270,7 @@ public class Player : MonoBehaviour
                 visibility = stat.visibility;
                 cannon_reload_speed = stat.cannon_reload_speed;
                 crit_chance = stat.crit_chance;
+                cannon_force = stat.cannon_force;
             }
         }
     }
@@ -279,6 +285,9 @@ public class Player : MonoBehaviour
         visibility += item.visibility;
         cannon_reload_speed += item.cannon_reload_speed;
         crit_chance += item.crit_chance;
+        cannon_force += item.cannon_force;
+
+        ServerSend.HealthStats(id);
     }
 
     public void RemoveEquipment(Item item) {
@@ -291,5 +300,41 @@ public class Player : MonoBehaviour
         visibility -= item.visibility;
         cannon_reload_speed -= item.cannon_reload_speed;
         crit_chance -= item.crit_chance;
+        cannon_force -= item.cannon_force;
+
+        ServerSend.HealthStats(id);
+    }
+
+    public void LoadInventory() {
+        Mysql mysql = FindObjectOfType<Mysql>();
+        List<InventorySlot> slots = mysql.ReadInventory(id);
+        Inventory inventory = Server.clients[id].player.inventory;
+
+        foreach (InventorySlot s in slots)
+        {
+            inventory.Add(s);
+        }
+    }
+
+    public void LoadShipEquipment() {
+        Mysql mysql = FindObjectOfType<Mysql>();
+        List<Item> items = mysql.ReadShipEquipment(id);
+        ShipEquipment equipment = Server.clients[id].player.ship_equipment;
+
+        foreach (Item item in items)
+        {
+            equipment.Add(item);
+        }
+    }
+
+    public void LoadPlayerEquipment() {
+        Mysql mysql = FindObjectOfType<Mysql>();
+        List<Item> items = mysql.ReadPlayerEquipment(id);
+        PlayerEquipment equipment = Server.clients[id].player.player_equipment;
+
+        foreach (Item item in items)
+        {
+            equipment.Add(item);
+        }
     }
 }

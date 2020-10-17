@@ -25,6 +25,7 @@ public class ServerHandle: MonoBehaviour
         Server.clients[_fromClient].SendIntoGame("username");
         //ServerSend.WavesMesh(_fromClient, NetworkManager.wavesScript.GenerateMesh());
         spawnManager.SendAllGameObjects(_fromClient);
+        NetworkManager.SendHealthStats(_fromClient);        
     }
 
     public static void PlayerMovement(int _fromClient, Packet _packet)
@@ -77,14 +78,8 @@ public class ServerHandle: MonoBehaviour
     }
 
     public static void GetInventory(int from, Packet packet) {
-        Mysql mysql = FindObjectOfType<Mysql>();
-        List<InventorySlot> slots = mysql.ReadInventory(from);
         Inventory inventory = Server.clients[from].player.inventory;
 
-        foreach (InventorySlot s in slots) {
-            inventory.Add(s);    
-        }
-        
         ServerSend.Inventory(from, inventory);
 
         /*Item wood = new Item();
@@ -97,16 +92,10 @@ public class ServerHandle: MonoBehaviour
 
     public static void GetShipEquipment(int from, Packet packet)
     {
-        Mysql mysql = FindObjectOfType<Mysql>();
-        List<Item> items = mysql.ReadShipEquipment(from);
-        ShipEquipment equipment = Server.clients[from].player.ship_equipment;
+        Mysql mysql = FindObjectOfType<Mysql>();        
+        ShipEquipment equipment = Server.clients[from].player.ship_equipment;        
 
-        foreach (Item item in items)
-        {
-            equipment.Add(item);
-        }
-
-        ServerSend.ShipEquipment(from, items);
+        ServerSend.ShipEquipment(from, equipment.Items());
 
         /*Item wood = new Item();
         wood.name = "Wood log";
@@ -118,16 +107,9 @@ public class ServerHandle: MonoBehaviour
 
     public static void GetPlayerEquipment(int from, Packet packet)
     {
-        Mysql mysql = FindObjectOfType<Mysql>();
-        List<Item> items = mysql.ReadPlayerEquipment(from);
         PlayerEquipment equipment = Server.clients[from].player.player_equipment;
 
-        foreach (Item item in items)
-        {
-            equipment.Add(item);
-        }
-
-        ServerSend.PlayerEquipment(from, items);
+        ServerSend.PlayerEquipment(from, equipment.Items());
 
         /*Item wood = new Item();
         wood.name = "Wood log";

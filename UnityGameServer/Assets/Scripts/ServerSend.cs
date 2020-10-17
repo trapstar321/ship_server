@@ -386,7 +386,8 @@ public class ServerSend
                 visibility = slot.item.visibility,
                 rotation = slot.item.rotation,
                 cannon_reload_speed = slot.item.cannon_reload_speed,
-                crit_chance = slot.item.crit_chance 
+                crit_chance = slot.item.crit_chance,
+                cannon_force = slot.item.cannon_force
             };
         }
 
@@ -415,7 +416,8 @@ public class ServerSend
             visibility = item.visibility,
             rotation = item.rotation,
             cannon_reload_speed = item.cannon_reload_speed,
-            crit_chance = item.crit_chance
+            crit_chance = item.crit_chance,
+            cannon_force = item.cannon_force
         };
     }
 
@@ -482,9 +484,37 @@ public class ServerSend
             _packet.Write(from);
             _packet.Write(direction);
             _packet.Write(side);
+			
+			SendTCPDataToAll(from, _packet);
+		}
+	}
+	
+    public static void HealthStats(int from)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.healthStat))
+        {
+            float health = Server.clients[from].player.health;
+            float maxHealth = Server.clients[from].player.maxHealth;
+            _packet.Write(from);
+            _packet.Write(health);
+            _packet.Write(maxHealth);
+
 
             SendTCPDataToAll(from, _packet);
         }
     }
-    #endregion
+
+    public static void HealthStats(int from, int to)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.healthStat))
+        {
+            float health = Server.clients[from].player.health;
+            float maxHealth = Server.clients[from].player.maxHealth;
+            _packet.Write(from);
+            _packet.Write(health);
+            _packet.Write(maxHealth);
+
+            SendTCPData(to, _packet);
+        }
+    } 
 }

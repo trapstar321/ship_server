@@ -34,6 +34,7 @@ public enum ServerPackets
     onGameStart,
     shoot,
     takeDamage,
+	healthStat,
     cannonRotate
 }
 

@@ -100,4 +100,14 @@ public class PlayerEquipment : MonoBehaviour
         }
         return null;
     }
+
+    public List<Item> Items() {
+        List<Item> items = new List<Item>();
+        if (helmet!=null)items.Add(helmet);
+        if (boots != null) items.Add(boots);
+        if (legs != null) items.Add(legs);
+        if (hands != null) items.Add(hands);
+        if (top != null) items.Add(top);
+        return items;
+    }
 }
