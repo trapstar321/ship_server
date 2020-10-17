@@ -48,8 +48,6 @@ public class Player : MonoBehaviour
     public float crit_chance;
     public float cannon_force;
 
-    public List<GameObject> bullets = new List<GameObject>();
-
     void Awake() {
         //mBody = GetComponent<Rigidbody>();        
         visibilityRadius = NetworkManager.visibilityRadius;
@@ -81,11 +79,7 @@ public class Player : MonoBehaviour
 
     public void Update()
     {
-        for (int i = bullets.Count - 1; i >= 0; i--)
-        {            
-            bullets[i].SetActive(false);
-            bullets.RemoveAt(i);
-        }
+        
     }
 
     /// <summary>Processes player input and moves the player.</summary>
@@ -234,9 +228,9 @@ public class Player : MonoBehaviour
     {
         Vector3 tempPos = other.transform.position - new Vector3(0f, 0.5f, 0f);
         TakeDamage(other.gameObject.GetComponent<CannonBall>().player);
-        Debug.Log("Hit by " + other.name);      
+        Debug.Log("Hit by " + other.name);
 
-        bullets.Add(other.gameObject);
+        other.gameObject.SetActive(false);
     }
 
     public void SearchChest() {
