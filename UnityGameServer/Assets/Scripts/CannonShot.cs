@@ -40,25 +40,32 @@ public class CannonShot : MonoBehaviour
         {
             var distance = Vector3.Distance(transform.position, cannonBall.transform.position);
             if (distance > DestroyDistance)
-            {
-                Destroy(cannonBall);
+            {                
+                cannonBall.SetActive(false);
             }
         }
     }
 
     protected void FireCannon(Transform _cannon1, Transform _cannon2)
     {
-        GameObject cannonBallCopy = Instantiate(CannonBall, _cannon1.position, _cannon1.rotation) as GameObject;
-        cannonBallCopy.name = "CB_Player_" + player.id.ToString();
-        cannonballRB = cannonBallCopy.GetComponent<Rigidbody>();
-        cannonballRB.AddForce(_cannon1.forward * firePower);
+        GameObject cannonBallCopy = ObjectPooler.SharedInstance.GetPooledObject("CannonBall");
         cannonBallCopy.GetComponent<CannonBall>().player = GetComponent<Player>();
-        //Instantiate(explosion, shotPos.position, shotPos.rotation);
+        cannonballRB = cannonBallCopy.GetComponent<Rigidbody>();
+        cannonballRB.velocity = Vector3.zero;
+        cannonBallCopy.transform.position = _cannon1.position;
+        cannonBallCopy.transform.rotation = _cannon1.rotation;        
+        cannonBallCopy.name = "CB_Player_" + player.id.ToString();
+        cannonBallCopy.SetActive(true);        
+        cannonballRB.AddForce(_cannon1.forward * firePower);
 
-        GameObject cannonBallCopy2 = Instantiate(CannonBall, _cannon2.position, _cannon2.rotation) as GameObject;        
-        cannonBallCopy2.name = "CB_Player_" + player.id.ToString();
-        cannonballRB = cannonBallCopy2.GetComponent<Rigidbody>();
-        cannonballRB.AddForce(_cannon2.forward * firePower);
+        GameObject cannonBallCopy2 = ObjectPooler.SharedInstance.GetPooledObject("CannonBall");
         cannonBallCopy2.GetComponent<CannonBall>().player = GetComponent<Player>();
+        cannonballRB = cannonBallCopy2.GetComponent<Rigidbody>();
+        cannonballRB.velocity = Vector3.zero;
+        cannonBallCopy2.transform.position = _cannon2.position;
+        cannonBallCopy2.transform.rotation = _cannon2.rotation;        
+        cannonBallCopy2.name = "CB_Player_" + player.id.ToString();
+        cannonBallCopy2.SetActive(true);        
+        cannonballRB.AddForce(_cannon2.forward * firePower);
     }
 }

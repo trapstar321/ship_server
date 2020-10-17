@@ -474,5 +474,17 @@ public class ServerSend
             SendTCPDataToAll(_packet);
         }
     }
+
+    public static void CannonRotate(int from, string direction, string side)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.cannonRotate))
+        {
+            _packet.Write(from);
+            _packet.Write(direction);
+            _packet.Write(side);
+
+            SendTCPDataToAll(from, _packet);
+        }
+    }
     #endregion
 }

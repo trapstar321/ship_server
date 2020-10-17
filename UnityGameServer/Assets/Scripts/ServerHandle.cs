@@ -352,4 +352,10 @@ public class ServerHandle: MonoBehaviour
         CannonShot shootScript = Server.clients[from].player.GetComponent<CannonShot>();
         shootScript.Shoot(packet.ReadString());
     }
+
+    public static void CannonRotate(int from, Packet packet)
+    {
+        CannonController cannonRotate = Server.clients[from].player.GetComponent<CannonController>();
+        cannonRotate.CannonRotate(packet.ReadString(), packet.ReadString());
+    }
 }

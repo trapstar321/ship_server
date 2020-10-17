@@ -76,8 +76,11 @@ public class Player : MonoBehaviour
 
     public void Update()
     {
-        for (int i = 0; i < bullets.Count; i++)
-            DestroyImmediate(bullets[i]);
+        for (int i = bullets.Count - 1; i >= 0; i--)
+        {            
+            bullets[i].SetActive(false);
+            bullets.RemoveAt(i);
+        }
     }
 
     /// <summary>Processes player input and moves the player.</summary>
