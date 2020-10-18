@@ -33,6 +33,7 @@ alter table item add SPEED int not null default 0
 alter table item add VISIBILITY int not null default 0
 alter table item add CANNON_RELOAD_SPEED int not null default 0
 alter table item add CRIT_CHANCE int not null default 0
+alter table item add CANNON_FORCE int not null default 0
 
 select* from item
 
@@ -101,9 +102,15 @@ create table base_stats
 	CANNON_RELOAD_SPEED int not null default 0,
 	CRIT_CHANCE int not null default 0,
     PRIMARY KEY(ID)
-)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+select* from base_stats 
+
+alter table base_stats add CANNON_FORCE int not null default 0
 
 select* from base_stats
+
+update base_stats set speed=5 where id=1
 
 insert into base_stats
 (level, attack, health, defence, rotation, speed, visibility, cannon_reload_speed, crit_chance)

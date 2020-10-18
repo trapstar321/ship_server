@@ -12,7 +12,7 @@ public class CannonShot : MonoBehaviour
     public Transform R_shotPos_2;    
     public float firePower;
     public float DestroyDistance = 50;
-
+    float LastShotTime;
     private Player player;
     
 
@@ -22,6 +22,10 @@ public class CannonShot : MonoBehaviour
     }
 
     public void Shoot(string position) {
+        if (Time.time - LastShotTime < player.cannon_reload_speed && LastShotTime != -1)
+            return;
+
+        LastShotTime = Time.time;
         if (position.Equals("left"))
         {
             FireCannon(L_shotPos_1, L_shotPos_2);
@@ -56,7 +60,7 @@ public class CannonShot : MonoBehaviour
         cannonBallCopy.transform.rotation = _cannon1.rotation;        
         cannonBallCopy.name = "CB_Player_" + player.id.ToString();
         cannonBallCopy.SetActive(true);        
-        cannonballRB.AddForce(_cannon1.forward * firePower);
+        cannonballRB.AddForce(_cannon1.forward * player.cannon_force);
 
         GameObject cannonBallCopy2 = ObjectPooler.SharedInstance.GetPooledObject("CannonBall");
         cannonBallCopy2.GetComponent<CannonBall>().player = GetComponent<Player>();
@@ -66,6 +70,6 @@ public class CannonShot : MonoBehaviour
         cannonBallCopy2.transform.rotation = _cannon2.rotation;        
         cannonBallCopy2.name = "CB_Player_" + player.id.ToString();
         cannonBallCopy2.SetActive(true);        
-        cannonballRB.AddForce(_cannon2.forward * firePower);
+        cannonballRB.AddForce(_cannon2.forward * player.cannon_force);
     }
 }
