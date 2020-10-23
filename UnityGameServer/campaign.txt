@@ -1,0 +1,128 @@
+campaign
+
+1. training session
+
+	Prije nego počneš sa avanturom trebaš naučiti upravljati brodom.
+
+	Popup - kontrole koje su, lijevo desno naprijed
+	Fight cam kako se koristi i kako se puca
+
+	Instancirati jedan npc brod koji se ne miče nego samo stoji.
+
+	Player ga treba uništiti
+
+	Smisliti reward
+	Player zaradi X experience-a
+	Hint: otići do otoka gdje su villagers. Tamo je prvo otišao kapetan <ime> kod početka svoje avanture
+
+2. lets go on an adventure
+
+	Opisati player-u avanturu.
+	
+	Prije godinu dana u grad je došao kapetan <ime>. U gradu je živio <ime> koji je svima pričao o skrivenome blagu i hvalio kako će ga pronaći.
+	Kapetan <ime> je sa posadom došao na piće u gostionu <ime> te čuo hvalisavca. 
+	Odlučio je krenuti u avanturu i pronaći blago.
+	Kapetana nisu vidjeli već više od godinu dana a često je dolazio u grad.
+	Da li ste dovoljno snalažljivi i hrabri krenuti u potragu za izgubljenim blagom?
+	
+	Smisliti reward
+	Player zaradi x experienca
+
+3. gather resources for villagers
+
+   Seljacima treba resursa da bi preživili zimu.   
+   Blizu je otok koji ima mnogo resursa.   
+   Pokupiti resurse i dostaviti seljacima.
+   
+   Opis: Kapetan <ime> je došao na otok i odmarao tjedan dana. Kupio je resurse za svoj brod i posadu i krenuo dalje u avanturu.
+   
+   Smisliti reward
+   Player zaradi X experience-a
+   Hint: Kapetan <ime> je rekao seljanima da mu je bilo ugodno na otoku i da dalje mora preći Opako (vicious) more.
+   U sredini mora je otok na kojem živi pleme <ime>.
+   Pleme ima informacije o blagu.
+   U tom moru ima mnogo čudovišta i neprijateljskih brodova (NPC-a).
+   Krenite prema opakom moru i puno sreće jer će vam trebati.
+   
+4. vicious sea
+
+   Da bi pratili kapetana <ime> morate proći opako more.   
+   Čudovišta i neprijatelji su tokom godina sakupili mnogo blaga i čuvat će ga bez obzira na sve.   
+   Možda je ovo dobra prilika da se obogatite?
+   
+   Preživite opako more i nađite pleme na otoku u sredini mora.
+   
+   Smisliti reward.
+   Player zaradi x experience-a
+   Hint: pleme je nekoć posjedovalo diamantnu ogrlicu koje je ukrao pirat <ime>.
+   Ako vratite ogrlicu u zamjenu ćete dobiti puno zlata.
+   Sjećaju se da je pirat pričao o skrivenom blagu tako da vam je ovo prilika da se obogatite i saznate više o skrivenom blagu.
+   Pirat živi u gradu <ime> tako da je najbolje da ga tamo potražite.
+   
+5. hunting for <ime>
+	
+   Kada dođete u grad gdje živi pirat <ime> kažu vam da je pirat na moru i da lovi teretne brodove oko otoka <ime>.
+   
+   Kada dođete do otoka spazite brod pirata <ime>.   
+   Cilj je onesposobiti piratov brod i ne ga potopiti.   
+   Ako player ne potopi brod otvori se dijalog sa piratom i pirat nudi player-u loot.   
+   Ako ga player potopi u škrinji nađe dnevnik pirata u kojem su piše više o avanturi kapetana <ime> + random loot.
+   U oba slučaja player sazna da je kapetan <ime> krenuo na otok <ime> gdje živi pustinjak <ime>
+   
+   
+   U oba slučaja player dobije ogrlicu od plemena.
+   
+   Smisliti reward.
+   Player zaradi x experience-a
+   Hint: više o blagu zna pustinjak <ime> koji živi na otoku <ime>.
+   
+6. side quest - vrati ukradenu ogrlicu
+
+	Po povratku na otok <ime> vratio sam ogrlicu plemenu.	
+	Pleme mi je zahvalilo i zaželilo puno sreće u potrazi za blagom.
+	
+	Smisliti reward.
+	Player zaradi x experience-a.
+   
+7. lov na čudovište
+	
+    Kada dođete na otok na kojem živi pustinjak <ime> on vas ponudi sa čajem.	
+	Čaj poveća crew morale na maksimum.	
+	Ispriča vam priču o čudovištu Kraken, križanac hobotnice i lignje koje živi već stoljećima i postalo je ogromno.	
+	Kraken napada brodove jer je zaluđeno blagom.
+	Pustinjak je prije godinu dana isti zadatak dao kapetanu <ime> i kapetan je uništio Krakena ali izgleda da Kraken ima potomka.
+	
+	Bilo bi dobro da ubijete Krakena jer bi se tako osigurao plovni put za teretne brodove što bi pustinjaka jako veselilo.
+	U zamjenu dobijete informacije o kapetanu <ime>.
+	
+	Pustinjak da mapu player-u na kojoj je nacrtano gdje se nalazi Kraken.	
+	Player nalazi Kraken-a i ubija ga. Kraken dropne loot.	
+	Player se vraća pustinjaku i pustinjak mu kaže da je sada put za teretne brodove sigurniji bez Krakena.
+	
+	Pustinjak kaže playeru da je kapetan skoro potrošio sve resurse i da se ide opskrbiti u grad <ime>.
+	
+	Smisliti reward.
+	Player zaradi x experience-a.
+	
+8. transport resursa - napad NPC-a
+
+9. pronađen kapetan - kapetan se može pridružiti posadi
+
+10. zadnja bitka
+ 
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+	
+	
+
+	
