@@ -153,7 +153,7 @@ public class ServerSend
             _packet.Write(_player.transform.rotation);
 
             //SendTCPDataToAll(_player.id, _packet);
-            SendTCPDataRadius(_player.id, _packet, _player.transform.position, visibilityRadius);
+            SendTCPDataRadius(_packet, _player.transform.position, visibilityRadius);
         }
     }
 

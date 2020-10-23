@@ -48,13 +48,16 @@ public class Player : MonoBehaviour
     public float crit_chance;
     public float cannon_force;
 
+    BoatMovement movement;
+
     void Awake() {
         //mBody = GetComponent<Rigidbody>();        
         visibilityRadius = NetworkManager.visibilityRadius;
         //Instantiate(inventory);
-        inventory = FindObjectOfType<Inventory>();
-        ship_equipment = FindObjectOfType<ShipEquipment>();
-        player_equipment = FindObjectOfType<PlayerEquipment>();        
+        inventory = GetComponent<Inventory>();
+        ship_equipment = GetComponent<ShipEquipment>();
+        player_equipment = GetComponent<PlayerEquipment>();
+        movement = GetComponent<BoatMovement>();
     }
 
     private void Start()
@@ -330,5 +333,14 @@ public class Player : MonoBehaviour
         {
             equipment.Add(item);
         }
+    }
+
+    public void Move(bool left, bool right, bool forward)
+    {        
+        movement.forward = forward;
+        movement.left = left;
+        movement.right = right;
+        
+        ServerSend.PlayerPosition(this, visibilityRadius);
     }
 }

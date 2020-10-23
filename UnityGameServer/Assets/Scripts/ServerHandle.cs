@@ -42,10 +42,11 @@ public class ServerHandle: MonoBehaviour
 
     public static void Position(int _fromClient, Packet _packet)
     {
-        Vector3 position = _packet.ReadVector3();
-        Quaternion rotation = _packet.ReadQuaternion();
+        bool left = _packet.ReadBool();
+        bool right = _packet.ReadBool();
+        bool forward = _packet.ReadBool();        
 
-        Server.clients[_fromClient].player.SetPosition(position, rotation);
+        Server.clients[_fromClient].player.Move(left, right, forward);        
     }
 
     public static void Joystick(int _fromClient, Packet _packet)
