@@ -73,11 +73,23 @@ public class Player : MonoBehaviour
         username = _username;
         health = maxHealth;
 
-        inputs = new bool[5];
+        inputs = new bool[5];        
+
+        Mysql mysql = FindObjectOfType<Mysql>();
+
+        List<BaseStat> stats = mysql.ReadBaseStatsTable();
+        List<Experience> exp = mysql.ReadExperienceTable();
+        PlayerData data = mysql.ReadPlayerData(id);
+
+        this.stats = stats;
+        this.exp = exp;
+        this.data = data;
+
+        LoadBaseStats();
 
         LoadInventory();
         LoadPlayerEquipment();
-        LoadShipEquipment();
+        LoadShipEquipment();        
     }
 
     public void Update()
@@ -244,14 +256,6 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void OnGameStart(List<BaseStat> stats, List<Experience> exp, PlayerData data) {
-        this.stats = stats;
-        this.exp = exp;
-        this.data = data;
-
-        LoadBaseStats();
-    }
-
     protected void LoadBaseStats() {
         int level = data.level;
 
@@ -283,7 +287,7 @@ public class Player : MonoBehaviour
         cannon_reload_speed += item.cannon_reload_speed;
         crit_chance += item.crit_chance;
         cannon_force += item.cannon_force;
-
+        
         ServerSend.HealthStats(id);
     }
 
@@ -298,7 +302,7 @@ public class Player : MonoBehaviour
         cannon_reload_speed -= item.cannon_reload_speed;
         crit_chance -= item.crit_chance;
         cannon_force -= item.cannon_force;
-
+        
         ServerSend.HealthStats(id);
     }
 

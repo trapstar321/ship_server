@@ -25,7 +25,10 @@ public class ServerHandle: MonoBehaviour
         Server.clients[_fromClient].SendIntoGame("username");
         //ServerSend.WavesMesh(_fromClient, NetworkManager.wavesScript.GenerateMesh());
         spawnManager.SendAllGameObjects(_fromClient);
-        NetworkManager.SendHealthStats(_fromClient);        
+
+        //send current health to all
+        //send health from all to player
+        NetworkManager.SendHealthStats(_fromClient);
     }
 
     public static void PlayerMovement(int _fromClient, Packet _packet)
@@ -325,10 +328,7 @@ public class ServerHandle: MonoBehaviour
         List<Experience> exp = mysql.ReadExperienceTable();
         PlayerData data = mysql.ReadPlayerData(from);        
 
-        ServerSend.OnGameStart(from, stats, exp, data);
-
-        Player player = Server.clients[from].player;
-        player.OnGameStart(stats, exp, data);
+        ServerSend.OnGameStart(from, stats, exp, data);        
     }
 
     public static void Shoot(int from, Packet packet) {
