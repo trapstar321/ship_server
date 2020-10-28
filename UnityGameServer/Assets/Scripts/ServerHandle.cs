@@ -24,11 +24,7 @@ public class ServerHandle: MonoBehaviour
         }
         Server.clients[_fromClient].SendIntoGame("username");
         //ServerSend.WavesMesh(_fromClient, NetworkManager.wavesScript.GenerateMesh());
-        spawnManager.SendAllGameObjects(_fromClient);
-
-        //send current health to all
-        //send health from all to player
-        NetworkManager.SendHealthStats(_fromClient);
+        spawnManager.SendAllGameObjects(_fromClient);        
     }
 
     public static void PlayerMovement(int _fromClient, Packet _packet)

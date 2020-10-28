@@ -49,6 +49,7 @@ public class Player : MonoBehaviour
     public float cannon_force;
 
     BoatMovement movement;
+    SphereCollider playerEnterCollider;
 
     void Awake() {
         //mBody = GetComponent<Rigidbody>();        
@@ -58,6 +59,8 @@ public class Player : MonoBehaviour
         ship_equipment = GetComponent<ShipEquipment>();
         player_equipment = GetComponent<PlayerEquipment>();
         movement = GetComponent<BoatMovement>();
+        playerEnterCollider = GetComponentInChildren<SphereCollider>();
+        playerEnterCollider.radius = NetworkManager.visibilityRadius / 2;
     }
 
     private void Start()
@@ -241,11 +244,24 @@ public class Player : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Vector3 tempPos = other.transform.position - new Vector3(0f, 0.5f, 0f);
-        TakeDamage(other.gameObject.GetComponent<CannonBall>().player);
-        Debug.Log("Hit by " + other.name);
+        if (other.tag.Equals("CannonBall"))
+        {
+            Player player = other.gameObject.GetComponent<CannonBall>().player;
+            Vector3 tempPos = other.transform.position - new Vector3(0f, 0.5f, 0f);
+            TakeDamage(player);
+            Debug.Log("Hit by " + other.name);
+            other.gameObject.SetActive(false);
+        }
+        else if (other.name.Equals("Sphere")) {
+            int otherPlayerId = other.GetComponentInParent<Player>().id;            
+            ServerSend.HealthStats(otherPlayerId, id);
 
-        other.gameObject.SetActive(false);
+            CannonController cannonController = other.GetComponentInParent<CannonController>();
+            Quaternion leftRotation = cannonController.L_Cannon_1.transform.localRotation;
+            Quaternion rightRotation = cannonController.R_Cannon_1.transform.localRotation;
+            ServerSend.CannonRotate(otherPlayerId, id, leftRotation, "Left");
+            ServerSend.CannonRotate(otherPlayerId, id, rightRotation, "Right");
+        }
     }
 
     public void SearchChest() {

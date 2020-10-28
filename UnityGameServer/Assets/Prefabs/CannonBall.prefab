@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 428866351}
   - component: {fileID: 428866353}
   - component: {fileID: 428866352}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Particle s
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4837,7 +4837,7 @@ GameObject:
   - component: {fileID: -8945918014886507820}
   - component: {fileID: 3449651605630467365}
   - component: {fileID: 6666708273291404174}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: CannonBall
   m_TagString: CannonBall
   m_Icon: {fileID: 0}

@@ -479,28 +479,42 @@ public class ServerSend
 
     public static void CannonRotate(int from, string direction, string side)
     {
+        Player player = Server.clients[from].player;
         using (Packet _packet = new Packet((int)ServerPackets.cannonRotate))
         {
             _packet.Write(from);
             _packet.Write(direction);
             _packet.Write(side);
 			
-			SendTCPDataToAll(from, _packet);
+			SendTCPDataRadius(from, _packet, player.transform.position, NetworkManager.visibilityRadius);
 		}
 	}
-	
+
+    public static void CannonRotate(int from, int to, Quaternion rotation, string side)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.cannonRotateAngle))
+        {
+            _packet.Write(from);
+            _packet.Write(rotation);
+            _packet.Write(side);
+
+            SendTCPData(to, _packet);
+        }
+    }
+
     public static void HealthStats(int from)
     {
+        Player player = Server.clients[from].player;
         using (Packet _packet = new Packet((int)ServerPackets.healthStat))
         {
-            float health = Server.clients[from].player.health;
-            float maxHealth = Server.clients[from].player.maxHealth;
+            float health = player.health;
+            float maxHealth = player.maxHealth;
             _packet.Write(from);
             _packet.Write(health);
             _packet.Write(maxHealth);
 
 
-            SendTCPDataToAll(from, _packet);
+            SendTCPDataRadius(from, _packet, player.transform.position, NetworkManager.visibilityRadius);
         }
     }
 

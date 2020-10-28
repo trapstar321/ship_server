@@ -35,7 +35,8 @@ public enum ServerPackets
     shoot,
     takeDamage,
 	healthStat,
-    cannonRotate
+    cannonRotate,
+    cannonRotateAngle
 }
 
 /// <summary>Sent from client to server.</summary>

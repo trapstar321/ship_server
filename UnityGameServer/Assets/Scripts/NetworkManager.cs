@@ -10,7 +10,7 @@ public class NetworkManager : MonoBehaviour
     public GameObject playerPrefab;
     public GameObject enemyPrefab;
     public GameObject projectilePrefab;
-    public static float visibilityRadius=20;
+    public static float visibilityRadius=200;
 
     private void Awake()
     {
