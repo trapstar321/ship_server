@@ -34,9 +34,9 @@ public class Player : MonoBehaviour
     public ShipEquipment ship_equipment;
     public PlayerEquipment player_equipment;
 
-    private List<BaseStat> stats;
-    private List<Experience> exp;
-    private PlayerData data;
+    public List<BaseStat> stats;
+    public List<Experience> exp;
+    public PlayerData data;
 
     public float attack;
     public float health;
