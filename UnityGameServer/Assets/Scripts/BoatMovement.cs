@@ -13,7 +13,9 @@ public class BoatMovement : MonoBehaviour
     Player player;
     public bool forward;
     public bool left;
-    public bool right;    
+    public bool right;
+
+    public List<Vector3> buffer = new List<Vector3>();
 
     private void Awake()
     {
@@ -21,52 +23,68 @@ public class BoatMovement : MonoBehaviour
         rb = GetComponent<Rigidbody>();        
     }
 
+ 
     private void FixedUpdate()
     {
-        if (right)        
+        for (int i = buffer.Count - 1; i >= 0; i--)
         {
-            rotSpeed = rotSpeed + 0.5f;
-            if (rotSpeed <= player.rotation)
+            left = buffer[i].x == 1;
+            right = buffer[i].y == 1;
+            forward = buffer[i].z==1;
+            if (right)
             {
-                transform.Rotate(0f, rotSpeed, 0f);
+                rotSpeed = rotSpeed + 0.5f;
+                if (rotSpeed <= player.rotation)
+                {
+                    transform.Rotate(0f, rotSpeed, 0f);
+                }
+                else
+                {
+                    rotSpeed = player.rotation;
+                    transform.Rotate(0f, rotSpeed, 0f);
+                }
+                //transform.Rotate(0f, player.rotation, 0f);
             }
             else
             {
-                rotSpeed = player.rotation;
-                transform.Rotate(0f, rotSpeed, 0f);
+
             }
-
-        }
-        else
-        {
-
-        }
-        if (left)        
-        {
-            rotSpeed = rotSpeed + 0.5f;
-            if (rotSpeed <= player.rotation)
+            if (left)
             {
-                transform.Rotate(0f, -rotSpeed, 0f);
+                rotSpeed = rotSpeed + 0.5f;
+                if (rotSpeed <= player.rotation)
+                {
+                    transform.Rotate(0f, -rotSpeed, 0f);
+                }
+                else
+                {
+                    transform.Rotate(0f, -player.rotation, 0f);
+                }
+                //transform.Rotate(0f, -player.rotation, 0f);
             }
             else
             {
-                transform.Rotate(0f, -player.rotation, 0f);
+
             }
-        }
-        else
-        {
 
-        }
+            if (forward)
+            {                                
+                FloatForward();
+            }
 
-        if (forward)        
-        {
-            FloatForward();            
+            right = false;
+            left = false;
+            forward = false;
+
+            buffer.RemoveAt(i);
         }
     }   
 
     void FloatForward()
     {
-        Debug.Log("FloatForward");
+        //rb.AddForce(transform.forward * player.speed);
+        
+        
         speed = speed + 2f;
         if (speed <= player.speed)
         {   

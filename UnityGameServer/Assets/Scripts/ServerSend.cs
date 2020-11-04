@@ -4,11 +4,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ServerSend
+public class ServerSend: MonoBehaviour
 {
+    public float lag=200;
+    
     /// <summary>Sends a packet to a client via TCP.</summary>
     /// <param name="_toClient">The client to send the packet the packet to.</param>
-    /// <param name="_packet">The packet to send to the client.</param>
+    /// <param name="_packet">The packet to send to the client.</param>    
     private static void SendTCPData(int _toClient, Packet _packet)
     {
         _packet.WriteLength();
@@ -48,10 +50,10 @@ public class ServerSend
             }
         }
     }
-
-    private static void SendTCPDataRadius(Packet _packet, Vector3 position, float sendRadius)
+    
+    private void SendTCPDataRadius(Packet _packet, Vector3 position, float sendRadius)
     {
-        _packet.WriteLength();
+        _packet.WriteLength();        
 
         for (int i = 1; i <= Server.MaxPlayers; i++)
         {            
@@ -60,13 +62,19 @@ public class ServerSend
                 float distance = Vector3.Distance(position, Server.clients[i].player.transform.position);
                 if (Math.Abs(Vector3.Distance(position, Server.clients[i].player.transform.position)) < sendRadius)
                 {
-                    Server.clients[i].tcp.SendData(_packet);
+                    StartCoroutine(MakeLag(i, _packet, lag));
+                    //Server.clients[i].tcp.SendData(_packet);
                 }
             }            
         }
     }
 
-    private static void SendTCPDataRadius(int _exceptClient, Packet _packet, Vector3 position, float visibilityRadius) {
+    IEnumerator MakeLag(int to, Packet packet, float ms) {        
+        yield return new WaitForSeconds(ms/1000);
+        Server.clients[to].tcp.SendData(packet);
+    }
+
+    private void SendTCPDataRadius(int _exceptClient, Packet _packet, Vector3 position, float visibilityRadius) {
         _packet.WriteLength();
 
         for (int i = 1; i <= Server.MaxPlayers; i++)
@@ -143,18 +151,23 @@ public class ServerSend
 
     /// <summary>Sends a player's updated position to all clients.</summary>
     /// <param name="_player">The player whose position to update.</param>
-    public static void PlayerPosition(Player _player, float visibilityRadius)
+    public void PlayerPosition(PlayerInputs lastInput, int lastInputSequenceNumber, Player _player, float visibilityRadius)
     {
-        using (Packet _packet = new Packet((int)ServerPackets.playerPosition))
-        {
-            _packet.Write(_player.id);
-            _packet.Write(_player.transform.position);
+        //using (Packet _packet = new Packet((int)ServerPackets.playerPosition))
+        //{
+        Packet _packet = new Packet((int)ServerPackets.playerPosition);
+        _packet.Write(_player.id);
+        _packet.Write(lastInput.left);
+        _packet.Write(lastInput.right);
+        _packet.Write(lastInput.forward);
+        _packet.Write(lastInputSequenceNumber);
+        _packet.Write(_player.transform.position);
+        _packet.Write(_player.transform.rotation);
 
-            _packet.Write(_player.transform.rotation);
-
-            //SendTCPDataToAll(_player.id, _packet);
-            SendTCPDataRadius(_packet, _player.transform.position, visibilityRadius);
-        }
+        //outputBuffer.Add(_packet);
+        //SendTCPDataToAll(_packet);
+        SendTCPDataRadius(_packet, _player.transform.position, visibilityRadius);
+        //}
     }
 
     public static void PlayerDisconnected(int _playerId)
@@ -175,136 +188,6 @@ public class ServerSend
             _packet.Write(_player.health);
 
             SendTCPDataToAll(_packet);
-        }
-    }
-
-    public static void PlayerRespawned(Player _player)
-    {
-        using (Packet _packet = new Packet((int)ServerPackets.playerRespawned))
-        {
-            _packet.Write(_player.id);
-
-            SendTCPDataToAll(_packet);
-        }
-    }
-
-    public static void CreateItemSpawner(int _toClient, int _spawnerId, Vector3 _spawnerPosition, bool _hasItem)
-    {
-        using (Packet _packet = new Packet((int)ServerPackets.createItemSpawner))
-        {
-            _packet.Write(_spawnerId);
-            _packet.Write(_spawnerPosition);
-            _packet.Write(_hasItem);
-
-            SendTCPData(_toClient, _packet);
-        }
-    }
-
-    public static void ItemSpawned(int _spawnerId)
-    {
-        using (Packet _packet = new Packet((int)ServerPackets.itemSpawned))
-        {
-            _packet.Write(_spawnerId);
-
-            SendTCPDataToAll(_packet);
-        }
-    }
-
-    public static void ItemPickedUp(int _spawnerId, int _byPlayer)
-    {
-        using (Packet _packet = new Packet((int)ServerPackets.itemPickedUp))
-        {
-            _packet.Write(_spawnerId);
-            _packet.Write(_byPlayer);
-
-            SendTCPDataToAll(_packet);
-        }
-    }
-
-    public static void SpawnProjectile(Projectile _projectile, int _thrownByPlayer)
-    {
-        using (Packet _packet = new Packet((int)ServerPackets.spawnProjectile))
-        {
-            _packet.Write(_projectile.id);
-            _packet.Write(_projectile.transform.position);
-            _packet.Write(_thrownByPlayer);
-
-            SendTCPDataToAll(_packet);
-        }
-    }
-
-    public static void ProjectilePosition(Projectile _projectile)
-    {
-        using (Packet _packet = new Packet((int)ServerPackets.projectilePosition))
-        {
-            _packet.Write(_projectile.id);
-            _packet.Write(_projectile.transform.position);
-
-            SendUDPDataToAll(_packet);
-        }
-    }
-
-    public static void ProjectileExploded(Projectile _projectile)
-    {
-        using (Packet _packet = new Packet((int)ServerPackets.projectileExploded))
-        {
-            _packet.Write(_projectile.id);
-            _packet.Write(_projectile.transform.position);
-
-            SendTCPDataToAll(_packet);
-        }
-    }
-
-    public static void SpawnEnemy(Enemy _enemy)
-    {
-        using (Packet _packet = new Packet((int)ServerPackets.spawnEnemy))
-        {
-            SendTCPDataToAll(SpawnEnemy_Data(_enemy, _packet));
-        }
-    }
-    public static void SpawnEnemy(int _toClient, Enemy _enemy)
-    {
-        using (Packet _packet = new Packet((int)ServerPackets.spawnEnemy))
-        {
-            SendTCPData(_toClient, SpawnEnemy_Data(_enemy, _packet));
-        }
-    }
-
-    private static Packet SpawnEnemy_Data(Enemy _enemy, Packet _packet)
-    {
-        _packet.Write(_enemy.id);
-        _packet.Write(_enemy.transform.position);
-        return _packet;
-    }
-
-    public static void EnemyPosition(Enemy _enemy)
-    {
-        using (Packet _packet = new Packet((int)ServerPackets.enemyPosition))
-        {
-            _packet.Write(_enemy.id);
-            _packet.Write(_enemy.transform.position);
-
-            SendUDPDataToAll(_packet);
-        }
-    }
-
-    public static void EnemyHealth(Enemy _enemy)
-    {
-        using (Packet _packet = new Packet((int)ServerPackets.enemyHealth))
-        {
-            _packet.Write(_enemy.id);
-            _packet.Write(_enemy.health);
-
-            SendTCPDataToAll(_packet);
-        }
-    }
-
-    public static void WavesMesh(int to, MeshSerializable.MeshSerializable mesh)
-    {        
-        using (Packet _packet = new Packet((int)ServerPackets.wavesMesh))
-        {
-            _packet.Write(mesh);
-            SendTCPData(to, _packet);            
         }
     }
 
@@ -455,7 +338,7 @@ public class ServerSend
         }
     }
 
-    public static void Shoot(int from, string position, Vector3 pos)
+    public void Shoot(int from, string position, Vector3 pos)
     {
         using (Packet _packet = new Packet((int)ServerPackets.shoot))
         {
@@ -516,6 +399,6 @@ public class ServerSend
 
             SendTCPData(to, _packet);
         }
-    } 
+    }
 }
 #endregion

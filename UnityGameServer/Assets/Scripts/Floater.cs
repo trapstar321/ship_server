@@ -17,7 +17,8 @@ public class Floater : MonoBehaviour
         float x = ((transform.position.x * WaterWaves.instance.perlinScale) + (Time.time * WaterWaves.instance.waveSpeed) + WaterWaves.instance.offset);
         float z = ((transform.position.z * WaterWaves.instance.perlinScale) + (Time.time * WaterWaves.instance.waveSpeed) + WaterWaves.instance.offset);
         float waveHeight = WaterWaves.instance.GetWaveHeight(x, z);
-        //float waveHeight = WaterWaves.instance.GetWaveHeight(transform.position.x, transform.position.z);        
+        //float waveHeight = WaterWaves.instance.GetWaveHeight(transform.position.x, transform.position.z);
+        
         if (transform.position.y < waveHeight)
         {
             float displacementMultiplier = Mathf.Clamp01((waveHeight - transform.position.y) / depthBeforeSubmerged) * displacementAmount;

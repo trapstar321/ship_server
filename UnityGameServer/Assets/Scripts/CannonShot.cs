@@ -14,10 +14,11 @@ public class CannonShot : MonoBehaviour
     public float DestroyDistance = 50;
     float LastShotTime;
     private Player player;
-    
+    private ServerSend send;    
 
     private void Awake()
     {
+        send = FindObjectOfType<ServerSend>();
         player = transform.gameObject.GetComponent<Player>();
     }
 
@@ -29,11 +30,11 @@ public class CannonShot : MonoBehaviour
         if (position.Equals("left"))
         {
             FireCannon(L_shotPos_1, L_shotPos_2);
-            ServerSend.Shoot(player.id, position, player.transform.position);
+            send.Shoot(player.id, position, player.transform.position);
         }
         else if(position.Equals("right")){
             FireCannon(R_shotPos_1, R_shotPos_2);
-            ServerSend.Shoot(player.id, position, player.transform.position);
+            send.Shoot(player.id, position, player.transform.position);
         }
     }
 

@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class NetworkManager : MonoBehaviour
 {
-    public static NetworkManager instance;
+    public static ServerSend send;
+    public static NetworkManager instance;    
     public static Waves wavesScript;
 
     public GameObject playerPrefab;
@@ -14,6 +15,8 @@ public class NetworkManager : MonoBehaviour
 
     private void Awake()
     {
+        send = FindObjectOfType<ServerSend>();
+        StartCoroutine(Tick());
         wavesScript = GameObject.FindWithTag("Waves").GetComponent<Waves>();        
 
         if (instance == null)
@@ -29,7 +32,7 @@ public class NetworkManager : MonoBehaviour
 
     private void Update()
     {
-        ServerSend.Time(Time.deltaTime);
+        
     }
 
     private void Start()
@@ -50,16 +53,6 @@ public class NetworkManager : MonoBehaviour
         return Instantiate(playerPrefab, new Vector3(-6.83f, 0.2f, -27.9f), Quaternion.identity).GetComponent<Player>();
     }
 
-    public void InstantiateEnemy(Vector3 _position)
-    {
-        Instantiate(enemyPrefab, _position, Quaternion.identity);
-    }
-
-    public Projectile InstantiateProjectile(Transform _shootOrigin)
-    {
-        return Instantiate(projectilePrefab, _shootOrigin.position + _shootOrigin.forward * 0.7f, Quaternion.identity).GetComponent<Projectile>();
-    }
-
     public static void SendHealthStats(int from) {
         //send player stats to all
         ServerSend.HealthStats(from);
@@ -69,5 +62,42 @@ public class NetworkManager : MonoBehaviour
             if(client.player!=null && client.id!=from)
                 ServerSend.HealthStats(client.id, from);
         }
+    }
+
+    IEnumerator Tick()
+    {
+        while (true)
+        {
+            foreach (Client client in Server.clients.Values)
+            {
+                if (client.player != null)
+                {
+                    int lastInputSequenceNumber = 0;
+                    PlayerInputs lastInput = null;
+                    //Debug.Log("To process: "+client.inputBuffer.Count);
+                    
+                    int end = client.inputBuffer.Count;
+                    for (int i=0; i<end; i++)
+                    {
+                        Debug.Log("SN "+ client.inputBuffer[i].inputSequenceNumber);
+                        PlayerInputs input = client.inputBuffer[i];
+                        lastInput = input;
+                        lastInputSequenceNumber = input.inputSequenceNumber;
+                        client.player.Move(new Vector3(input.left ? 1 : 0, input.right ? 1 : 0, input.forward ? 1 : 0));
+                        //client.inputBuffer.RemoveAt(i);                        
+                    }
+                    if(end!=0)
+                        client.inputBuffer.RemoveRange(0, end);
+                    
+                    if(lastInputSequenceNumber!=0)
+                    {
+                        client.lastInputSequenceNumber = lastInputSequenceNumber;
+                        send.PlayerPosition(lastInput, client.lastInputSequenceNumber, client.player, visibilityRadius);
+                    }
+                    //Debug.Log("LSN:" + client.lastInputSequenceNumber);
+                }
+            }
+            yield return new WaitForSeconds(1/50);
+        }        
     }
 }

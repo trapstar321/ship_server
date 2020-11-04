@@ -5,7 +5,15 @@ using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
 
-public class Client
+public class PlayerInputs 
+{
+    public int inputSequenceNumber;
+    public bool left;
+    public bool right;
+    public bool forward;
+}
+
+public class Client: MonoBehaviour
 {
     public static int dataBufferSize = 4096;
 
@@ -13,6 +21,9 @@ public class Client
     public Player player;
     public TCP tcp;
     public UDP udp;
+
+    public List<PlayerInputs> inputBuffer = new List<PlayerInputs>();
+    public int lastInputSequenceNumber;    
 
     public Client(int _clientId)
     {
@@ -230,7 +241,7 @@ public class Client
             if (_client.player != null)
             {
                 if (_client.id != id)
-                {                    
+                {
                     ServerSend.SpawnPlayer(id, _client.player);                    
                 }
             }
@@ -255,6 +266,8 @@ public class Client
         ThreadManager.ExecuteOnMainThread(() =>
         {
             UnityEngine.Object.Destroy(player.gameObject);
+            lastInputSequenceNumber = 0;
+            inputBuffer.Clear();            
             player = null;
         });
 

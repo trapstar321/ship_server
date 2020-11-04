@@ -48,7 +48,7 @@ public class Player : MonoBehaviour
     public float crit_chance;
     public float cannon_force;
 
-    BoatMovement movement;
+    BoatMovement movement;    
 
     void Awake() {
         //mBody = GetComponent<Rigidbody>();        
@@ -57,7 +57,7 @@ public class Player : MonoBehaviour
         inventory = GetComponent<Inventory>();
         ship_equipment = GetComponent<ShipEquipment>();
         player_equipment = GetComponent<PlayerEquipment>();
-        movement = GetComponent<BoatMovement>();
+        movement = GetComponent<BoatMovement>();        
     }
 
     private void Start()
@@ -141,12 +141,12 @@ public class Player : MonoBehaviour
         ServerSend.PlayerRotation(this);*/
     }
 
-    public void SetPosition(Vector3 position, Quaternion rotation) {
+    /*public void SetPosition(Vector3 position, Quaternion rotation) {
         transform.position = position;
         transform.rotation = rotation;
 
         ServerSend.PlayerPosition(this, visibilityRadius);        
-    }
+    }*/
 
     /// <summary>Updates the player input with newly received input.</summary>
     /// <param name="_inputs">The new key inputs.</param>
@@ -165,41 +165,7 @@ public class Player : MonoBehaviour
         if (vertical != 0 || horizontal != 0) {
             Debug.Log($"Vertical={vertical}, Horizontal={horizontal}");
         }
-    }
-
-    public void Shoot(Vector3 _viewDirection)
-    {
-        if (health <= 0f)
-        {
-            return;
-        }
-
-        if (Physics.Raycast(shootOrigin.position, _viewDirection, out RaycastHit _hit, 25f))
-        {
-            if (_hit.collider.CompareTag("Player"))
-            {
-                //_hit.collider.GetComponent<Player>().TakeDamage(50f);
-            }
-            else if (_hit.collider.CompareTag("Enemy"))
-            {
-                _hit.collider.GetComponent<Enemy>().TakeDamage(50f);
-            }
-        }
-    }
-
-    public void ThrowItem(Vector3 _viewDirection)
-    {
-        if (health <= 0f)
-        {
-            return;
-        }
-
-        if (itemAmount > 0)
-        {
-            itemAmount--;
-            NetworkManager.instance.InstantiateProjectile(shootOrigin).Initialize(_viewDirection, throwForce, id);
-        }
-    }
+    }    
 
     private void TakeDamage(Player player)
     {
@@ -217,26 +183,6 @@ public class Player : MonoBehaviour
             health -= damage;
         }
         ServerSend.TakeDamage(id, transform.position, damage);
-    }
-
-    private IEnumerator Respawn()
-    {
-        yield return new WaitForSeconds(5f);
-
-        health = maxHealth;
-        controller.enabled = true;
-        ServerSend.PlayerRespawned(this);
-    }
-
-    public bool AttemptPickupItem()
-    {
-        if (itemAmount >= maxItemAmount)
-        {
-            return false;
-        }
-
-        itemAmount++;
-        return true;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -287,7 +233,7 @@ public class Player : MonoBehaviour
         cannon_reload_speed += item.cannon_reload_speed;
         crit_chance += item.crit_chance;
         cannon_force += item.cannon_force;
-        
+
         ServerSend.HealthStats(id);
     }
 
@@ -302,7 +248,7 @@ public class Player : MonoBehaviour
         cannon_reload_speed -= item.cannon_reload_speed;
         crit_chance -= item.crit_chance;
         cannon_force -= item.cannon_force;
-        
+
         ServerSend.HealthStats(id);
     }
 
@@ -339,12 +285,8 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void Move(bool left, bool right, bool forward)
-    {        
-        movement.forward = forward;
-        movement.left = left;
-        movement.right = right;
-        
-        ServerSend.PlayerPosition(this, visibilityRadius);
+    public void Move(Vector3 newPos)
+    {
+        movement.buffer.Add(newPos);
     }
 }

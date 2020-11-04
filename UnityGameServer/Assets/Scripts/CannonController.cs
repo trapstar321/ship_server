@@ -8,8 +8,8 @@ public class CannonController : MonoBehaviour
     public GameObject L_Cannon_2;
     public GameObject R_Cannon_1;
     public GameObject R_Cannon_2;
+    // Start is called before the first frame update    
 
-    // Start is called before the first frame update
     void Start()
     {
 

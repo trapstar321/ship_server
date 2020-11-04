@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ServerHandle: MonoBehaviour
 {
-    private static SpawnManager spawnManager;
+    private static SpawnManager spawnManager;    
 
     private void Awake()
     {
@@ -24,6 +24,7 @@ public class ServerHandle: MonoBehaviour
         }
         Server.clients[_fromClient].SendIntoGame("username");
         //ServerSend.WavesMesh(_fromClient, NetworkManager.wavesScript.GenerateMesh());
+        ServerSend.Time(Time.time);
         spawnManager.SendAllGameObjects(_fromClient);
 
         //send current health to all
@@ -44,12 +45,16 @@ public class ServerHandle: MonoBehaviour
     }
 
     public static void Position(int _fromClient, Packet _packet)
-    {
+    {        
+        int inputSequenceNumber = _packet.ReadInt();
+        Debug.Log("ISN: " + inputSequenceNumber);
         bool left = _packet.ReadBool();
         bool right = _packet.ReadBool();
-        bool forward = _packet.ReadBool();        
+        bool forward = _packet.ReadBool();
 
-        Server.clients[_fromClient].player.Move(left, right, forward);        
+        //Server.clients[_fromClient].player.Move(new Vector3(left ? 1 : 0, right ? 1 : 0, forward ? 1 : 0));                
+        Client client = Server.clients[_fromClient];
+        client.inputBuffer.Add(new PlayerInputs() { left = left, right = right, forward = forward, inputSequenceNumber = inputSequenceNumber });
     }
 
     public static void Joystick(int _fromClient, Packet _packet)
@@ -59,20 +64,6 @@ public class ServerHandle: MonoBehaviour
         float horizontal = _packet.ReadFloat();
 
         Server.clients[_fromClient].player.SetInput(vertical, horizontal);
-    }
-
-    public static void PlayerShoot(int _fromClient, Packet _packet)
-    {
-        Vector3 _shootDirection = _packet.ReadVector3();
-
-        Server.clients[_fromClient].player.Shoot(_shootDirection);
-    }
-
-    public static void PlayerThrowItem(int _fromClient, Packet _packet)
-    {
-        Vector3 _throwDirection = _packet.ReadVector3();
-
-        Server.clients[_fromClient].player.ThrowItem(_throwDirection);
     }
 
     public static void test(int _fromClient, Packet _packet)
@@ -97,7 +88,7 @@ public class ServerHandle: MonoBehaviour
     public static void GetShipEquipment(int from, Packet packet)
     {
         Mysql mysql = FindObjectOfType<Mysql>();        
-        ShipEquipment equipment = Server.clients[from].player.ship_equipment;        
+        ShipEquipment equipment = Server.clients[from].player.ship_equipment;
 
         ServerSend.ShipEquipment(from, equipment.Items());
 
@@ -326,7 +317,7 @@ public class ServerHandle: MonoBehaviour
 
         List<BaseStat> stats = mysql.ReadBaseStatsTable();
         List<Experience> exp = mysql.ReadExperienceTable();
-        PlayerData data = mysql.ReadPlayerData(from);        
+        PlayerData data = mysql.ReadPlayerData(from);
 
         ServerSend.OnGameStart(from, stats, exp, data);        
     }

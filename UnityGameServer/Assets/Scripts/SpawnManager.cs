@@ -25,7 +25,7 @@ public class SpawnManager : MonoBehaviour
     public Dictionary<int, Spawn> objects = new Dictionary<int, Spawn>();
 
     private void Awake()
-    {        
+    {
         prefabs.Add(GameObjectType.chest, Resources.Load("Prefabs/Chest", typeof(GameObject)) as GameObject);        
     }
 
