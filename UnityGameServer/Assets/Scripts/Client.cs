@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SerializableObjects;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
@@ -221,9 +222,9 @@ public class Client: MonoBehaviour
 
     /// <summary>Sends the client into the game and informs other clients of the new player.</summary>
     /// <param name="_playerName">The username of the new player.</param>
-    public void SendIntoGame(string _playerName)
-    {
-        player = NetworkManager.instance.InstantiatePlayer();
+    public void SendIntoGame(PlayerData data, string _playerName)
+    {        
+        player = NetworkManager.instance.InstantiatePlayer(data.X, data.Z);
         player.Initialize(id, _playerName);
 
         // Send the new player to all players (including himself)

@@ -11,7 +11,12 @@ public class NetworkManager : MonoBehaviour
     public GameObject playerPrefab;
     public GameObject enemyPrefab;
     public GameObject projectilePrefab;
-    public static float visibilityRadius=20;
+    public static float visibilityRadius=200;
+
+    float lastPositionUpdateTime=-1;
+    float positionUpdateDifference = 5;
+
+    Mysql mysql;
 
     private void Awake()
     {
@@ -28,11 +33,14 @@ public class NetworkManager : MonoBehaviour
             Debug.Log("Instance already exists, destroying object!");
             Destroy(this);
         }
+
+        mysql = FindObjectOfType<Mysql>();
     }
 
     private void Update()
     {
-        
+        ServerSend.Time(Time.deltaTime);
+        UpdatePlayerPosition();
     }
 
     private void Start()
@@ -48,7 +56,7 @@ public class NetworkManager : MonoBehaviour
         Server.Stop();
     }
 
-    public Player InstantiatePlayer()
+    public Player InstantiatePlayer(float x, float z)
     {
         return Instantiate(playerPrefab, new Vector3(-6.83f, 0.2f, -27.9f), Quaternion.identity).GetComponent<Player>();
     }
@@ -99,5 +107,19 @@ public class NetworkManager : MonoBehaviour
             }
             yield return new WaitForSeconds(1/50);
         }        
+
+    void UpdatePlayerPosition() {
+        if (Time.time - lastPositionUpdateTime < positionUpdateDifference && lastPositionUpdateTime != -1)
+            return;
+
+        lastPositionUpdateTime = Time.time;
+
+        foreach (Client client in Server.clients.Values) {
+            Player player = client.player;
+
+            if (player != null) {
+                mysql.UpdatePlayerPosition(player.id, player.transform.position.x, player.transform.position.z);
+            }
+        }
     }
 }

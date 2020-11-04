@@ -5,11 +5,14 @@ using UnityEngine;
 
 public class ServerHandle: MonoBehaviour
 {
-    private static SpawnManager spawnManager;    
+    private static SpawnManager spawnManager;
+    private static Mysql mysql;
+
 
     private void Awake()
     {
         spawnManager = FindObjectOfType<SpawnManager>();
+        mysql = FindObjectOfType<Mysql>();
     }
 
     public static void WelcomeReceived(int _fromClient, Packet _packet)
@@ -22,8 +25,10 @@ public class ServerHandle: MonoBehaviour
         {
             Debug.Log($"Player (ID: {_fromClient}) has assumed the wrong client ID ({_clientIdCheck})!");
         }
-        Server.clients[_fromClient].SendIntoGame("username");
+        PlayerData data = mysql.ReadPlayerData(_fromClient);
+        Server.clients[_fromClient].SendIntoGame(data, "username");
         //ServerSend.WavesMesh(_fromClient, NetworkManager.wavesScript.GenerateMesh());
+
         ServerSend.Time(Time.time);
         spawnManager.SendAllGameObjects(_fromClient);
 
@@ -86,10 +91,8 @@ public class ServerHandle: MonoBehaviour
     }
 
     public static void GetShipEquipment(int from, Packet packet)
-    {
-        Mysql mysql = FindObjectOfType<Mysql>();        
-        ShipEquipment equipment = Server.clients[from].player.ship_equipment;
-
+	{
+        ShipEquipment equipment = Server.clients[from].player.ship_equipment;        
         ServerSend.ShipEquipment(from, equipment.Items());
 
         /*Item wood = new Item();
@@ -114,8 +117,7 @@ public class ServerHandle: MonoBehaviour
         ServerSend.AddToInventory(from, slot);*/
     }
 
-    public static void DropItem(int from, Packet packet) {
-        Mysql mysql = FindObjectOfType<Mysql>();
+    public static void DropItem(int from, Packet packet) {        
         Inventory inventory = Server.clients[from].player.inventory;
         SerializableObjects.InventorySlot slot = packet.ReadInventorySlot();
 
@@ -126,8 +128,7 @@ public class ServerHandle: MonoBehaviour
     }
 
     public static void AddItemToInventory(int from, Packet packet)
-    {
-        Mysql mysql = FindObjectOfType<Mysql>();
+    {        
         Inventory inventory = Server.clients[from].player.inventory;
         ShipEquipment sequipment = Server.clients[from].player.ship_equipment;
         PlayerEquipment pequipment = Server.clients[from].player.player_equipment;
@@ -146,8 +147,7 @@ public class ServerHandle: MonoBehaviour
         mysql.AddItemToInventory(from, sl);
     }
 
-    public static void RemoveItemFromInventory(int from, Packet packet) {
-        Mysql mysql = FindObjectOfType<Mysql>();
+    public static void RemoveItemFromInventory(int from, Packet packet) {        
         Inventory inventory = Server.clients[from].player.inventory;
 
         SerializableObjects.InventorySlot slot = packet.ReadInventorySlot();
@@ -155,8 +155,7 @@ public class ServerHandle: MonoBehaviour
         inventory.Remove(slot.slotID);
     }
 
-    public static void ReplaceShipEquipment(int from, Packet packet) {
-        Mysql mysql = FindObjectOfType<Mysql>();
+    public static void ReplaceShipEquipment(int from, Packet packet) {        
         Inventory inventory = Server.clients[from].player.inventory;
         ShipEquipment equipment = Server.clients[from].player.ship_equipment;
 
@@ -180,7 +179,6 @@ public class ServerHandle: MonoBehaviour
 
     public static void ReplacePlayerEquipment(int from, Packet packet)
     {
-        Mysql mysql = FindObjectOfType<Mysql>();
         Inventory inventory = Server.clients[from].player.inventory;
         PlayerEquipment equipment = Server.clients[from].player.player_equipment;
 
@@ -204,7 +202,6 @@ public class ServerHandle: MonoBehaviour
 
     public static void DragAndDrop(int from, Packet packet)
     {
-        Mysql mysql = FindObjectOfType<Mysql>();
         Inventory inventory = Server.clients[from].player.inventory;
         SerializableObjects.InventorySlot slot1 = packet.ReadInventorySlot();
         SerializableObjects.InventorySlot slot2 = packet.ReadInventorySlot();        
@@ -234,7 +231,6 @@ public class ServerHandle: MonoBehaviour
 
     public static void AddShipEquipment(int from, Packet packet)
     {
-        Mysql mysql = FindObjectOfType<Mysql>();
         ShipEquipment equipment = Server.clients[from].player.ship_equipment;
         Inventory inventory = Server.clients[from].player.inventory;
         SerializableObjects.InventorySlot slot = packet.ReadInventorySlot();
@@ -250,7 +246,6 @@ public class ServerHandle: MonoBehaviour
     }
 
     public static void RemoveShipEquipment(int from, Packet packet) {
-        Mysql mysql = FindObjectOfType<Mysql>();
         ShipEquipment equipment = Server.clients[from].player.ship_equipment;
         Inventory inventory = Server.clients[from].player.inventory;
         SerializableObjects.Item item = packet.ReadItem();
@@ -265,7 +260,6 @@ public class ServerHandle: MonoBehaviour
 
     public static void RemovePlayerEquipment(int from, Packet packet)
     {
-        Mysql mysql = FindObjectOfType<Mysql>();
         PlayerEquipment equipment = Server.clients[from].player.player_equipment;
         Inventory inventory = Server.clients[from].player.inventory;
         SerializableObjects.Item item = packet.ReadItem();
@@ -313,11 +307,10 @@ public class ServerHandle: MonoBehaviour
     }
 
     public static void OnGameStart(int from, Packet packet) {
-        Mysql mysql = FindObjectOfType<Mysql>();
-
-        List<BaseStat> stats = mysql.ReadBaseStatsTable();
-        List<Experience> exp = mysql.ReadExperienceTable();
-        PlayerData data = mysql.ReadPlayerData(from);
+        Player player = Server.clients[from].player;
+        List<BaseStat> stats = player.stats;
+        List<Experience> exp = player.exp;
+        PlayerData data = player.data;        
 
         ServerSend.OnGameStart(from, stats, exp, data);        
     }

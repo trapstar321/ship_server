@@ -5,6 +5,10 @@ create table player
 (
 	ID int auto_increment not null,
     USERNAME varchar(1000) not null,
+    LEVEL int not null default 0,
+    EXPERIENCE int not null default 0,
+    X float null,
+    Z float null
     PRIMARY KEY(id)
 )DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
 
@@ -34,6 +38,23 @@ alter table item add VISIBILITY int not null default 0
 alter table item add CANNON_RELOAD_SPEED int not null default 0
 alter table item add CRIT_CHANCE int not null default 0
 alter table item add CANNON_FORCE int not null default 0
+
+select* from player
+
+alter table player add X float null
+alter table player add Z float null
+
+select* from base_stats
+
+update base_stats set health=500, speed=10, rotation=1, cannon_reload_speed=3 where id=1
+
+update base_stats set cannon_force = 700 where id=2
+
+alter table base_stats add CANNON_FORCE int not null default 0
+
+insert into player
+(username, level, experience)
+select 'player3', 1, 0
 
 select* from item
 
@@ -102,28 +123,28 @@ create table base_stats
 	CANNON_RELOAD_SPEED int not null default 0,
 	CRIT_CHANCE int not null default 0,
     PRIMARY KEY(ID)
-)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-select* from base_stats 
-
-alter table base_stats add CANNON_FORCE int not null default 0
-
-select* from base_stats
-
-update base_stats set speed=5 where id=1
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
 
 insert into base_stats
-(level, attack, health, defence, rotation, speed, visibility, cannon_reload_speed, crit_chance)
-select 1, 100, 500, 20, 2, 10, 50, 4, 20
+(level, attack, health, defence, rotation, speed, visibility, CANNON_RELOAD_SPEED, crit_chance)
+select 1, 100, 100, 50, 10, 20, 100, 50, 20
+union all
+select 2, 120, 120, 60, 15, 25, 120, 60, 25
 
 create table experience
 (
 	ID bigint NOT NULL auto_increment,
-    LEVEL int NOT NULL,
-    FROM_ int not null,
-    TO_ int not null,
+    LEVEL int NOT NULL,    
+    FROM_ int not null default 0,
+	TO_ int not null default 0,	
     PRIMARY KEY(ID)
 )DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
+
+insert into experience
+(level, from_, to_)
+select 1, 0, 10000
+union all
+select 2, 10000, 25000
 
 insert into item
 (name, icon_name, is_default_item)
@@ -339,8 +360,3 @@ update inventory_slot set item_id=4 where id=485
 update inventory_slot set item_id=2,quantity=1 where id=524
 
 select* from player
-
-alter table player add LEVEL int
-alter table player add EXPERIENCE int
-
-update player set level=1, experience=0 where id in (1,2)
