@@ -93,6 +93,26 @@ public class ServerSend: MonoBehaviour
         }
     }
 
+    private static void SendTCPDataRadiusStatic(int _exceptClient, Packet _packet, Vector3 position, float visibilityRadius)
+    {
+        _packet.WriteLength();
+
+        for (int i = 1; i <= Server.MaxPlayers; i++)
+        {
+            if (i != _exceptClient)
+            {
+                if (Server.clients[i].player != null)
+                {
+                    float distance = Vector3.Distance(position, Server.clients[i].player.transform.position);
+                    if (Math.Abs(Vector3.Distance(position, Server.clients[i].player.transform.position)) < visibilityRadius)
+                    {
+                        Server.clients[i].tcp.SendData(_packet);
+                    }
+                }
+            }
+        }
+    }
+
     /// <summary>Sends a packet to all clients via UDP.</summary>
     /// <param name="_packet">The packet to send.</param>
     private static void SendUDPDataToAll(Packet _packet)
@@ -369,7 +389,7 @@ public class ServerSend: MonoBehaviour
             _packet.Write(direction);
             _packet.Write(side);
 			
-			SendTCPDataRadius(from, _packet, player.transform.position, NetworkManager.visibilityRadius);
+			SendTCPDataRadiusStatic(from, _packet, player.transform.position, NetworkManager.visibilityRadius);
 		}
 	}
 
@@ -397,7 +417,7 @@ public class ServerSend: MonoBehaviour
             _packet.Write(maxHealth);
 
 
-            SendTCPDataRadius(from, _packet, player.transform.position, NetworkManager.visibilityRadius);
+            SendTCPDataRadiusStatic(from, _packet, player.transform.position, NetworkManager.visibilityRadius);
         }
     }
 

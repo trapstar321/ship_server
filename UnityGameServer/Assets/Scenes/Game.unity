@@ -8834,8 +8834,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7eb4dee8120f6594f8670ff1705ff30e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnerId: 0
-  hasItem: 0
 --- !u!65 &687227549
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -12064,8 +12062,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7eb4dee8120f6594f8670ff1705ff30e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnerId: 0
-  hasItem: 0
 --- !u!65 &1065617920
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -13703,7 +13699,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aace1cb2e0ba9ae45b89cbf4f3d3e5f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  frequency: 3
 --- !u!1 &1255941219
 GameObject:
   m_ObjectHideFlags: 0
@@ -14996,7 +14991,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aace1cb2e0ba9ae45b89cbf4f3d3e5f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  frequency: 3
 --- !u!1 &1447391883
 GameObject:
   m_ObjectHideFlags: 0
@@ -19082,7 +19076,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4693e9532c2c5c8438cf1b69f92ef2fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  send: {fileID: 0}
   playerPrefab: {fileID: 2112963891399863649, guid: dce8a6c02a4943343993c1dac03569b3,
     type: 3}
   enemyPrefab: {fileID: 4187005777591049097, guid: 9304265d43a31f043bb49ce027fa06b2,
@@ -19127,7 +19120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64f9b696fe0958540af3f423ef2f9ed2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lag: 200
+  lag: 50
 --- !u!1 &1927425695
 GameObject:
   m_ObjectHideFlags: 0
