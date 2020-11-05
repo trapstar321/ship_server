@@ -52,14 +52,14 @@ public class ServerHandle: MonoBehaviour
     public static void Position(int _fromClient, Packet _packet)
     {        
         int inputSequenceNumber = _packet.ReadInt();
-        Debug.Log("ISN: " + inputSequenceNumber);
+        //Debug.Log("ISN: " + inputSequenceNumber);
         bool left = _packet.ReadBool();
         bool right = _packet.ReadBool();
         bool forward = _packet.ReadBool();
 
         //Server.clients[_fromClient].player.Move(new Vector3(left ? 1 : 0, right ? 1 : 0, forward ? 1 : 0));                
         Client client = Server.clients[_fromClient];
-        client.inputBuffer.Add(new PlayerInputs() { left = left, right = right, forward = forward, inputSequenceNumber = inputSequenceNumber });
+        client.inputBuffer.Add(new PlayerInputs() { left = left, right = right, forward = forward, inputSequenceNumber = inputSequenceNumber });        
     }
 
     public static void Joystick(int _fromClient, Packet _packet)

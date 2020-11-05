@@ -74,7 +74,7 @@ public class BoatMovement : MonoBehaviour
 
             right = false;
             left = false;
-            forward = false;
+            forward = false;            
 
             buffer.RemoveAt(i);
         }
