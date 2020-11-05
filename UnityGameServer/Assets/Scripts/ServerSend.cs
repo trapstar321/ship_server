@@ -68,13 +68,30 @@ public class ServerSend: MonoBehaviour
             }            
         }
     }
+    
+    private static void SendTCPDataRadiusStatic(Packet _packet, Vector3 position, float sendRadius)
+    {
+        _packet.WriteLength();
+
+        for (int i = 1; i <= Server.MaxPlayers; i++)
+        {
+            if (Server.clients[i].player != null)
+            {
+                float distance = Vector3.Distance(position, Server.clients[i].player.transform.position);
+                if (Math.Abs(Vector3.Distance(position, Server.clients[i].player.transform.position)) < sendRadius)
+                {                    
+                    Server.clients[i].tcp.SendData(_packet);
+                }
+            }
+        }
+    }
 
     IEnumerator MakeLag(int to, Packet packet, float ms) {        
         yield return new WaitForSeconds(ms/1000);
         Server.clients[to].tcp.SendData(packet);
     }
 
-    private void SendTCPDataRadius(int _exceptClient, Packet _packet, Vector3 position, float visibilityRadius) {
+    private static void SendTCPDataRadius(int _exceptClient, Packet _packet, Vector3 position, float visibilityRadius) {
         _packet.WriteLength();
 
         for (int i = 1; i <= Server.MaxPlayers; i++)
