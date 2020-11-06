@@ -58,7 +58,7 @@ public class NetworkManager : MonoBehaviour
 
     public Player InstantiatePlayer(float x, float z)
     {
-        return Instantiate(playerPrefab, new Vector3(-6.83f, 0.2f, -27.9f), Quaternion.identity).GetComponent<Player>();
+        return Instantiate(playerPrefab, new Vector3(x, 0.2f, z), Quaternion.identity).GetComponent<Player>();
     }
 
     public static void SendHealthStats(int from) {
@@ -72,7 +72,7 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    int moveCount = 0;
+    int moveCount = 1;
     IEnumerator Tick()
     {
         while (true)

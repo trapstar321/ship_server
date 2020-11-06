@@ -82,10 +82,10 @@ public class BoatMovement : MonoBehaviour
 
     void FloatForward()
     {
-        //rb.AddForce(transform.forward * player.speed);
+        rb.AddForce(transform.forward * player.speed);
         
         
-        speed = speed + 2f;
+        /*speed = speed + 2f;
         if (speed <= player.speed)
         {   
             rb.AddForce(transform.forward * speed);// * Time.deltaTime);
@@ -94,6 +94,6 @@ public class BoatMovement : MonoBehaviour
         {
             speed = player.speed;                        
             rb.AddForce(transform.forward * speed);// * Time.deltaTime);
-        }
+        }*/
     }
 }
