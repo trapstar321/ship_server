@@ -74,6 +74,7 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
+    int moveCount = 0;
     IEnumerator Tick()
     {
         while (true)
@@ -89,11 +90,13 @@ public class NetworkManager : MonoBehaviour
                     int end = client.inputBuffer.Count;
                     for (int i = 0; i < end; i++)
                     {
-                        Debug.Log("SN " + client.inputBuffer[i].inputSequenceNumber);
+                        //Debug.Log("SN " + client.inputBuffer[i].inputSequenceNumber);
                         PlayerInputs input = client.inputBuffer[i];
                         lastInput = input;
                         lastInputSequenceNumber = input.inputSequenceNumber;
                         client.player.Move(new Vector3(input.left ? 1 : 0, input.right ? 1 : 0, input.forward ? 1 : 0));
+                        Debug.Log("SN " + input.inputSequenceNumber + " moveCount = " + moveCount + $" position={client.player.transform.position} move {input.left},{input.right},{input.forward}");
+                        moveCount += 1;
                         //client.inputBuffer.RemoveAt(i);                        
                     }
                     if (end != 0)
@@ -103,12 +106,13 @@ public class NetworkManager : MonoBehaviour
                     {
                         client.lastInputSequenceNumber = lastInputSequenceNumber;
                         send.PlayerPosition(lastInput, client.lastInputSequenceNumber, client.player, visibilityRadius);
+                        //Debug.Log("SN " + client.lastInputSequenceNumber + ", position=" + client.player.transform.position);
                     }
                     //Debug.Log("LSN:" + client.lastInputSequenceNumber);
                 }
             }
             yield return new WaitForSeconds(1 / 50);
-        }        
+        }
     }
 
     void UpdatePlayerPosition()
