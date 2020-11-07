@@ -199,7 +199,7 @@ public class ServerSend: MonoBehaviour
         _packet.Write(lastInput.forward);
         _packet.Write(lastInputSequenceNumber);
         _packet.Write(_player.transform.position);
-        _packet.Write(_player.transform.rotation);
+        _packet.Write(_player.transform.localRotation);
 
         //outputBuffer.Add(_packet);
         //SendTCPDataToAll(_packet);
