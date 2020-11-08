@@ -54,7 +54,7 @@ public class CannonShot : MonoBehaviour
     protected void FireCannon(Transform _cannon1, Transform _cannon2)
     {
         GameObject cannonBallCopy = ObjectPooler.SharedInstance.GetPooledObject("CannonBall");
-        cannonBallCopy.GetComponent<CannonBall>().player = GetComponent<Player>();
+        cannonBallCopy.GetComponent<CannonBall>().player = player;
         cannonballRB = cannonBallCopy.GetComponent<Rigidbody>();
         cannonballRB.velocity = Vector3.zero;
         cannonBallCopy.transform.position = _cannon1.position;
@@ -64,7 +64,7 @@ public class CannonShot : MonoBehaviour
         cannonballRB.AddForce(_cannon1.forward * player.cannon_force);
 
         GameObject cannonBallCopy2 = ObjectPooler.SharedInstance.GetPooledObject("CannonBall");
-        cannonBallCopy2.GetComponent<CannonBall>().player = GetComponent<Player>();
+        cannonBallCopy2.GetComponent<CannonBall>().player = player;
         cannonballRB = cannonBallCopy2.GetComponent<Rigidbody>();
         cannonballRB.velocity = Vector3.zero;
         cannonBallCopy2.transform.position = _cannon2.position;

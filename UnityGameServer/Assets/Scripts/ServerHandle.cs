@@ -35,6 +35,8 @@ public class ServerHandle: MonoBehaviour
         //send current health to all
         //send health from all to player
         NetworkManager.SendHealthStats(_fromClient);
+        NetworkManager.SendNPCBaseStats(_fromClient);
+        NetworkManager.SendPlayerBaseStats(_fromClient);
     }
 
     public static void PlayerMovement(int _fromClient, Packet _packet)
@@ -324,5 +326,5 @@ public class ServerHandle: MonoBehaviour
     {
         CannonController cannonRotate = Server.clients[from].player.GetComponent<CannonController>();
         cannonRotate.CannonRotate(packet.ReadString(), packet.ReadString());
-    }
+    }    
 }

@@ -207,6 +207,18 @@ public class ServerSend: MonoBehaviour
         //}
     }
 
+    public void NPCPosition(EnemyAI npc, float visibilityRadius)
+    {
+        //using (Packet _packet = new Packet((int)ServerPackets.playerPosition))
+        //{
+        Packet _packet = new Packet((int)ServerPackets.npcPosition);
+        _packet.Write(npc.id);        
+        _packet.Write(npc.transform.position);
+        _packet.Write(npc.transform.localRotation);
+        SendTCPDataRadius(_packet, npc.transform.position, visibilityRadius);
+        //}
+    }
+
     public static void PlayerDisconnected(int _playerId)
     {
         using (Packet _packet = new Packet((int)ServerPackets.playerDisconnected))
@@ -386,6 +398,18 @@ public class ServerSend: MonoBehaviour
         }
     }
 
+    public static void NPCShoot(int from, string position, Vector3 pos, Vector3 angle)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.npcShoot))
+        {
+            _packet.Write(from);
+            _packet.Write(position);
+            _packet.Write(angle);
+
+            SendTCPDataRadius(from, _packet, pos, NetworkManager.visibilityRadius);
+        }
+    }
+
     public static void TakeDamage(int receiver, Vector3 pos, float damage)
     {
         using (Packet _packet = new Packet((int)ServerPackets.takeDamage))
@@ -447,6 +471,17 @@ public class ServerSend: MonoBehaviour
             _packet.Write(from);
             _packet.Write(health);
             _packet.Write(maxHealth);
+
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void BaseStats(int to, List<BaseStat> stats, string type) {
+        using (Packet _packet = new Packet((int)ServerPackets.baseStats))
+        {
+            //type = NPC ili player
+            _packet.Write(type);
+            _packet.Write(stats);            
 
             SendTCPData(to, _packet);
         }

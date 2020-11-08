@@ -190,13 +190,38 @@ public class Player : MonoBehaviour
         ServerSend.TakeDamage(id, transform.position, damage);
     }
 
+    private void TakeDamage(EnemyAI npc)
+    {
+        float damage = 0f;
+        float randValue = UnityEngine.Random.value;
+        if (randValue < npc.crit_chance / 100)
+        {
+            damage = npc.attack * 2 - defence;
+            health -= damage;
+        }
+
+        else
+        {
+            damage = npc.attack - defence;
+            health -= damage;
+        }
+        ServerSend.TakeDamage(id, transform.position, damage);
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag.Equals("CannonBall"))
         {
             Player player = other.gameObject.GetComponent<CannonBall>().player;
+            EnemyAI npc = other.gameObject.GetComponent<CannonBall>().npc;
+
             Vector3 tempPos = other.transform.position - new Vector3(0f, 0.5f, 0f);
-            TakeDamage(player);
+            
+            if (player==null)
+                TakeDamage(npc);
+            else
+                TakeDamage(player);
+
             Debug.Log("Hit by " + other.name);
             other.gameObject.SetActive(false);
         }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using SerializableObjects;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -72,6 +73,21 @@ public class NetworkManager : MonoBehaviour
             if (client.player != null && client.id != from)
                 ServerSend.HealthStats(client.id, from);
         }
+    }
+
+    public static void SendNPCBaseStats(int to) {
+        Mysql mysql = FindObjectOfType<Mysql>();
+        List<BaseStat> stats = mysql.ReadNPCBaseStatsTable();
+
+        ServerSend.BaseStats(to, stats, "npc");
+    }
+
+    public static void SendPlayerBaseStats(int to)
+    {
+        Mysql mysql = FindObjectOfType<Mysql>();
+        List<BaseStat> stats = mysql.ReadNPCBaseStatsTable();
+
+        ServerSend.BaseStats(to, stats, "player");
     }
 
     int moveCount = 1;

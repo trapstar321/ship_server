@@ -1032,6 +1032,46 @@ public class Mysql : MonoBehaviour
         return stats;
     }
 
+    public List<BaseStat> ReadNPCBaseStatsTable()
+    {
+        string sql = @"select LEVEL,ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE,
+                              CANNON_FORCE
+                       from npc_base_stats";
+
+        var cmd = new MySqlCommand(sql, con);
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        List<BaseStat> stats = new List<BaseStat>();
+        while (rdr.Read())
+        {
+            int level = rdr.GetInt32("LEVEL");
+            int attack = rdr.GetInt32("ATTACK");
+            int health = rdr.GetInt32("HEALTH");
+            int defence = rdr.GetInt32("DEFENCE");
+            int rotation = rdr.GetInt32("ROTATION");
+            int speed = rdr.GetInt32("SPEED");
+            int visibility = rdr.GetInt32("VISIBILITY");
+            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
+            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
+            int cannon_force = rdr.GetInt32("CANNON_FORCE");
+
+            BaseStat stat = new BaseStat();
+            stat.level = level;
+            stat.attack = attack;
+            stat.health = health;
+            stat.defence = defence;
+            stat.rotation = rotation;
+            stat.speed = speed;
+            stat.visibility = visibility;
+            stat.cannon_reload_speed = cannon_reload_speed;
+            stat.crit_chance = crit_chance;
+            stat.cannon_force = cannon_force;
+            stats.Add(stat);
+        }
+        rdr.Close();
+        return stats;
+    }
+
     public List<Experience> ReadExperienceTable()
     {
         string sql = @"select LEVEL,FROM_,TO_
