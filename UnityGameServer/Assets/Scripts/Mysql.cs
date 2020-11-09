@@ -961,7 +961,7 @@ public class Mysql : MonoBehaviour
     }
 
     public PlayerData ReadPlayerData(int id) {
-        string sql = @"select LEVEL,EXPERIENCE, X, Z
+        string sql = @"select LEVEL,EXPERIENCE, X, Y, Z, Y_rot
                        from player where id=@id";
 
         var cmd = new MySqlCommand(sql, con);
@@ -978,15 +978,25 @@ public class Mysql : MonoBehaviour
             if (!rdr.IsDBNull(2))
                 X = rdr.GetFloat("X");
 
+            float Y = 0;
+            if (!rdr.IsDBNull(3))
+                Y = rdr.GetFloat("Y");
+
             float Z = 0;
-            if (!rdr.IsDBNull(2))
+            if (!rdr.IsDBNull(4))
                 Z = rdr.GetFloat("Z");
+
+            float Y_rot = 0;
+            if (!rdr.IsDBNull(5))
+                Y_rot = rdr.GetFloat("Y_rot");
 
             data = new PlayerData();
             data.level = level;
             data.experience = experience;
             data.X = X;
+            data.Y = Y;
             data.Z = Z;
+            data.Y_rot = Y_rot;
         }
         rdr.Close();
         return data;
@@ -1121,8 +1131,8 @@ public class Mysql : MonoBehaviour
         return players;
     }
 
-    public void UpdatePlayerPosition(int id, float X, float Z) {
-        string sql = @"UPDATE player set X=@x, Z=@z WHERE id=@id";
+    public void UpdatePlayerPosition(int id, float X, float Y, float Z, float Y_rot) {
+        string sql = @"UPDATE player set X=@x, Y=@y, Z=@z, Y_rot=@Y_rot WHERE id=@id";
 
         var cmd = new MySqlCommand(sql, con);
         cmd.CommandText = sql;       
@@ -1130,7 +1140,9 @@ public class Mysql : MonoBehaviour
         cmd.CommandText = sql;
         cmd.Parameters.Clear();
         cmd.Parameters.AddWithValue("@X", X);
+        cmd.Parameters.AddWithValue("@Y", Y);
         cmd.Parameters.AddWithValue("@Z", Z);
+        cmd.Parameters.AddWithValue("@Y_rot", Y_rot);
         cmd.Parameters.AddWithValue("@id", id);
         cmd.ExecuteNonQuery();       
     }

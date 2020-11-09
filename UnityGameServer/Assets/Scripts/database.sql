@@ -125,9 +125,29 @@ create table base_stats
     PRIMARY KEY(ID)
 )DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
 
-insert into base_stats
-(level, attack, health, defence, rotation, speed, visibility, CANNON_RELOAD_SPEED, crit_chance)
-select 1, 100, 100, 50, 10, 20, 100, 50, 20
+create table npc_base_stats
+(
+	ID bigint NOT NULL auto_increment,
+    LEVEL int NOT NULL,
+    ATTACK float not null default 0,
+	HEALTH float not null default 0,
+	DEFENCE float not null default 0,
+	ROTATIONf float not null default 0,
+	SPEED float not null default 0,
+	VISIBILITY float not null default 0,
+	CANNON_RELOAD_SPEED float not null default 0,
+	CRIT_CHANCE float not null default 0,
+    CANNON_FORCE float not null default 0
+    PRIMARY KEY(ID)
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
+
+alter table npc_base_stats add ROTATION float not null default 0
+
+select* from npc_base_stats
+
+insert into npc_base_stats
+(level, attack, health, defence, rotation, speed, visibility, CANNON_RELOAD_SPEED, crit_chance, cannon_force)
+select 1, 80, 300, 30, 0.5, 5, 100, 50, 10, 800
 union all
 select 2, 120, 120, 60, 15, 25, 120, 60, 25
 

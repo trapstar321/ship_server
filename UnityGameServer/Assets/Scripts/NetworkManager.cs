@@ -64,9 +64,9 @@ public class NetworkManager : MonoBehaviour
         Server.Stop();
     }
 
-    public Player InstantiatePlayer(float x, float z)
+    public Player InstantiatePlayer(float x, float y, float z)
     {
-        return Instantiate(playerPrefab, new Vector3(x, 0.2f, z), Quaternion.identity).GetComponent<Player>();
+        return Instantiate(playerPrefab, new Vector3(x, y, z), Quaternion.identity).GetComponent<Player>();
     }
 
     public static void SendStats(int from)
@@ -119,7 +119,7 @@ public class NetworkManager : MonoBehaviour
 
             if (player != null)
             {
-                mysql.UpdatePlayerPosition(player.id, player.transform.position.x, player.transform.position.z);
+                mysql.UpdatePlayerPosition(player.id, player.transform.position.x, player.transform.position.y, player.transform.position.z, player.transform.eulerAngles.y);
             }
         }
     }

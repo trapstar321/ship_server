@@ -228,7 +228,8 @@ public class Client: MonoBehaviour
     /// <param name="_playerName">The username of the new player.</param>
     public void SendIntoGame(PlayerData data, string _playerName)
     {        
-        player = NetworkManager.instance.InstantiatePlayer(data.X, data.Z);
+        player = NetworkManager.instance.InstantiatePlayer(data.X, data.Y, data.Z);
+        player.transform.eulerAngles = new Vector3(0, data.Y_rot, 0);
         player.Initialize(id, _playerName);
 
         // Send the new player to all players (including himself)
