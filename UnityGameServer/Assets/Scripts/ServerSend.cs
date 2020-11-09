@@ -406,7 +406,7 @@ public class ServerSend: MonoBehaviour
             _packet.Write(position);
             _packet.Write(angle);
 
-            SendTCPDataRadius(from, _packet, pos, NetworkManager.visibilityRadius);
+            SendTCPDataRadiusStatic(_packet, pos, NetworkManager.visibilityRadius);
         }
     }
 
