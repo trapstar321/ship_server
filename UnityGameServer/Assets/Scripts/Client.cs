@@ -132,11 +132,13 @@ public class Client: MonoBehaviour
                 byte[] _packetBytes = receivedData.ReadBytes(_packetLength);
                 ThreadManager.ExecuteOnMainThread(() =>
                 {
-                    using (Packet _packet = new Packet(_packetBytes))
-                    {
-                        int _packetId = _packet.ReadInt();
-                        Server.packetHandlers[_packetId](id, _packet); // Call appropriate method to handle the packet
-                    }
+                    //using (Packet _packet = new Packet(_packetBytes))
+                    //{
+                    Packet _packet = new Packet(_packetBytes);
+                    int _packetId = _packet.ReadInt();
+                    //Server.packetHandlers[_packetId](id, _packet); // Call appropriate method to handle the packet
+                    NetworkManager.AddPacket(id, _packetId, _packet);
+                    //}
                 });
 
                 _packetLength = 0; // Reset packet length
@@ -205,11 +207,13 @@ public class Client: MonoBehaviour
 
             ThreadManager.ExecuteOnMainThread(() =>
             {
-                using (Packet _packet = new Packet(_packetBytes))
-                {
-                    int _packetId = _packet.ReadInt();
-                    Server.packetHandlers[_packetId](id, _packet); // Call appropriate method to handle the packet
-                }
+                //using (Packet _packet = new Packet(_packetBytes))
+                //{
+                Packet _packet = new Packet(_packetBytes);
+                int _packetId = _packet.ReadInt();
+                //Server.packetHandlers[_packetId](id, _packet); // Call appropriate method to handle the packet
+                NetworkManager.AddPacket(id, _packetId, _packet);
+                //}
             });
         }
 
@@ -246,7 +250,9 @@ public class Client: MonoBehaviour
                     ServerSend.SpawnPlayer(id, _client.player);                    
                 }
             }
-        }        
+        }
+
+        player.Load();
 
         /*foreach (ItemSpawner _itemSpawner in ItemSpawner.spawners.Values)
         {
@@ -275,6 +281,7 @@ public class Client: MonoBehaviour
         tcp.Disconnect();
         udp.Disconnect();
 
+        NetworkManager.PlayerDisconnected(id);
         ServerSend.PlayerDisconnected(id);
     }
 }

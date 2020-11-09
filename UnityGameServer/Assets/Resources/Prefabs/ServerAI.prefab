@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 9143646322637346817}
   - component: {fileID: 306644770664127862}
   - component: {fileID: 835889631680460626}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Uze6
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -92,7 +92,7 @@ GameObject:
   - component: {fileID: 1425386564034932788}
   - component: {fileID: 1905534153177154045}
   - component: {fileID: 5762395102482678027}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Uze2.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -172,7 +172,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3485853910784893656}
   - component: {fileID: 6665627381014027509}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Point (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -222,7 +222,7 @@ GameObject:
   - component: {fileID: 8102247967432326069}
   - component: {fileID: 4685027989401289307}
   - component: {fileID: 4052456939277946428}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: TrupBroda
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -304,7 +304,7 @@ GameObject:
   - component: {fileID: 6974163711814986907}
   - component: {fileID: 103196945668604402}
   - component: {fileID: 7042603630036332584}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Ograda
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -412,7 +412,7 @@ GameObject:
   - component: {fileID: 4026763645335295499}
   - component: {fileID: 328822467930767543}
   - component: {fileID: 7203036503375137650}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: L_CannonBase_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -495,7 +495,7 @@ GameObject:
   - component: {fileID: 8531024792216784781}
   - component: {fileID: 8473708135872571414}
   - component: {fileID: 4466179324664275963}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Cylinder.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -574,7 +574,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2082008117644809770}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: R_Cannon_2_Angle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -607,7 +607,7 @@ GameObject:
   - component: {fileID: 8825733733192100338}
   - component: {fileID: 8223074097084617975}
   - component: {fileID: 8528133168876434350}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Cube.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -688,7 +688,7 @@ GameObject:
   - component: {fileID: 1783617650741776391}
   - component: {fileID: 6972603071486564011}
   - component: {fileID: 1074782342339217834}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Uze1.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -769,7 +769,7 @@ GameObject:
   - component: {fileID: 5649343920844279347}
   - component: {fileID: 7325573581618763968}
   - component: {fileID: 6827827016149812099}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: VeceJedro
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -850,7 +850,7 @@ GameObject:
   - component: {fileID: 7112196485053767754}
   - component: {fileID: 6445927281097052194}
   - component: {fileID: 3733417225169112620}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: R_CannonBase_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -933,7 +933,7 @@ GameObject:
   - component: {fileID: 5167017171159130459}
   - component: {fileID: 6382564016145861381}
   - component: {fileID: 7688011715242191768}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Uze4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1014,7 +1014,7 @@ GameObject:
   - component: {fileID: 2072411132499639923}
   - component: {fileID: 1242892209795195881}
   - component: {fileID: 4273342515698602076}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Cube.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1095,7 +1095,7 @@ GameObject:
   - component: {fileID: 3916611703039357588}
   - component: {fileID: 4055846722877252399}
   - component: {fileID: 7958798467118846593}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: R_CannonCylinder_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1175,7 +1175,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2229866278738719101}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: L_Cannon_1_ShotPos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1207,7 +1207,7 @@ GameObject:
   - component: {fileID: 3107228865424815977}
   - component: {fileID: 5255574863509412597}
   - component: {fileID: 7997860653155876458}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Jarbol.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1288,7 +1288,7 @@ GameObject:
   - component: {fileID: 7068796881064476436}
   - component: {fileID: 8457283845829267382}
   - component: {fileID: 5383984641524564956}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Uze5.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1369,7 +1369,7 @@ GameObject:
   - component: {fileID: 8506672026382566542}
   - component: {fileID: 7121112891560296398}
   - component: {fileID: 782223822244748493}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: ManjeJedro
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1450,7 +1450,7 @@ GameObject:
   - component: {fileID: 3857272686986207408}
   - component: {fileID: 4981854794996211417}
   - component: {fileID: 655230695006789098}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Uze3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1531,7 +1531,7 @@ GameObject:
   - component: {fileID: 558049479699540635}
   - component: {fileID: 1119105390943603604}
   - component: {fileID: 1017477053080600407}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Uze3.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1601,6 +1601,50 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &3068339017154737980
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6520152400600088591}
+  - component: {fileID: 893507998046093872}
+  m_Layer: 10
+  m_Name: NPCSphere
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6520152400600088591
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3068339017154737980}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2772104500253498419}
+  m_RootOrder: 47
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &893507998046093872
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3068339017154737980}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 10
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &3120187090841627373
 GameObject:
   m_ObjectHideFlags: 0
@@ -1612,7 +1656,7 @@ GameObject:
   - component: {fileID: 1682491607203170545}
   - component: {fileID: 1939277299198208863}
   - component: {fileID: 1692460568693587381}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: BezierCurve.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1693,7 +1737,7 @@ GameObject:
   - component: {fileID: 8446414153577306362}
   - component: {fileID: 7433665462214782225}
   - component: {fileID: 1017459327206878639}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Jarbol
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1772,7 +1816,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5120319128777357635}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: R_Cannon_2_ShotPos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1802,7 +1846,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8803345563638304571}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: R_Cannon_1_ShotPos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1834,7 +1878,7 @@ GameObject:
   - component: {fileID: 5759637415938880787}
   - component: {fileID: 8857740466544434626}
   - component: {fileID: 1843499522702163520}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: VeceJedro.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1915,7 +1959,7 @@ GameObject:
   - component: {fileID: 9027983945237718553}
   - component: {fileID: 5173140930621044384}
   - component: {fileID: 2735310814077324856}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: BezierCurve.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1994,7 +2038,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8456719129956517617}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: L_Cannon_2_Angle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2027,7 +2071,7 @@ GameObject:
   - component: {fileID: 139817595994554914}
   - component: {fileID: 7328412668941023936}
   - component: {fileID: 3431143345720562354}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2107,7 +2151,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5719984406784051310}
   - component: {fileID: 1852961310448610087}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Point (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2163,7 +2207,7 @@ GameObject:
   - component: {fileID: 4528330996025287866}
   - component: {fileID: 5075477781698103359}
   - component: {fileID: 4845682978904912279}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: ServerAI
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -2228,6 +2272,7 @@ Transform:
   - {fileID: 3485853910784893656}
   - {fileID: 5719984406784051310}
   - {fileID: 8209866200484023558}
+  - {fileID: 6520152400600088591}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2357,6 +2402,16 @@ MonoBehaviour:
   dist: 0
   cannonForce: 800
   cannonVelocity: 0
+  attack: 0
+  health: 0
+  defence: 0
+  rotation: 0
+  speed: 0
+  visibility: 0
+  cannon_reload_speed: 0
+  crit_chance: 0
+  cannon_force: 0
+  maxHealth: 100
 --- !u!114 &5075477781698103359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2412,7 +2467,7 @@ GameObject:
   - component: {fileID: 1252390677814453958}
   - component: {fileID: 8201377487799667320}
   - component: {fileID: 5746925625615921984}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Obruc_Curve.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2493,7 +2548,7 @@ GameObject:
   - component: {fileID: 4942727950763474767}
   - component: {fileID: 2327794716445053361}
   - component: {fileID: 2010370888714804568}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Obruc_Curve
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2574,7 +2629,7 @@ GameObject:
   - component: {fileID: 3226945352714297780}
   - component: {fileID: 4472413330280853885}
   - component: {fileID: 1150328016997082871}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: BezierCurve.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2653,7 +2708,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3460073043405413949}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: L_Cannon_1_Angle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2686,7 +2741,7 @@ GameObject:
   - component: {fileID: 3082206282952011577}
   - component: {fileID: 1560646027145505215}
   - component: {fileID: 2264975265880819442}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: L_CannonBase_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2769,7 +2824,7 @@ GameObject:
   - component: {fileID: 4162520891012072377}
   - component: {fileID: 8384594365873090775}
   - component: {fileID: 7184069032756449404}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Uze4.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2849,7 +2904,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8209866200484023558}
   - component: {fileID: 8717639427206778934}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Point (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2897,7 +2952,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3222637376439663824}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: L_Cannon_2_ShotPos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2929,7 +2984,7 @@ GameObject:
   - component: {fileID: 5560167431566944044}
   - component: {fileID: 3101508882845707387}
   - component: {fileID: 9071334023086593452}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: R_CannonBase_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3012,7 +3067,7 @@ GameObject:
   - component: {fileID: 3147982368077741453}
   - component: {fileID: 929563836265775931}
   - component: {fileID: 349818178995639236}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Cube.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3093,7 +3148,7 @@ GameObject:
   - component: {fileID: 8618788918847404261}
   - component: {fileID: 3458136185376074770}
   - component: {fileID: 8466226680379991509}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Cylinder.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3173,7 +3228,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2899331250762445968}
   - component: {fileID: 5022974628292272114}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Point
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3223,7 +3278,7 @@ GameObject:
   - component: {fileID: 2105941086395832328}
   - component: {fileID: 7302994905873385340}
   - component: {fileID: 6488143083750328019}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Cylinder.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3304,7 +3359,7 @@ GameObject:
   - component: {fileID: 4922179219686749602}
   - component: {fileID: 2181137554277857174}
   - component: {fileID: 1455328079959440364}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Cylinder.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3385,7 +3440,7 @@ GameObject:
   - component: {fileID: 3702563077098505568}
   - component: {fileID: 7560416906584514213}
   - component: {fileID: 342170056868458536}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Uze5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3466,7 +3521,7 @@ GameObject:
   - component: {fileID: 4655515404197272537}
   - component: {fileID: 2719683256024803398}
   - component: {fileID: 1539651311037834900}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Uze1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3545,7 +3600,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4433433904449103831}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: R_Cannon_1_Angle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3578,7 +3633,7 @@ GameObject:
   - component: {fileID: 2589723426020792942}
   - component: {fileID: 4659565564296675774}
   - component: {fileID: 6629589028428759196}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: R_CannonCylinder_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3660,7 +3715,7 @@ GameObject:
   - component: {fileID: 3959165096854485056}
   - component: {fileID: 6418616708969833894}
   - component: {fileID: 1115995872469899522}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Uze2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3741,7 +3796,7 @@ GameObject:
   - component: {fileID: 4169898892988125437}
   - component: {fileID: 4021783418876649201}
   - component: {fileID: 5116452394270848957}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Uze6.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3822,7 +3877,7 @@ GameObject:
   - component: {fileID: 2651185227409591748}
   - component: {fileID: 689769463266257346}
   - component: {fileID: 7596413421985147910}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Cube.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3903,7 +3958,7 @@ GameObject:
   - component: {fileID: 8240461779770472544}
   - component: {fileID: 8798823381963584960}
   - component: {fileID: 8762815611273839861}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: L_CannonCylinder_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3985,7 +4040,7 @@ GameObject:
   - component: {fileID: 340344968140490975}
   - component: {fileID: 4408525924063988877}
   - component: {fileID: 4302196639123030869}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: ManjeJedro.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4066,7 +4121,7 @@ GameObject:
   - component: {fileID: 7844156580401349897}
   - component: {fileID: 7771903352464016326}
   - component: {fileID: 8417039500535919241}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: L_CannonCylinder_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4148,7 +4203,7 @@ GameObject:
   - component: {fileID: 8883108988706412817}
   - component: {fileID: 4571411354888105691}
   - component: {fileID: 7560369779183565852}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: BezierCurve.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}

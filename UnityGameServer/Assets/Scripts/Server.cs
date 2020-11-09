@@ -11,7 +11,7 @@ public class Server
     public static int Port { get; private set; }
     public static Dictionary<int, Client> clients = new Dictionary<int, Client>();
     public delegate void PacketHandler(int _fromClient, Packet _packet);
-    public static Dictionary<int, PacketHandler> packetHandlers;
+    /*public static Dictionary<int, PacketHandler> packetHandlers;*/
     public static Dictionary<int, EnemyAI> npcs = new Dictionary<int, EnemyAI>();
 
     private static TcpListener tcpListener;
@@ -126,9 +126,9 @@ public class Server
             clients.Add(i, new Client(i));
         }
 
-        packetHandlers = new Dictionary<int, PacketHandler>()
+        /*packetHandlers = new Dictionary<int, PacketHandler>()
         {
-            { (int)ClientPackets.welcomeReceived, ServerHandle.WelcomeReceived },
+            { (int)ClientPackets.welcomeReceived, NetworkManager.AddPacket },
             { (int)ClientPackets.playerMovement, ServerHandle.PlayerMovement },            
             { (int)ClientPackets.joystick, ServerHandle.Joystick },
             { (int)ClientPackets.position, ServerHandle.Position },
@@ -149,7 +149,7 @@ public class Server
             { (int)ClientPackets.onGameStart, ServerHandle.OnGameStart },
             { (int)ClientPackets.shoot, ServerHandle.Shoot },
             { (int)ClientPackets.cannonRotate, ServerHandle.CannonRotate },
-        };
+        };*/
         Debug.Log("Initialized packets.");
     }
 

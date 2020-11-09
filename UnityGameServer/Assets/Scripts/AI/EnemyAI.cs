@@ -62,12 +62,17 @@ public class EnemyAI : MonoBehaviour
     private List<BaseStat> baseStats;
     private int level = 1;
 
+    SphereCollider playerEnterCollider;
+
     public void Awake() {
         Mysql mysql = FindObjectOfType<Mysql>();
         baseStats = mysql.ReadNPCBaseStatsTable();
 
         LoadBaseStats();
-    }
+
+        playerEnterCollider = GetComponentInChildren<SphereCollider>();
+        playerEnterCollider.radius = NetworkManager.visibilityRadius / 2;
+    }    
 
     private void Start()
     {

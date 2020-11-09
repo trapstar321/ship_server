@@ -78,8 +78,11 @@ public class Player : MonoBehaviour
         username = _username;
         health = maxHealth;
 
-        inputs = new bool[5];        
+        inputs = new bool[5];                     
+    }
 
+    public void Load()
+    {
         Mysql mysql = FindObjectOfType<Mysql>();
 
         List<BaseStat> stats = mysql.ReadBaseStatsTable();
@@ -94,7 +97,10 @@ public class Player : MonoBehaviour
 
         LoadInventory();
         LoadPlayerEquipment();
-        LoadShipEquipment();        
+        LoadShipEquipment();
+
+        //send stats after all is loaded
+        ServerSend.Stats(id);
     }
 
     public void Update()
@@ -227,13 +233,18 @@ public class Player : MonoBehaviour
         }
         else if (other.name.Equals("Sphere")) {
             int otherPlayerId = other.GetComponentInParent<Player>().id;            
-            ServerSend.HealthStats(otherPlayerId, id);
+            ServerSend.Stats(otherPlayerId, id);
 
             CannonController cannonController = other.GetComponentInParent<CannonController>();
             Quaternion leftRotation = cannonController.L_Cannon_1.transform.localRotation;
             Quaternion rightRotation = cannonController.R_Cannon_1.transform.localRotation;
             ServerSend.CannonRotate(otherPlayerId, id, leftRotation, "Left");
             ServerSend.CannonRotate(otherPlayerId, id, rightRotation, "Right");
+        }
+        else if (other.name.Equals("NPCSphere"))
+        {
+            int npcId = other.GetComponentInParent<EnemyAI>().id;
+            ServerSend.NPCStats(npcId, id);
         }
     }
 
@@ -277,7 +288,7 @@ public class Player : MonoBehaviour
         crit_chance += item.crit_chance;
         cannon_force += item.cannon_force;
 
-        ServerSend.HealthStats(id);
+        ServerSend.Stats(id);
     }
 
     public void RemoveEquipment(Item item) {
@@ -292,7 +303,7 @@ public class Player : MonoBehaviour
         crit_chance -= item.crit_chance;
         cannon_force -= item.cannon_force;
 
-        ServerSend.HealthStats(id);
+        ServerSend.Stats(id);
     }
 
     public void LoadInventory() {

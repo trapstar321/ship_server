@@ -1004,16 +1004,16 @@ public class Mysql : MonoBehaviour
         List<BaseStat> stats = new List<BaseStat>();
         while (rdr.Read())
         {
-            int level = rdr.GetInt32("LEVEL");            
-            int attack = rdr.GetInt32("ATTACK");
-            int health = rdr.GetInt32("HEALTH");
-            int defence = rdr.GetInt32("DEFENCE");
-            int rotation = rdr.GetInt32("ROTATION");
-            int speed = rdr.GetInt32("SPEED");
-            int visibility = rdr.GetInt32("VISIBILITY");
-            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
-            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
-            int cannon_force = rdr.GetInt32("CANNON_FORCE");
+            float level = rdr.GetFloat("LEVEL");
+            float attack = rdr.GetFloat("ATTACK");
+            float health = rdr.GetFloat("HEALTH");
+            float defence = rdr.GetFloat("DEFENCE");
+            float rotation = rdr.GetFloat("ROTATION");
+            float speed = rdr.GetFloat("SPEED");
+            float visibility = rdr.GetFloat("VISIBILITY");
+            float cannon_reload_speed = rdr.GetFloat("CANNON_RELOAD_SPEED");
+            float crit_chance = rdr.GetFloat("CRIT_CHANCE");
+            float cannon_force = rdr.GetFloat("CANNON_FORCE");
 
             BaseStat stat = new BaseStat();
             stat.level = level;
@@ -1044,16 +1044,16 @@ public class Mysql : MonoBehaviour
         List<BaseStat> stats = new List<BaseStat>();
         while (rdr.Read())
         {
-            int level = rdr.GetInt32("LEVEL");
-            int attack = rdr.GetInt32("ATTACK");
-            int health = rdr.GetInt32("HEALTH");
-            int defence = rdr.GetInt32("DEFENCE");
-            int rotation = rdr.GetInt32("ROTATION");
-            int speed = rdr.GetInt32("SPEED");
-            int visibility = rdr.GetInt32("VISIBILITY");
-            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
-            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
-            int cannon_force = rdr.GetInt32("CANNON_FORCE");
+            float level = rdr.GetFloat("LEVEL");
+            float attack = rdr.GetFloat("ATTACK");
+            float health = rdr.GetFloat("HEALTH");
+            float defence = rdr.GetFloat("DEFENCE");
+            float rotation = rdr.GetFloat("ROTATION");
+            float speed = rdr.GetFloat("SPEED");
+            float visibility = rdr.GetFloat("VISIBILITY");
+            float cannon_reload_speed = rdr.GetFloat("CANNON_RELOAD_SPEED");
+            float crit_chance = rdr.GetFloat("CRIT_CHANCE");
+            float cannon_force = rdr.GetFloat("CANNON_FORCE");
 
             BaseStat stat = new BaseStat();
             stat.level = level;

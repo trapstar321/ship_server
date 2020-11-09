@@ -19,6 +19,13 @@ public class NetworkManager : MonoBehaviour
 
     Mysql mysql;
 
+    public class PacketData {
+        public int type;
+        public Packet packet;
+    }
+
+    public static Dictionary<int, List<PacketData>> buffer = new Dictionary<int, List<PacketData>>();
+
     private void Awake()
     {
         send = FindObjectOfType<ServerSend>();
@@ -62,16 +69,16 @@ public class NetworkManager : MonoBehaviour
         return Instantiate(playerPrefab, new Vector3(x, 0.2f, z), Quaternion.identity).GetComponent<Player>();
     }
 
-    public static void SendHealthStats(int from)
+    public static void SendStats(int from)
     {
         //send player stats to all
-        ServerSend.HealthStats(from);
+        ServerSend.Stats(from);
 
         //send all player stats to player
         foreach (Client client in Server.clients.Values)
         {
             if (client.player != null && client.id != from)
-                ServerSend.HealthStats(client.id, from);
+                ServerSend.Stats(client.id, from);
         }
     }
 
@@ -82,14 +89,6 @@ public class NetworkManager : MonoBehaviour
         ServerSend.BaseStats(to, stats, "npc");
     }
 
-    public static void SendPlayerBaseStats(int to)
-    {
-        Mysql mysql = FindObjectOfType<Mysql>();
-        List<BaseStat> stats = mysql.ReadNPCBaseStatsTable();
-
-        ServerSend.BaseStats(to, stats, "player");
-    }
-
     int moveCount = 1;
     IEnumerator Tick()
     {
@@ -97,34 +96,10 @@ public class NetworkManager : MonoBehaviour
         {
             foreach (Client client in Server.clients.Values)
             {
-                if (client.player != null)
-                {
-                    int lastInputSequenceNumber = 0;
-                    PlayerInputs lastInput = null;
-                    //Debug.Log("To process: "+client.inputBuffer.Count);
-
-                    int end = client.inputBuffer.Count;
-                    for (int i = 0; i < end; i++)
-                    {
-                        //Debug.Log("SN " + client.inputBuffer[i].inputSequenceNumber);
-                        PlayerInputs input = client.inputBuffer[i];
-                        lastInput = input;
-                        lastInputSequenceNumber = input.inputSequenceNumber;
-                        client.player.Move(new Vector3(input.left ? 1 : 0, input.right ? 1 : 0, input.forward ? 1 : 0));
-                        Debug.Log("SN " + input.inputSequenceNumber + " moveCount = " + moveCount + $" position={client.player.transform.position} move {input.left},{input.right},{input.forward}");
-                        moveCount += 1;
-                        //client.inputBuffer.RemoveAt(i);                        
-                    }
-                    if (end != 0)
-                        client.inputBuffer.RemoveRange(0, end);
-
-                    if (lastInputSequenceNumber != 0)
-                    {
-                        client.lastInputSequenceNumber = lastInputSequenceNumber;
-                        send.PlayerPosition(lastInput, client.lastInputSequenceNumber, client.player, visibilityRadius);
-                        //Debug.Log("SN " + client.lastInputSequenceNumber + ", position=" + client.player.transform.position);
-                    }
-                    //Debug.Log("LSN:" + client.lastInputSequenceNumber);
+                if (buffer.ContainsKey(client.id))
+                {                    
+                    ProcessBuffer(client);
+                    ProcessMovementPackets(client);
                 }
             }
             yield return new WaitForSeconds(1 / 50);
@@ -147,5 +122,119 @@ public class NetworkManager : MonoBehaviour
                 mysql.UpdatePlayerPosition(player.id, player.transform.position.x, player.transform.position.z);
             }
         }
+    }
+
+    public static void AddPacket(int _fromClient, int type, Packet packet) {
+        if (!buffer.ContainsKey(_fromClient))
+            buffer.Add(_fromClient, new List<PacketData>());
+
+        buffer[_fromClient].Add(new PacketData() { type=type, packet=packet});
+    }
+
+    void ProcessBuffer(Client client) {
+        int end = buffer[client.id].Count;            
+
+        foreach (PacketData packet in buffer[client.id]) {
+            switch (packet.type) {
+                case (int)ClientPackets.welcomeReceived:
+                    ServerHandle.WelcomeReceived(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.playerMovement:
+                    ServerHandle.PlayerMovement(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.joystick:
+                    ServerHandle.Joystick(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.position:
+                    ServerHandle.Position(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.test:
+                    ServerHandle.test(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.getInventory:
+                    ServerHandle.GetInventory(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.dropItem:
+                    ServerHandle.DropItem(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.dragAndDrop:
+                    ServerHandle.DragAndDrop(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.searchChest:
+                    ServerHandle.SearchChest(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.addShipEquipment:
+                    ServerHandle.AddShipEquipment(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.removeShipEquipment:
+                    ServerHandle.RemoveShipEquipment(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.getShipEquipment:
+                    ServerHandle.GetShipEquipment(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.replaceShipEquipment:
+                    ServerHandle.ReplaceShipEquipment(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.addItemToInventory:
+                    ServerHandle.AddItemToInventory(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.removeItemFromInventory:
+                    ServerHandle.RemoveItemFromInventory(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.removePlayerEquipment:
+                    ServerHandle.RemovePlayerEquipment(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.getPlayerEquipment:
+                    ServerHandle.GetPlayerEquipment(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.replacePlayerEquipment:
+                    ServerHandle.ReplacePlayerEquipment(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.onGameStart:
+                    ServerHandle.OnGameStart(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.shoot:
+                    ServerHandle.Shoot(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.cannonRotate:
+                    ServerHandle.CannonRotate(client.id, packet.packet);
+                    break;            
+            }
+        }
+
+        buffer[client.id].RemoveRange(0, end);
+    }
+
+    void ProcessMovementPackets(Client client) {
+        int lastInputSequenceNumber = 0;
+        PlayerInputs lastInput = null;
+        //Debug.Log("To process: "+client.inputBuffer.Count);
+
+        int end = client.inputBuffer.Count;
+        for (int i = 0; i < end; i++)
+        {
+            //Debug.Log("SN " + client.inputBuffer[i].inputSequenceNumber);
+            PlayerInputs input = client.inputBuffer[i];
+            lastInput = input;
+            lastInputSequenceNumber = input.inputSequenceNumber;
+            client.player.Move(new Vector3(input.left ? 1 : 0, input.right ? 1 : 0, input.forward ? 1 : 0));
+            Debug.Log("SN " + input.inputSequenceNumber + " moveCount = " + moveCount + $" position={client.player.transform.position} move {input.left},{input.right},{input.forward}");
+            moveCount += 1;
+            //client.inputBuffer.RemoveAt(i);                        
+        }
+        if (end != 0)
+            client.inputBuffer.RemoveRange(0, end);
+
+        if (lastInputSequenceNumber != 0)
+        {
+            client.lastInputSequenceNumber = lastInputSequenceNumber;
+            send.PlayerPosition(lastInput, client.lastInputSequenceNumber, client.player, visibilityRadius);
+            //Debug.Log("SN " + client.lastInputSequenceNumber + ", position=" + client.player.transform.position);
+        }
+        //Debug.Log("LSN:" + client.lastInputSequenceNumber);
+    }
+
+    public static void PlayerDisconnected(int id) {
+        buffer.Remove(id);
     }
 }

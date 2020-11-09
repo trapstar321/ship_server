@@ -446,31 +446,75 @@ public class ServerSend: MonoBehaviour
         }
     }
 
-    public static void HealthStats(int from)
+    public static void Stats(int from)
     {
         Player player = Server.clients[from].player;
-        using (Packet _packet = new Packet((int)ServerPackets.healthStat))
+        using (Packet _packet = new Packet((int)ServerPackets.stats))
         {
-            float health = player.health;
-            float maxHealth = player.maxHealth;
+            BaseStat stats = new BaseStat();
+            stats.attack = player.attack;
+            stats.health = player.health;
+            stats.defence = player.defence;
+            stats.rotation = player.rotation;
+            stats.speed = player.speed;
+            stats.visibility = player.visibility;
+            stats.cannon_reload_speed = player.cannon_reload_speed;
+            stats.crit_chance = player.crit_chance;
+            stats.cannon_force = player.cannon_force;
+            stats.max_health = player.maxHealth;
+
             _packet.Write(from);
-            _packet.Write(health);
-            _packet.Write(maxHealth);
+            _packet.Write(stats);
 
-
-            SendTCPDataRadiusStatic(from, _packet, player.transform.position, NetworkManager.visibilityRadius);
+            SendTCPDataRadiusStatic(_packet, player.transform.position, NetworkManager.visibilityRadius);
         }
     }
 
-    public static void HealthStats(int from, int to)
+    public static void Stats(int from, int to)
     {
-        using (Packet _packet = new Packet((int)ServerPackets.healthStat))
+        using (Packet _packet = new Packet((int)ServerPackets.stats))
         {
-            float health = Server.clients[from].player.health;
-            float maxHealth = Server.clients[from].player.maxHealth;
+            Player player = Server.clients[from].player;
+
+            BaseStat stats = new BaseStat();
+            stats.attack = player.attack;
+            stats.health = player.health;
+            stats.defence = player.defence;
+            stats.rotation = player.rotation;
+            stats.speed = player.speed;
+            stats.visibility = player.visibility;
+            stats.cannon_reload_speed = player.cannon_reload_speed;
+            stats.crit_chance = player.crit_chance;
+            stats.cannon_force = player.cannon_force;
+            stats.max_health = player.maxHealth;
+
             _packet.Write(from);
-            _packet.Write(health);
-            _packet.Write(maxHealth);
+            _packet.Write(stats);
+
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void NPCStats(int from, int to)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.npcStats))
+        {
+            EnemyAI npc = Server.npcs[from].GetComponent<EnemyAI>();
+
+            BaseStat stats = new BaseStat();
+            stats.attack = npc.attack;
+            stats.health = npc.health;
+            stats.defence = npc.defence;
+            stats.rotation = npc.rotation;
+            stats.speed = npc.speed;
+            stats.visibility = npc.visibility;
+            stats.cannon_reload_speed = npc.cannon_reload_speed;
+            stats.crit_chance = npc.crit_chance;
+            stats.cannon_force = npc.cannon_force;
+            stats.max_health = npc.maxHealth;
+
+            _packet.Write(from);
+            _packet.Write(stats);
 
             SendTCPData(to, _packet);
         }

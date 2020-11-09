@@ -30,13 +30,12 @@ public class ServerHandle: MonoBehaviour
         //ServerSend.WavesMesh(_fromClient, NetworkManager.wavesScript.GenerateMesh());
 
         ServerSend.Time(Time.time);
+        NetworkManager.SendNPCBaseStats(_fromClient);
         spawnManager.SendAllGameObjects(_fromClient);
 
-        //send current health to all
-        //send health from all to player
-        NetworkManager.SendHealthStats(_fromClient);
-        NetworkManager.SendNPCBaseStats(_fromClient);
-        NetworkManager.SendPlayerBaseStats(_fromClient);
+        //send current stats to all
+        //send stats from all to player
+        //NetworkManager.SendStats(_fromClient);        
     }
 
     public static void PlayerMovement(int _fromClient, Packet _packet)

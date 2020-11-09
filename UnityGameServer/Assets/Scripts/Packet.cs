@@ -34,12 +34,13 @@ public enum ServerPackets
     onGameStart,
     shoot,
     takeDamage,
-	healthStat,
+	stats,
     cannonRotate,
     cannonRotateAngle,
     npcPosition,
     npcShoot,
-    baseStats
+    baseStats,
+    npcStats
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -241,6 +242,13 @@ public class Packet: IDisposable
     }
 
     public void Write(List<SerializableObjects.BaseStat> _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(SerializableObjects.BaseStat _value)
     {
         byte[] data = ObjectToByteArray(_value);
         Write(data.Length); // Add the length of the string to the packet
