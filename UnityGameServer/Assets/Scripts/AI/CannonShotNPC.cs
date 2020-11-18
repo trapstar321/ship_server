@@ -83,7 +83,8 @@ public class CannonShotNPC : MonoBehaviour
     void CalculateAngle()
     {
         R = AIscript.dist;
-        if (R > AIscript.maxShootingRange/1.75f)
+        A = (Mathf.Asin((g * R) / (AIscript.cannonVelocity * AIscript.cannonVelocity)) / 2) * Mathf.Rad2Deg;
+        /*if (R > AIscript.maxShootingRange/1.75f)
         {
             A = 90 - (Mathf.Asin((g * R) / (AIscript.cannonVelocity * AIscript.cannonVelocity)) / 2) * Mathf.Rad2Deg;
         }
@@ -91,7 +92,7 @@ public class CannonShotNPC : MonoBehaviour
         {
             A = (Mathf.Asin((g * R) / (AIscript.cannonVelocity * AIscript.cannonVelocity)) / 2) * Mathf.Rad2Deg;
         }
-        
+        */
         V = AIscript.cannonVelocity;
     }
 
@@ -105,7 +106,7 @@ public class CannonShotNPC : MonoBehaviour
         cannonBallCopy.transform.rotation = _cannon1.rotation;
         cannonBallCopy.name = "NPC_" + this.name;
         cannonBallCopy.SetActive(true);
-        cannonballRB.AddForce(_cannon1.forward * AIscript.cannonForce);
+        cannonballRB.AddForce(_cannon1.forward * AIscript.cannon_force);
 
         //Instantiate(explosion, shotPos.position, shotPos.rotation);
 
@@ -117,6 +118,6 @@ public class CannonShotNPC : MonoBehaviour
         cannonBallCopy2.transform.rotation = _cannon2.rotation;
         cannonBallCopy2.name = "NPC_" + this.name;
         cannonBallCopy2.SetActive(true);
-        cannonballRB.AddForce(_cannon2.forward * AIscript.cannonForce);
+        cannonballRB.AddForce(_cannon2.forward * AIscript.cannon_force);
     }
 }

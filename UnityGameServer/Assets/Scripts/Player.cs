@@ -7,6 +7,7 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public int id;
+    public int dbid;
     public string username;
     public CharacterController controller;
     //private Rigidbody mBody;
@@ -52,6 +53,8 @@ public class Player : MonoBehaviour
     BoatMovement movement;
     SphereCollider playerEnterCollider;
 
+    public List<ItemDrop> lootCache;
+
     void Awake() {
         //mBody = GetComponent<Rigidbody>();        
         visibilityRadius = NetworkManager.visibilityRadius;
@@ -72,9 +75,10 @@ public class Player : MonoBehaviour
         jumpSpeed *= Time.fixedDeltaTime;
     }
 
-    public void Initialize(int _id, string _username)
+    public void Initialize(int _id, int _dbid, string _username)
     {
         id = _id;
+        dbid = _dbid;
         username = _username;
         health = maxHealth;
 
@@ -193,7 +197,7 @@ public class Player : MonoBehaviour
             damage = player.attack - defence;
             health -= damage;
         }
-        ServerSend.TakeDamage(id, transform.position, damage);
+        ServerSend.TakeDamage(id, transform.position, damage, "player");
     }
 
     private void TakeDamage(EnemyAI npc)
@@ -211,7 +215,7 @@ public class Player : MonoBehaviour
             damage = npc.attack - defence;
             health -= damage;
         }
-        ServerSend.TakeDamage(id, transform.position, damage);
+        ServerSend.TakeDamage(id, transform.position, damage, "player");
     }
 
     private void OnTriggerEnter(Collider other)
@@ -308,8 +312,9 @@ public class Player : MonoBehaviour
 
     public void LoadInventory() {
         Mysql mysql = FindObjectOfType<Mysql>();
-        List<InventorySlot> slots = mysql.ReadInventory(id);
-        Inventory inventory = Server.clients[id].player.inventory;
+        Player player = Server.clients[id].player;
+        List<InventorySlot> slots = mysql.ReadInventory(player.dbid);
+        Inventory inventory = player.inventory;
 
         foreach (InventorySlot s in slots)
         {
@@ -319,8 +324,9 @@ public class Player : MonoBehaviour
 
     public void LoadShipEquipment() {
         Mysql mysql = FindObjectOfType<Mysql>();
-        List<Item> items = mysql.ReadShipEquipment(id);
-        ShipEquipment equipment = Server.clients[id].player.ship_equipment;
+        Player player = Server.clients[id].player;
+        List<Item> items = mysql.ReadShipEquipment(player.dbid);
+        ShipEquipment equipment = player.ship_equipment;
 
         foreach (Item item in items)
         {
@@ -330,8 +336,9 @@ public class Player : MonoBehaviour
 
     public void LoadPlayerEquipment() {
         Mysql mysql = FindObjectOfType<Mysql>();
-        List<Item> items = mysql.ReadPlayerEquipment(id);
-        PlayerEquipment equipment = Server.clients[id].player.player_equipment;
+        Player player = Server.clients[id].player;
+        List<Item> items = mysql.ReadPlayerEquipment(player.dbid);
+        PlayerEquipment equipment = player.player_equipment;
 
         foreach (Item item in items)
         {

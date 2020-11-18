@@ -21,16 +21,25 @@ public class Inventory : MonoBehaviour
 
     public List<InventorySlot> items = new List<InventorySlot>();
 
-    public InventorySlot Add (Item item)
+    public InventorySlot Add(Item item, int quantity=1)
     {
         InventorySlot s = null;
         if (!item.isDefaultItem)
         {
             foreach (InventorySlot slot in items) {
-                if (slot.item == null) {
-                    slot.item = item;
-                    s = slot;
-                    break;
+                if (item.item_type.Equals("resource")){
+                    if (slot.item!=null && item.item_id==slot.item.item_id) {
+                        slot.quantity += quantity;
+                        s = slot;
+                    }
+                }
+                else {
+                    if (slot.item == null) {
+                        slot.item = item;
+                        slot.quantity = quantity;
+                        s = slot;
+                        break;
+                    }
                 }
             }
             

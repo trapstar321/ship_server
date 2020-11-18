@@ -268,7 +268,8 @@ public class Mysql : MonoBehaviour
     public List<Item> ReadItems()
     {
         string sql = @"select ID, NAME, ICON_NAME, IS_DEFAULT_ITEM, ITEM_TYPE, 
-                       ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE, CANNON_FORCE
+                       ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE, CANNON_FORCE,DROP_CHANCE,
+                       MAX_LOOT_QUANTITY
                        from item";
 
         var cmd = new MySqlCommand(sql, con);
@@ -291,6 +292,13 @@ public class Mysql : MonoBehaviour
             int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
             int crit_chance = rdr.GetInt32("CRIT_CHANCE");
             int cannon_force = rdr.GetInt32("CANNON_FORCE");
+            int drop_chance = rdr.GetInt32("DROP_CHANCE");
+            float max_loot_quantity = 0;
+
+            if (!rdr.IsDBNull(15))
+            {
+                max_loot_quantity = rdr.GetFloat("MAX_LOOT_QUANTITY"); 
+            }            
 
             Item item = new Item();            
             item.item_id = item_id;
@@ -307,6 +315,8 @@ public class Mysql : MonoBehaviour
             item.cannon_reload_speed = cannon_reload_speed;
             item.crit_chance = crit_chance;
             item.cannon_force = cannon_force;
+            item.dropChance = drop_chance;
+            item.maxLootQuantity = max_loot_quantity;
             items.Add(item);
         }
         rdr.Close();
@@ -363,6 +373,7 @@ public class Mysql : MonoBehaviour
         rdr.Close();
         return items;
     }
+
     public Item ReadItem(int id)
     {
         string sql = @"select ID, NAME, ICON_NAME, IS_DEFAULT_ITEM, ITEM_TYPE,
@@ -463,17 +474,40 @@ public class Mysql : MonoBehaviour
         cmd.ExecuteNonQuery();
     }
 
-    public void AddPlayerItem(int player_id, Item item)
+    public int AddPlayerItem(int player_id, Item item)
     {
         string sql = @"insert into player_item(ITEM_ID, PLAYER_ID)
-                       select @item_id, @player_id";
+                       values(@item_id, @player_id);select last_insert_id();";
 
         var cmd = new MySqlCommand(sql, con);
         cmd.CommandText = sql;
 
         cmd.Parameters.AddWithValue("@item_id", item.item_id);
-        cmd.Parameters.AddWithValue("@player_id", player_id);        
-        cmd.ExecuteNonQuery();
+        cmd.Parameters.AddWithValue("@player_id", player_id);
+        return Convert.ToInt32(cmd.ExecuteScalar());
+    }
+
+    public int GetPlayerItemId(int player_id, Item item)
+    {
+        string sql = @"select id from player_item where player_id=@player_id and item_id=@item_id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.Parameters.AddWithValue("@player_id", player_id);
+        cmd.Parameters.AddWithValue("@item_id", item.item_id);
+
+        MySqlDataReader reader = cmd.ExecuteReader();
+
+        int id = 0;
+
+        while (reader.Read())
+        {
+            id = reader.GetInt32("id");
+        }
+
+        reader.Close();
+        return id;
     }
 
     public void DropItem(int player, InventorySlot slot)
@@ -732,19 +766,21 @@ public class Mysql : MonoBehaviour
 
         if (id != 0)
         {
-            sql = "update inventory_slot set item_id=@item_id where id=@id";
+            sql = "update inventory_slot set item_id=@item_id, quantity=@quantity where id=@id";
             cmd.CommandText = sql;
             cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@quantity", slot.quantity);
             cmd.Parameters.AddWithValue("@item_id", slot.item.id);
             cmd.Parameters.AddWithValue("@id", id);
             cmd.ExecuteNonQuery();
         }
         else {
-            sql = "insert into inventory_slot(item_id, slot_id, quantity)values(@item_id, @slot_id, 1);select last_insert_id();";
+            sql = "insert into inventory_slot(item_id, slot_id, quantity)values(@item_id, @slot_id, @quantity);select last_insert_id();";
             cmd.CommandText = sql;
             cmd.Parameters.Clear();
             cmd.Parameters.AddWithValue("@item_id", slot.item.id);
             cmd.Parameters.AddWithValue("@slot_id", slot.slotID);
+            cmd.Parameters.AddWithValue("@quantity", slot.quantity);
             id = Convert.ToInt32(cmd.ExecuteScalar());
 
             sql = "insert into inventory(player_id, slot_id)values(@player_id, @slot_id)";
@@ -1145,5 +1181,23 @@ public class Mysql : MonoBehaviour
         cmd.Parameters.AddWithValue("@Y_rot", Y_rot);
         cmd.Parameters.AddWithValue("@id", id);
         cmd.ExecuteNonQuery();       
+    }
+
+    public int Login(string username, string password) {
+        string sql = @"select ID from player where username=@username and password=@password";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.Parameters.AddWithValue("@username", username);
+        cmd.Parameters.AddWithValue("@password", password);
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        List<Player> players = new List<Player>();
+        int id = 0;
+        while (rdr.Read())
+        {
+            id = rdr.GetInt32("ID");                        
+        }
+        rdr.Close();
+        return id;
     }
 }

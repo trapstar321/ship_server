@@ -62,7 +62,8 @@ public class Client: MonoBehaviour
 
             stream.BeginRead(receiveBuffer, 0, dataBufferSize, ReceiveCallback, null);
 
-            ServerSend.Welcome(id, "Welcome to the server!");
+            //ServerSend.Welcome(id, "Welcome to the server!");
+            ServerSend.Hello(id);
         }
 
         /// <summary>Sends data to the client via TCP.</summary>
@@ -226,11 +227,11 @@ public class Client: MonoBehaviour
 
     /// <summary>Sends the client into the game and informs other clients of the new player.</summary>
     /// <param name="_playerName">The username of the new player.</param>
-    public void SendIntoGame(PlayerData data, string _playerName)
+    public void SendIntoGame(PlayerData data, string _playerName, int dbid)
     {        
         player = NetworkManager.instance.InstantiatePlayer(data.X, data.Y, data.Z);
         player.transform.eulerAngles = new Vector3(0, data.Y_rot, 0);
-        player.Initialize(id, _playerName);
+        player.Initialize(id, dbid, _playerName);
 
         // Send the new player to all players (including himself)
         foreach (Client _client in Server.clients.Values)

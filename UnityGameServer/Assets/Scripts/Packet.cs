@@ -40,7 +40,10 @@ public enum ServerPackets
     npcPosition,
     npcShoot,
     baseStats,
-    npcStats
+    npcStats,
+    onLootDropped,
+    hello,
+    loginFailed
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -68,7 +71,10 @@ public enum ClientPackets
     removePlayerEquipment,
     onGameStart,
     shoot,
-    cannonRotate
+    cannonRotate,
+    collectLoot,
+    discardLoot,
+    login
 }
 
 public class Packet: IDisposable
@@ -235,6 +241,13 @@ public class Packet: IDisposable
     }
 
     public void Write(List<SerializableObjects.Item> _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(List<SerializableObjects.ItemDrop> _value)
     {
         byte[] data = ObjectToByteArray(_value);
         Write(data.Length); // Add the length of the string to the packet
@@ -489,6 +502,26 @@ public class Packet: IDisposable
     public Quaternion ReadQuaternion(bool _moveReadPos = true)
     {
         return new Quaternion(ReadFloat(_moveReadPos), ReadFloat(_moveReadPos), ReadFloat(_moveReadPos), ReadFloat(_moveReadPos));
+    }
+
+    public List<int> ReadIntList(bool _moveReadPos = true)
+    {
+        try
+        {
+            int _length = ReadInt(); // Get the length of the string
+            byte[] data = new byte[_length];
+            Array.Copy(readableBuffer, readPos, data, 0, _length);
+            if (_moveReadPos && data.Length > 0)
+            {
+                // If _moveReadPos is true string is not empty
+                readPos += _length; // Increase readPos by the length of the string
+            }
+            return FromByteArray<List<int>>(data); // Return the string
+        }
+        catch
+        {
+            throw new Exception("Could not read value of type 'List<int>'!");
+        }
     }
 
     public SerializableObjects.InventorySlot ReadInventorySlot(bool _moveReadPos = true)

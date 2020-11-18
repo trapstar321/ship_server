@@ -119,7 +119,7 @@ public class NetworkManager : MonoBehaviour
 
             if (player != null)
             {
-                mysql.UpdatePlayerPosition(player.id, player.transform.position.x, player.transform.position.y, player.transform.position.z, player.transform.eulerAngles.y);
+                mysql.UpdatePlayerPosition(player.dbid, player.transform.position.x, player.transform.position.y, player.transform.position.z, player.transform.eulerAngles.y);
             }
         }
     }
@@ -136,8 +136,11 @@ public class NetworkManager : MonoBehaviour
 
         foreach (PacketData packet in buffer[client.id]) {
             switch (packet.type) {
-                case (int)ClientPackets.welcomeReceived:
+                /*case (int)ClientPackets.welcomeReceived:
                     ServerHandle.WelcomeReceived(client.id, packet.packet);
+                    break;*/
+                case (int)ClientPackets.login:
+                    ServerHandle.Login(client.id, packet.packet);
                     break;
                 case (int)ClientPackets.playerMovement:
                     ServerHandle.PlayerMovement(client.id, packet.packet);
@@ -198,7 +201,13 @@ public class NetworkManager : MonoBehaviour
                     break;
                 case (int)ClientPackets.cannonRotate:
                     ServerHandle.CannonRotate(client.id, packet.packet);
-                    break;            
+                    break;
+                case (int)ClientPackets.collectLoot:
+                    ServerHandle.CollectLoot(client.id, packet.packet);                    
+                    break;
+                case (int)ClientPackets.discardLoot:
+                    ServerHandle.DiscardLoot(client.id, packet.packet);
+                    break;
             }
         }
 
@@ -218,7 +227,7 @@ public class NetworkManager : MonoBehaviour
             lastInput = input;
             lastInputSequenceNumber = input.inputSequenceNumber;
             client.player.Move(new Vector3(input.left ? 1 : 0, input.right ? 1 : 0, input.forward ? 1 : 0));
-            Debug.Log("SN " + input.inputSequenceNumber + " moveCount = " + moveCount + $" position={client.player.transform.position} move {input.left},{input.right},{input.forward}");
+            //Debug.Log("SN " + input.inputSequenceNumber + " moveCount = " + moveCount + $" position={client.player.transform.position} move {input.left},{input.right},{input.forward}");
             moveCount += 1;
             //client.inputBuffer.RemoveAt(i);                        
         }

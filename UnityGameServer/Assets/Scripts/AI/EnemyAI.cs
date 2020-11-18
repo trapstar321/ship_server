@@ -44,7 +44,6 @@ public class EnemyAI : MonoBehaviour
     bool coroutineRunning = false;
     bool adjustingComplete = false;
     public float dist;
-    public float cannonForce;
     public float cannonVelocity;
     public static ServerSend send;
 
@@ -63,6 +62,10 @@ public class EnemyAI : MonoBehaviour
     private int level = 1;
 
     SphereCollider playerEnterCollider;
+    RandomLoot randomLoot;
+
+    Dictionary<int, float> PlayerDamage = new Dictionary<int, float>();
+    public bool dead = false;
 
     public void Awake() {
         Mysql mysql = FindObjectOfType<Mysql>();
@@ -72,6 +75,8 @@ public class EnemyAI : MonoBehaviour
 
         playerEnterCollider = GetComponentInChildren<SphereCollider>();
         playerEnterCollider.radius = NetworkManager.visibilityRadius / 2;
+
+        randomLoot = FindObjectOfType<RandomLoot>();
     }    
 
     private void Start()
@@ -83,9 +88,11 @@ public class EnemyAI : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         SwitchState(State.SAIL);
         shipMovement = GetComponent<ShipMovement>();
+        shipMovement.maxSpeed = speed;
+        shipMovement.maxRotation = rotation;
         currentDestination = destination1;
         agent.SetDestination(currentDestination.transform.position);
-        cannonVelocity = Time.fixedDeltaTime * cannonForce;        
+        cannonVelocity = Time.fixedDeltaTime * cannon_force;        
 
         maxShootingRange = (2 * cannonVelocity * cannonVelocity * Mathf.Sin(45 * Mathf.Deg2Rad) * Mathf.Cos(45 * Mathf.Deg2Rad)) / Mathf.Abs(Physics.gravity.y);
     }
@@ -95,8 +102,21 @@ public class EnemyAI : MonoBehaviour
         send.NPCPosition(this, NetworkManager.visibilityRadius);   
     }
 
+    void EnemyLost() {
+        if ((state == State.CHASE || state == State.POSITIONING) && enemy == null)
+        {
+            StopAgent();
+            arrivedAtDestination = false;
+            StopAllCoroutines();
+            agent.SetDestination(currentDestination.transform.position);
+            SwitchState(State.SAIL);
+        }
+    }
+
     void Update()
     {
+        EnemyLost();
+
         switch (state)
         {
             case State.SAIL:
@@ -113,15 +133,89 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    void Sail()
+    public void SetHealth(float health) {
+        this.health = health;
+        if (health <= 0 && !dead) {
+            Die();            
+        }
+    }
+
+    public void Die() {
+        Debug.Log("Die");
+        dead = true;
+        List<ItemDrop> loot = randomLoot.GenerateLoot();        
+
+        int mostDamagePlayer = 0;
+        float mostDamage = 0;
+
+        foreach (int player_id in PlayerDamage.Keys)
+        {
+            float totalDamage = PlayerDamage[player_id];
+
+            if (totalDamage > mostDamage)
+            {
+                mostDamage = totalDamage;
+                mostDamagePlayer = player_id;
+            }
+        }
+
+        Server.clients[mostDamagePlayer].player.lootCache = loot;
+        ServerSend.OnLootDropped(mostDamagePlayer, loot);
+    }
+
+    private float TakeDamage(Player player)
     {
-        if (arrivedAtDestination && !IsLookingAtObject(transform, currentDestination.transform, Vector3.forward))
+        float damage = 0f;
+        float randValue = UnityEngine.Random.value;
+        if (randValue < player.crit_chance / 100)
+        {
+            damage = player.attack * 2 - defence;
+            health -= damage;
+        }
+
+        else
+        {
+            damage = player.attack - defence;
+            health -= damage;
+        }
+        SetHealth(health);
+        ServerSend.TakeDamage(id, transform.position, damage, "npc");
+        return damage;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag.Equals("CannonBall"))
+        {
+            Player player = other.gameObject.GetComponent<CannonBall>().player;
+            
+            Vector3 tempPos = other.transform.position - new Vector3(0f, 0.5f, 0f);
+
+            float damage = TakeDamage(player);
+
+            if (!PlayerDamage.ContainsKey(player.id))
+                PlayerDamage.Add(player.id, 0);
+
+            PlayerDamage[player.id]+=damage;
+
+            Debug.Log("Hit by " + other.name);
+            other.gameObject.SetActive(false);
+        }
+    }
+
+        void Sail()
+        {
+        /*if (arrivedAtDestination && !IsLookingAtObject(transform, currentDestination.transform, Vector3.forward))
         {
             FaceTarget(currentDestination.transform);
             return;
         }
         else if (arrivedAtDestination && IsLookingAtObject(transform, currentDestination.transform, Vector3.forward))
         {
+            arrivedAtDestination = false;
+            agent.SetDestination(currentDestination.transform.position);
+        }*/
+        if (arrivedAtDestination) {
             arrivedAtDestination = false;
             agent.SetDestination(currentDestination.transform.position);
         }
@@ -140,9 +234,10 @@ public class EnemyAI : MonoBehaviour
         Transform enemy = GetClosestEnemy();
         if (enemy != null)
         {
+            Vector3 enemyPos = enemy.transform.position;
             arrivedAtDestination = false;
             this.enemy = enemy;
-            if (Vector3.Distance(transform.position, enemy.transform.position) > minShootingRange)
+            if (Vector3.Distance(transform.position, enemyPos) > minShootingRange)
             {
                 SwitchState(State.CHASE);
             }
@@ -152,18 +247,20 @@ public class EnemyAI : MonoBehaviour
 
     void Chase()
     {
-        StopAgent();
-        /*if (!IsLookingAtObject(transform, enemy, transform.forward))
+        Vector3 enemyPos;
+        if (enemy == null)
         {
-            //FaceTarget(enemy);            
+            EnemyLost();
+            return;
         }
-        else if (agent.destination != enemy.transform.position)
-        {*/
-            agent.SetDestination(enemy.transform.position);
-        //}
+        else {
+            enemyPos = enemy.transform.position;
+        }
 
+        StopAgent();        
+        agent.SetDestination(enemyPos);
 
-        if (Vector3.Distance(transform.position, enemy.transform.position) <= Random.Range(minShootingRange, maxShootingRange))
+        if (Vector3.Distance(transform.position, enemyPos) <= Random.Range(minShootingRange, maxShootingRange))
         {
             StopAgent();
             SwitchState(State.POSITIONING);
@@ -263,7 +360,7 @@ public class EnemyAI : MonoBehaviour
                 {
                     do
                     {
-                        Debug.Log(i++);
+                        //Debug.Log(i++);
                         countDown -= Time.smoothDeltaTime;
                         transform.RotateAround(enemy.position, Vector3.up, -5 * Time.deltaTime);
                         Vector3 targetDir = enemy.position - transform.position;
@@ -282,7 +379,7 @@ public class EnemyAI : MonoBehaviour
         }
 
         IEnumerator AdjustingCannon()
-        {            
+        {
             coroutineRunning = true;
             var sideFacing = 0;
             Side side;// = LeftOrRight(enemy.gameObject);

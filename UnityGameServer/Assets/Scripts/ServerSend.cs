@@ -159,13 +159,27 @@ public class ServerSend: MonoBehaviour
     /// <summary>Sends a welcome message to the given client.</summary>
     /// <param name="_toClient">The client to send the packet to.</param>
     /// <param name="_msg">The message to send.</param>
-    public static void Welcome(int _toClient, string _msg)
+    public static void Hello(int _toClient)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.hello))
+        {
+            SendTCPData(_toClient, _packet);
+        }
+    }
+
+    public static void Welcome(int _toClient)
     {
         using (Packet _packet = new Packet((int)ServerPackets.welcome))
         {
-            _packet.Write(_msg);
             _packet.Write(_toClient);
+            SendTCPData(_toClient, _packet);
+        }
+    }
 
+    public static void LoginFailed(int _toClient)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.loginFailed))
+        {            
             SendTCPData(_toClient, _packet);
         }
     }
@@ -353,6 +367,13 @@ public class ServerSend: MonoBehaviour
         };
     }
 
+    protected static SerializableObjects.ItemDrop ItemDropToSerializable(ItemDrop drop)
+    {
+        SerializableObjects.Item item = ItemToSerializable(drop.item);
+
+        return new SerializableObjects.ItemDrop() { quantity = drop.quantity, item = item };
+    }
+
     public static void Time(float time)
     {
         using (Packet _packet = new Packet((int)ServerPackets.time))
@@ -410,14 +431,15 @@ public class ServerSend: MonoBehaviour
         }
     }
 
-    public static void TakeDamage(int receiver, Vector3 pos, float damage)
+    public static void TakeDamage(int receiver, Vector3 pos, float damage, string type)
     {
         using (Packet _packet = new Packet((int)ServerPackets.takeDamage))
         {
             _packet.Write(receiver);
+            _packet.Write(type);
             _packet.Write(damage);
 
-            SendTCPDataToAll(_packet);
+            SendTCPDataRadiusStatic(_packet, pos, NetworkManager.visibilityRadius);
         }
     }
 
@@ -527,6 +549,20 @@ public class ServerSend: MonoBehaviour
             _packet.Write(type);
             _packet.Write(stats);            
 
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void OnLootDropped(int to, List<ItemDrop> items) {
+        List<SerializableObjects.ItemDrop> toSend = new List<SerializableObjects.ItemDrop>();
+
+        foreach (ItemDrop item in items) {
+            toSend.Add(ItemDropToSerializable(item));
+        }
+
+        using (Packet _packet = new Packet((int)ServerPackets.onLootDropped))
+        {
+            _packet.Write(toSend);
             SendTCPData(to, _packet);
         }
     }
