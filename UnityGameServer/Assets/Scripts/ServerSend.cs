@@ -581,5 +581,14 @@ public class ServerSend: MonoBehaviour
             }
         }
     }
+
+    public static void PlayerNotFound(int to, Message message)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.playerNotFoundMessage))
+        {
+            _packet.Write(message);
+            SendTCPData(to, _packet);
+        }
+    }
 }
 #endregion

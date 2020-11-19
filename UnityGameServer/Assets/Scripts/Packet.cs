@@ -44,7 +44,8 @@ public enum ServerPackets
     onLootDropped,
     hello,
     loginFailed,
-    chatMessage
+    chatMessage,
+    playerNotFoundMessage
 }
 
 /// <summary>Sent from client to server.</summary>
