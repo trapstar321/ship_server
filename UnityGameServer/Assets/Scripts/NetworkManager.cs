@@ -193,9 +193,9 @@ public class NetworkManager : MonoBehaviour
                 case (int)ClientPackets.replacePlayerEquipment:
                     ServerHandle.ReplacePlayerEquipment(client.id, packet.packet);
                     break;
-                case (int)ClientPackets.onGameStart:
+                /*case (int)ClientPackets.onGameStart:
                     ServerHandle.OnGameStart(client.id, packet.packet);
-                    break;
+                    break;*/
                 case (int)ClientPackets.shoot:
                     ServerHandle.Shoot(client.id, packet.packet);
                     break;
@@ -207,6 +207,9 @@ public class NetworkManager : MonoBehaviour
                     break;
                 case (int)ClientPackets.discardLoot:
                     ServerHandle.DiscardLoot(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.chatMessage:
+                    ServerHandle.ChatMessage(client.id, packet.packet);
                     break;
             }
         }

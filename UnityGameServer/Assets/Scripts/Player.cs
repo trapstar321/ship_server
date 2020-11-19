@@ -7,8 +7,7 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public int id;
-    public int dbid;
-    public string username;
+    public int dbid;    
     public CharacterController controller;
     //private Rigidbody mBody;
     public Transform shootOrigin;
@@ -75,11 +74,10 @@ public class Player : MonoBehaviour
         jumpSpeed *= Time.fixedDeltaTime;
     }
 
-    public void Initialize(int _id, int _dbid, string _username)
+    public void Initialize(int _id, int _dbid)
     {
         id = _id;
-        dbid = _dbid;
-        username = _username;
+        dbid = _dbid;        
         health = maxHealth;
 
         inputs = new bool[5];                     
@@ -98,6 +96,8 @@ public class Player : MonoBehaviour
         this.data = data;
 
         LoadBaseStats();
+
+        ServerSend.OnGameStart(id, stats, exp, data);
 
         LoadInventory();
         LoadPlayerEquipment();

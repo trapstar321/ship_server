@@ -43,7 +43,8 @@ public enum ServerPackets
     npcStats,
     onLootDropped,
     hello,
-    loginFailed
+    loginFailed,
+    chatMessage
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -74,7 +75,8 @@ public enum ClientPackets
     cannonRotate,
     collectLoot,
     discardLoot,
-    login
+    login,
+    chatMessage
 }
 
 public class Packet: IDisposable
@@ -276,6 +278,13 @@ public class Packet: IDisposable
     }
 
     public void Write(SerializableObjects.PlayerData _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(SerializableObjects.Message _value)
     {
         byte[] data = ObjectToByteArray(_value);
         Write(data.Length); // Add the length of the string to the packet
@@ -561,6 +570,26 @@ public class Packet: IDisposable
         catch
         {
             throw new Exception("Could not read value of type 'SerializableObjects.InventorySlot'!");
+        }
+    }
+
+    public SerializableObjects.Message ReadMessage(bool _moveReadPos = true)
+    {
+        try
+        {
+            int _length = ReadInt(); // Get the length of the string
+            byte[] data = new byte[_length];
+            Array.Copy(readableBuffer, readPos, data, 0, _length);
+            if (_moveReadPos && data.Length > 0)
+            {
+                // If _moveReadPos is true string is not empty
+                readPos += _length; // Increase readPos by the length of the string
+            }
+            return FromByteArray<SerializableObjects.Message>(data); // Return the string
+        }
+        catch
+        {
+            throw new Exception("Could not read value of type 'SerializableObjects.Message'!");
         }
     }
 

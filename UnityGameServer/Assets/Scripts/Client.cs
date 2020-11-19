@@ -231,7 +231,7 @@ public class Client: MonoBehaviour
     {        
         player = NetworkManager.instance.InstantiatePlayer(data.X, data.Y, data.Z);
         player.transform.eulerAngles = new Vector3(0, data.Y_rot, 0);
-        player.Initialize(id, dbid, _playerName);
+        player.Initialize(id, dbid);
 
         // Send the new player to all players (including himself)
         foreach (Client _client in Server.clients.Values)

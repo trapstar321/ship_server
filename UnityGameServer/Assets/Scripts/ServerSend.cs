@@ -191,8 +191,7 @@ public class ServerSend: MonoBehaviour
     {
         using (Packet _packet = new Packet((int)ServerPackets.spawnPlayer))
         {
-            _packet.Write(_player.id);
-            _packet.Write(_player.username);
+            _packet.Write(_player.id);            
             _packet.Write(_player.transform.position);
             _packet.Write(_player.transform.rotation);
 
@@ -564,6 +563,22 @@ public class ServerSend: MonoBehaviour
         {
             _packet.Write(toSend);
             SendTCPData(to, _packet);
+        }
+    }
+
+    public static void ChatMessage(int from, Message message, int to=0) {
+        using (Packet _packet = new Packet((int)ServerPackets.chatMessage))
+        {
+            _packet.Write(message);
+
+            if (to != 0)
+            {
+                SendTCPData(to, _packet);
+            }
+            else
+            {
+                SendTCPDataToAll(from, _packet);
+            }
         }
     }
 }

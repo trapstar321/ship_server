@@ -7,11 +7,13 @@ public class ServerHandle: MonoBehaviour
 {
     private static SpawnManager spawnManager;
     private static Mysql mysql;
+    private static Chat chat;
 
     private void Awake()
     {
         spawnManager = FindObjectOfType<SpawnManager>();
         mysql = FindObjectOfType<Mysql>();
+        chat = FindObjectOfType<Chat>();
     }
 
     public static void Welcome(int _fromClient, int dbid)
@@ -331,14 +333,14 @@ public class ServerHandle: MonoBehaviour
         Server.clients[from].player.SearchChest();
     }
 
-    public static void OnGameStart(int from, Packet packet) {
+    /*public static void OnGameStart(int from, Packet packet) {
         Player player = Server.clients[from].player;
         List<BaseStat> stats = player.stats;
         List<Experience> exp = player.exp;
         PlayerData data = player.data;        
 
         ServerSend.OnGameStart(from, stats, exp, data);        
-    }
+    }*/
 
     public static void Shoot(int from, Packet packet) {
         CannonShot shootScript = Server.clients[from].player.GetComponent<CannonShot>();
@@ -407,5 +409,12 @@ public class ServerHandle: MonoBehaviour
     public static void DiscardLoot(int from, Packet packet)
     {
 
+    }
+
+    public static void ChatMessage(int from, Packet packet) {
+        Player player = Server.clients[from].player;
+        Message message = packet.ReadMessage();
+        message.from = player.data.username;        
+        chat.OnChatMessage(from, message);
     }
 }

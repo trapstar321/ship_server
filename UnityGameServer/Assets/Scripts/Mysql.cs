@@ -292,7 +292,12 @@ public class Mysql : MonoBehaviour
             int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
             int crit_chance = rdr.GetInt32("CRIT_CHANCE");
             int cannon_force = rdr.GetInt32("CANNON_FORCE");
-            int drop_chance = rdr.GetInt32("DROP_CHANCE");
+
+            int drop_chance = 0;
+            if (!rdr.IsDBNull(14))
+            {
+                drop_chance = rdr.GetInt32("DROP_CHANCE");
+            }
             float max_loot_quantity = 0;
 
             if (!rdr.IsDBNull(15))
@@ -997,7 +1002,7 @@ public class Mysql : MonoBehaviour
     }
 
     public PlayerData ReadPlayerData(int id) {
-        string sql = @"select LEVEL,EXPERIENCE, X, Y, Z, Y_rot
+        string sql = @"select LEVEL,EXPERIENCE, USERNAME, X, Y, Z, Y_rot
                        from player where id=@id";
 
         var cmd = new MySqlCommand(sql, con);
@@ -1026,6 +1031,8 @@ public class Mysql : MonoBehaviour
             if (!rdr.IsDBNull(5))
                 Y_rot = rdr.GetFloat("Y_rot");
 
+            string username = rdr.GetString("USERNAME");
+
             data = new PlayerData();
             data.level = level;
             data.experience = experience;
@@ -1033,6 +1040,7 @@ public class Mysql : MonoBehaviour
             data.Y = Y;
             data.Z = Z;
             data.Y_rot = Y_rot;
+            data.username = username;
         }
         rdr.Close();
         return data;
@@ -1158,8 +1166,7 @@ public class Mysql : MonoBehaviour
             string username = rdr.GetString("USERNAME");            
 
             Player player = new Player();
-            player.id = id;
-            player.username = username;
+            player.id = id;            
 
             players.Add(player);
         }

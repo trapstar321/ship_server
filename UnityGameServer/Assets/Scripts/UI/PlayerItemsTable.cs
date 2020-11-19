@@ -83,7 +83,7 @@ public class PlayerItemsTable : MonoBehaviour
         List<string> options = new List<string>();
         foreach (Player player in players)
         {
-            options.Add(player.username);
+            options.Add(player.data.username);
         }
         playerDropdown.ClearOptions();
         playerDropdown.AddOptions(options);
