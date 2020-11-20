@@ -417,4 +417,75 @@ public class ServerHandle: MonoBehaviour
         message.from = player.data.username;        
         chat.OnChatMessage(from, message);
     }
+
+    public static void CreateGroup(int from, Packet packet) {
+        Player player = Server.clients[from].player;
+
+        if (player.ownedGroup != null)
+        {
+            Message msg = new Message();
+            msg.messageType = Message.MessageType.gameInfo;
+            msg.text = "You already own a group!";            
+            ServerSend.OnGameMessage(from, msg);
+            ServerSend.GroupCreateStatus(from, false);
+        }
+        else
+        {
+            string groupName = packet.ReadString();
+            Group group = new Group(groupName, player);
+
+            Message msg = new Message();
+            msg.messageType = Message.MessageType.gameInfo;
+            msg.text = "Group created!";
+            ServerSend.OnGameMessage(from, msg);
+            ServerSend.GroupCreateStatus(from, true);
+        }
+    }
+
+    public static void GetGroupList(int from, Packet packet) {
+        ServerSend.GroupList(from);
+    }
+
+    public static void ApplyToGroup(int from, Packet packet) {
+        int groupId = packet.ReadInt();
+
+        Player applicant = Server.clients[from].player;
+
+        foreach (Group group in NetworkManager.groups.Values) {
+            if (group.groupId == groupId) {
+                Player owner = Server.FindPlayerByDBid(group.owner);
+
+                if (owner != null) {
+                    ServerSend.PlayerAppliedToGroup(applicant, owner.id);
+                }
+            }
+        }
+    }
+
+    public static void AcceptGroupApplicant(int from, Packet packet) {
+        int applicantId = packet.ReadInt();
+
+        Message msg = new Message();
+        msg.messageType = Message.MessageType.gameInfo;
+        msg.text = "Welcome to group!";
+        ServerSend.OnGameMessage(applicantId, msg);
+
+        Player owner = Server.clients[from].player;
+        Player applicant = Server.clients[applicantId].player;
+        Group group = owner.group;
+
+        if (group != null) {
+            group.AddPlayer(applicant);
+        }
+    }
+
+    public static void DeclineGroupApplicant(int from, Packet packet)
+    {
+        int applicantId = packet.ReadInt();
+
+        Message msg = new Message();
+        msg.messageType = Message.MessageType.gameInfo;
+        msg.text = "Your group request has been declined!";
+        ServerSend.OnGameMessage(applicantId, msg);
+    }
 }

@@ -45,7 +45,10 @@ public enum ServerPackets
     hello,
     loginFailed,
     chatMessage,
-    playerNotFoundMessage
+    onGameMessage,
+    groupCreateStatus,
+    groupList,
+    playerAppliedToGroup
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -77,7 +80,12 @@ public enum ClientPackets
     collectLoot,
     discardLoot,
     login,
-    chatMessage
+    chatMessage,
+    createGroup,
+    getGroupList,
+    applyToGroup,
+    acceptGroupApplicant,
+    declineGroupApplicant
 }
 
 public class Packet: IDisposable
@@ -286,6 +294,13 @@ public class Packet: IDisposable
     }
 
     public void Write(SerializableObjects.Message _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(List<SerializableObjects.Group> _value)
     {
         byte[] data = ObjectToByteArray(_value);
         Write(data.Length); // Add the length of the string to the packet

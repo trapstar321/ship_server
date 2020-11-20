@@ -53,6 +53,8 @@ public class Player : MonoBehaviour
     SphereCollider playerEnterCollider;
 
     public List<ItemDrop> lootCache;
+    public Group group;
+    public Group ownedGroup;
 
     void Awake() {
         //mBody = GetComponent<Rigidbody>();        
@@ -64,7 +66,7 @@ public class Player : MonoBehaviour
 
         movement = GetComponent<BoatMovement>();
         playerEnterCollider = GetComponentInChildren<SphereCollider>();
-        playerEnterCollider.radius = NetworkManager.visibilityRadius / 2;
+        playerEnterCollider.radius = NetworkManager.visibilityRadius / 2;        
     }
 
     private void Start()
@@ -80,7 +82,9 @@ public class Player : MonoBehaviour
         dbid = _dbid;        
         health = maxHealth;
 
-        inputs = new bool[5];                     
+        inputs = new bool[5];
+
+        ResetGroupReferences();
     }
 
     public void Load()
@@ -349,5 +353,15 @@ public class Player : MonoBehaviour
     public void Move(Vector3 newPos)
     {
         movement.buffer.Add(newPos);
+    }
+
+    public void ResetGroupReferences() {
+        foreach (Group group in NetworkManager.groups.Values) {
+            if (group.owner == dbid)
+                ownedGroup = group;
+
+            if (group.players.Contains(dbid))
+                this.group = group;
+        }
     }
 }

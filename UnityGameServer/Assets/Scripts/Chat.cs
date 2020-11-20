@@ -28,7 +28,7 @@ public class Chat : MonoBehaviour
                 msg.messageType = Message.MessageType.gameInfo;
                 msg.text = "Player not found or offline!";
                 msg.to = message.from;
-                ServerSend.PlayerNotFound(from, msg);
+                ServerSend.OnGameMessage(from, msg);
             }
         }
     }

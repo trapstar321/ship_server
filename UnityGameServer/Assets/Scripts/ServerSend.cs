@@ -582,11 +582,53 @@ public class ServerSend: MonoBehaviour
         }
     }
 
-    public static void PlayerNotFound(int to, Message message)
+    public static void OnGameMessage(int to, Message message)
     {
-        using (Packet _packet = new Packet((int)ServerPackets.playerNotFoundMessage))
+        using (Packet _packet = new Packet((int)ServerPackets.onGameMessage))
         {
             _packet.Write(message);
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void GroupCreateStatus(int to, bool status)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.groupCreateStatus))
+        {
+            _packet.Write(status);
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void GroupList(int to)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.groupList))
+        {
+            List<SerializableObjects.Group> groups = new List<SerializableObjects.Group>();
+            foreach (Group group in NetworkManager.groups.Values)
+            {
+                //dont send owned group
+                if (group.owner != to && group.players.Count<Group.maxPlayers)
+                {
+                    groups.Add(new SerializableObjects.Group()
+                    {
+                        groupId = group.groupId,
+                        name = group.groupName,
+                        playerCount = group.players.Count
+                    });
+                }
+            }
+
+            _packet.Write(groups);
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void PlayerAppliedToGroup(Player from, int to) {
+        using (Packet _packet = new Packet((int)ServerPackets.playerAppliedToGroup))
+        {
+            _packet.Write(from.id);
+            _packet.Write(from.data.username);            
             SendTCPData(to, _packet);
         }
     }

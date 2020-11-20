@@ -158,4 +158,12 @@ public class Server
         tcpListener.Stop();
         udpListener.Close();
     }
+
+    public static Player FindPlayerByDBid(int dbid) {
+        foreach (Client client in clients.Values) {
+            if (client.player != null && client.player.dbid == dbid)
+                return client.player;
+        }
+        return null;
+    }
 }

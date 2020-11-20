@@ -19,6 +19,8 @@ public class NetworkManager : MonoBehaviour
 
     Mysql mysql;
 
+    public static Dictionary<int, Group> groups = new Dictionary<int, Group>();
+
     public class PacketData {
         public int type;
         public Packet packet;
@@ -210,6 +212,21 @@ public class NetworkManager : MonoBehaviour
                     break;
                 case (int)ClientPackets.chatMessage:
                     ServerHandle.ChatMessage(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.createGroup:
+                    ServerHandle.CreateGroup(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.getGroupList:
+                    ServerHandle.GetGroupList(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.applyToGroup:
+                    ServerHandle.ApplyToGroup(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.acceptGroupApplicant:
+                    ServerHandle.AcceptGroupApplicant(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.declineGroupApplicant:
+                    ServerHandle.DeclineGroupApplicant(client.id, packet.packet);
                     break;
             }
         }
