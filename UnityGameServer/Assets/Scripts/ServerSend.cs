@@ -608,12 +608,13 @@ public class ServerSend: MonoBehaviour
             foreach (Group group in NetworkManager.groups.Values)
             {
                 //dont send owned group
-                if (group.owner != to && group.players.Count<Group.maxPlayers)
+                if (group.owner != Server.clients[to].player.dbid && group.players.Count<Group.maxPlayers)
                 {
                     groups.Add(new SerializableObjects.Group()
                     {
                         groupId = group.groupId,
                         name = group.groupName,
+                        owner = Server.FindPlayerByDBid(group.owner).data.username,
                         playerCount = group.players.Count
                     });
                 }
