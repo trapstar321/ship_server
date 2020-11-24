@@ -18,9 +18,9 @@ public class Group
         counter += 1;
         this.groupName = groupName;
         owner.ownedGroup = this;
-        this.owner = owner.dbid;
-        AddPlayer(owner);
+        this.owner = owner.dbid;        
         NetworkManager.groups.Add(groupId, this);
+        AddPlayer(owner);
     }
 
     public void AddPlayer(Player player) {
@@ -31,12 +31,19 @@ public class Group
             players.Add(player.dbid);
 
         player.group = this;
+
+        ServerSend.GroupMembers(groupId);
     }
 
     public void RemovePlayer(Player player)
     {
         if (players.Contains(player.dbid))
             players.Remove(player.dbid);
+
+        player.group = null;
+        player.ownedGroup = null;
+
+        ServerSend.GroupMembers(groupId);
     }
 
     public void Disband() {

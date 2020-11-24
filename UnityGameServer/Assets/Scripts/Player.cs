@@ -85,6 +85,8 @@ public class Player : MonoBehaviour
         inputs = new bool[5];
 
         ResetGroupReferences();
+        TransferGroupOwner();
+        SetGroupOwner();
     }
 
     public void Load()
@@ -93,7 +95,7 @@ public class Player : MonoBehaviour
 
         List<BaseStat> stats = mysql.ReadBaseStatsTable();
         List<Experience> exp = mysql.ReadExperienceTable();
-        PlayerData data = mysql.ReadPlayerData(id);
+        PlayerData data = mysql.ReadPlayerData(dbid);
 
         this.stats = stats;
         this.exp = exp;
@@ -202,6 +204,8 @@ public class Player : MonoBehaviour
             health -= damage;
         }
         ServerSend.TakeDamage(id, transform.position, damage, "player");
+        if(group!=null)
+            ServerSend.GroupMembers(group.groupId);
     }
 
     private void TakeDamage(EnemyAI npc)
@@ -220,6 +224,8 @@ public class Player : MonoBehaviour
             health -= damage;
         }
         ServerSend.TakeDamage(id, transform.position, damage, "player");
+        if (group != null)
+            ServerSend.GroupMembers(group.groupId);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -362,6 +368,60 @@ public class Player : MonoBehaviour
 
             if (group.players.Contains(dbid))
                 this.group = group;
+        }
+    }
+
+    public void RemoveGroupIfEmpty()
+    {
+        if (ownedGroup != null && NetworkManager.groups.ContainsKey(ownedGroup.groupId))
+        {
+            Group group = NetworkManager.groups[ownedGroup.groupId];
+            if (group.players.Count == 1)
+            {
+                NetworkManager.groups.Remove(group.groupId);
+            }            
+        }
+    }
+
+    public void TransferGroupOwner() {
+        if (group != null)
+        {
+            Group group = this.group;
+
+            foreach (int dbid in group.players) {
+                if (dbid != this.dbid) {
+                    Player player = Server.FindPlayerByDBid(dbid);
+
+                    if (player != null)
+                    {
+                        group.owner = dbid;
+                        player.ownedGroup = group;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public void SetGroupOwner()
+    {
+        if (group != null)
+        {
+            Group group = this.group;
+
+            bool aloneOnline = true;
+            foreach (int dbid in group.players)
+            {
+                if (dbid != this.dbid && Server.FindPlayerByDBid(dbid) != null)
+                {
+                    aloneOnline = false;
+                }
+            }
+
+            if (aloneOnline) {
+                group.owner = this.dbid;
+                ownedGroup = group;
+            }
         }
     }
 }

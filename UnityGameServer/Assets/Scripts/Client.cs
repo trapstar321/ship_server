@@ -276,8 +276,19 @@ public class Client: MonoBehaviour
         {
             UnityEngine.Object.Destroy(player.gameObject);
             lastInputSequenceNumber = 0;
-            inputBuffer.Clear();            
+            inputBuffer.Clear();
+            player.TransferGroupOwner();
+            player.RemoveGroupIfEmpty();            
+
+            int groupId = 0;
+            if (player.group != null)
+                groupId = player.group.groupId;
+
             player = null;
+
+            if (groupId != 0) {
+                ServerSend.GroupMembers(groupId);
+            }
         });
 
         tcp.Disconnect();

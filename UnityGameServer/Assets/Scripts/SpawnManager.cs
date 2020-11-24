@@ -38,13 +38,13 @@ public class SpawnManager : MonoBehaviour
         int id = NextId();
         GameObject chest = Instantiate(prefabs[GameObjectType.chest], new Vector3(-3.57f, -2f, -8.83f), Quaternion.identity);
         objects.Add(id, new Spawn() { id = id, type = GameObjectType.chest, gameObject = chest });
-
+        /*
         id = NextId();
         GameObject ai = Instantiate(prefabs[GameObjectType.npcShip], new Vector3(0f, 0f, 0f), Quaternion.identity);
         objects.Add(id, new Spawn() { id = id, type = GameObjectType.npcShip, gameObject = ai });
         EnemyAI enemy = ai.GetComponent<EnemyAI>();
         enemy.id = id;
-        Server.npcs.Add(id, enemy);
+        Server.npcs.Add(id, enemy);*/
     }
 
     // Update is called once per frame

@@ -7,7 +7,13 @@ using UnityEngine;
 public class ServerSend: MonoBehaviour
 {
     public float lag=200;
-    
+    private static Mysql mysql;
+
+    private void Awake()
+    {
+        mysql = FindObjectOfType<Mysql>();
+    }
+
     /// <summary>Sends a packet to a client via TCP.</summary>
     /// <param name="_toClient">The client to send the packet the packet to.</param>
     /// <param name="_packet">The packet to send to the client.</param>    
@@ -15,6 +21,19 @@ public class ServerSend: MonoBehaviour
     {
         _packet.WriteLength();
         Server.clients[_toClient].tcp.SendData(_packet);
+    }
+
+    public static void SendTCPData(List<int> clients, Packet _packet) {
+        _packet.WriteLength();
+        foreach(int clientId in clients)
+            Server.clients[clientId].tcp.SendData(_packet);
+    }
+
+    public static void SendTCPData(List<Player> clients, Packet _packet)
+    {
+        _packet.WriteLength();
+        foreach (Player player in clients)
+            Server.clients[player.id].tcp.SendData(_packet);
     }
 
     /// <summary>Sends a packet to a client via UDP.</summary>
@@ -489,6 +508,9 @@ public class ServerSend: MonoBehaviour
 
             SendTCPDataRadiusStatic(_packet, player.transform.position, NetworkManager.visibilityRadius);
         }
+
+        if(player.group!=null)
+            GroupMembers(player.group.groupId);
     }
 
     public static void Stats(int from, int to)
@@ -630,6 +652,98 @@ public class ServerSend: MonoBehaviour
         {
             _packet.Write(from.id);
             _packet.Write(from.data.username);            
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void GroupMembers(int groupId)
+    {
+        bool anyMemberOnline = false;
+        foreach (Group group in NetworkManager.groups.Values)
+        {
+            if (group.groupId == groupId)
+            {
+                foreach (int dbid in group.players) {
+                    if (Server.FindPlayerByDBid(dbid) != null)
+                    {
+                        anyMemberOnline = true;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        if (!anyMemberOnline)
+            return;
+
+        using (Packet _packet = new Packet((int)ServerPackets.groupMembers))
+        {
+            List<GroupMember> memberData = new List<GroupMember>();
+            List<Player> groupMembers = new List<Player>();
+            List<int> sendTo = new List<int>();
+            Group myGroup = null;
+
+            foreach (Group group in NetworkManager.groups.Values) {
+                if (group.groupId == groupId) {
+                    myGroup = group;
+                    foreach (int dbid in group.players) {
+                        Player player = Server.FindPlayerByDBid(dbid);
+
+                        if (player != null)
+                        {
+                            memberData.Add(new GroupMember()
+                            {
+                                playerId = player.id,
+                                isOwner = dbid==group.owner?true:false, 
+                                online = true,
+                                name = player.data.username,
+                                playerLvl = player.data.level,
+                                currentHealth = player.health,
+                                maxHealth = player.maxHealth
+                            });
+                            groupMembers.Add(player);
+                            sendTo.Add(player.id);
+                        }
+                        else {
+                            PlayerData data = mysql.ReadPlayerData(dbid);
+
+                            memberData.Add(new GroupMember()
+                            {
+                                isOwner = dbid == group.owner ? true : false,
+                                online = false,
+                                name = data.username,
+                                playerLvl = data.level,
+                                currentHealth = 0,
+                                maxHealth = 0
+                            });
+                            groupMembers.Add(player);
+                        }
+                    }
+                    break;
+                }
+            }            
+
+            _packet.Write(memberData);
+            if (myGroup != null)
+            {
+                _packet.Write(new SerializableObjects.Group()
+                {
+                    groupId = myGroup.groupId,
+                    name = myGroup.groupName,
+                    owner = Server.FindPlayerByDBid(myGroup.owner).data.username,
+                    playerCount = myGroup.players.Count
+                });
+            }
+
+            SendTCPData(sendTo, _packet);
+        }
+    }
+
+    public static void KickedFromGroup(int to)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.kickedFromGroup))
+        {            
             SendTCPData(to, _packet);
         }
     }

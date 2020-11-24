@@ -37,7 +37,7 @@ public class ServerHandle: MonoBehaviour
 
         //send current stats to all
         //send stats from all to player
-        //NetworkManager.SendStats(_fromClient);        
+        //NetworkManager.SendStats(_fromClient);          
     }    
 
     public static void Login(int _fromClient, Packet _packet) {
@@ -451,14 +451,27 @@ public class ServerHandle: MonoBehaviour
 
         Player applicant = Server.clients[from].player;
 
+        if (applicant.group != null || (NetworkManager.groups.ContainsKey(groupId) && NetworkManager.groups[groupId].players.Count==Group.maxPlayers))
+            return;
+
+        bool groupFound = false;
         foreach (Group group in NetworkManager.groups.Values) {
             if (group.groupId == groupId) {
+                groupFound = true;
                 Player owner = Server.FindPlayerByDBid(group.owner);
 
                 if (owner != null) {
                     ServerSend.PlayerAppliedToGroup(applicant, owner.id);
                 }
             }
+        }
+
+        if (!groupFound) {
+            Message msg = new Message();
+            msg.messageType = Message.MessageType.gameInfo;
+            msg.text = "Group does not exits anymore!";
+            ServerSend.OnGameMessage(from, msg);
+            ServerSend.GroupList(from);
         }
     }
 
@@ -487,5 +500,18 @@ public class ServerHandle: MonoBehaviour
         msg.messageType = Message.MessageType.gameInfo;
         msg.text = "Your group request has been declined!";
         ServerSend.OnGameMessage(applicantId, msg);
+    }
+
+    public static void KickGroupMember(int from, Packet packet) {
+        Group group = Server.clients[from].player.group;
+        Player player = Server.clients[packet.ReadInt()].player;
+
+        group.RemovePlayer(player);        
+
+        Message msg = new Message();
+        msg.messageType = Message.MessageType.gameInfo;
+        msg.text = "You have been kicked from group!";
+        ServerSend.OnGameMessage(player.id, msg);
+        ServerSend.KickedFromGroup(player.id);
     }
 }
