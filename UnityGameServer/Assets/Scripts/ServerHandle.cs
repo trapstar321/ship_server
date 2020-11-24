@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ServerHandle: MonoBehaviour
+public class ServerHandle : MonoBehaviour
 {
     private static SpawnManager spawnManager;
     private static Mysql mysql;
@@ -38,9 +38,10 @@ public class ServerHandle: MonoBehaviour
         //send current stats to all
         //send stats from all to player
         //NetworkManager.SendStats(_fromClient);          
-    }    
+    }
 
-    public static void Login(int _fromClient, Packet _packet) {
+    public static void Login(int _fromClient, Packet _packet)
+    {
         string username = _packet.ReadString();
         string password = _packet.ReadString();
 
@@ -61,7 +62,7 @@ public class ServerHandle: MonoBehaviour
         bool[] _inputs = new bool[_packet.ReadInt()];
         for (int i = 0; i < _inputs.Length; i++)
         {
-            _inputs[i] = _packet.ReadBool();            
+            _inputs[i] = _packet.ReadBool();
         }
         Quaternion _rotation = _packet.ReadQuaternion();
 
@@ -69,7 +70,7 @@ public class ServerHandle: MonoBehaviour
     }
 
     public static void Position(int _fromClient, Packet _packet)
-    {        
+    {
         int inputSequenceNumber = _packet.ReadInt();
         //Debug.Log("ISN: " + inputSequenceNumber);
         bool left = _packet.ReadBool();
@@ -78,7 +79,7 @@ public class ServerHandle: MonoBehaviour
 
         //Server.clients[_fromClient].player.Move(new Vector3(left ? 1 : 0, right ? 1 : 0, forward ? 1 : 0));                
         Client client = Server.clients[_fromClient];
-        client.inputBuffer.Add(new PlayerInputs() { left = left, right = right, forward = forward, inputSequenceNumber = inputSequenceNumber });        
+        client.inputBuffer.Add(new PlayerInputs() { left = left, right = right, forward = forward, inputSequenceNumber = inputSequenceNumber });
     }
 
     public static void Joystick(int _fromClient, Packet _packet)
@@ -92,11 +93,12 @@ public class ServerHandle: MonoBehaviour
 
     public static void test(int _fromClient, Packet _packet)
     {
-        string data =_packet.ReadString();
+        string data = _packet.ReadString();
         Debug.Log(data);
     }
 
-    public static void GetInventory(int from, Packet packet) {
+    public static void GetInventory(int from, Packet packet)
+    {
         Inventory inventory = Server.clients[from].player.inventory;
 
         ServerSend.Inventory(from, inventory);
@@ -110,8 +112,8 @@ public class ServerHandle: MonoBehaviour
     }
 
     public static void GetShipEquipment(int from, Packet packet)
-	{
-        ShipEquipment equipment = Server.clients[from].player.ship_equipment;        
+    {
+        ShipEquipment equipment = Server.clients[from].player.ship_equipment;
         ServerSend.ShipEquipment(from, equipment.Items());
 
         /*Item wood = new Item();
@@ -136,11 +138,12 @@ public class ServerHandle: MonoBehaviour
         ServerSend.AddToInventory(from, slot);*/
     }
 
-    public static void DropItem(int from, Packet packet) {        
+    public static void DropItem(int from, Packet packet)
+    {
         Inventory inventory = Server.clients[from].player.inventory;
         SerializableObjects.InventorySlot slot = packet.ReadInventorySlot();
 
-        inventory.Remove(slot.slotID);        
+        inventory.Remove(slot.slotID);
 
         InventorySlot s = SlotFromSerializable(slot);
         mysql.DropItem(Server.clients[from].player.dbid, s);
@@ -158,16 +161,17 @@ public class ServerHandle: MonoBehaviour
 
         Item it = null;
 
-        if(eq.Equals("ship_equipment"))
+        if (eq.Equals("ship_equipment"))
             it = sequipment.GetItem(item.item_type);
-        else if(eq.Equals("player_equipment"))
+        else if (eq.Equals("player_equipment"))
             it = pequipment.GetItem(item.item_type);
 
         InventorySlot sl = inventory.Add(it);
         mysql.AddItemToInventory(dbid, sl);
     }
 
-    public static void RemoveItemFromInventory(int from, Packet packet) {        
+    public static void RemoveItemFromInventory(int from, Packet packet)
+    {
         Inventory inventory = Server.clients[from].player.inventory;
 
         SerializableObjects.InventorySlot slot = packet.ReadInventorySlot();
@@ -175,7 +179,8 @@ public class ServerHandle: MonoBehaviour
         inventory.Remove(slot.slotID);
     }
 
-    public static void ReplaceShipEquipment(int from, Packet packet) {
+    public static void ReplaceShipEquipment(int from, Packet packet)
+    {
         int dbid = Server.clients[from].player.dbid;
         Inventory inventory = Server.clients[from].player.inventory;
         ShipEquipment equipment = Server.clients[from].player.ship_equipment;
@@ -185,7 +190,7 @@ public class ServerHandle: MonoBehaviour
 
         Item new_ = slot.item;
         Item old = equipment.GetItem(new_.item_type);
-        
+
         mysql.RemoveInventoryItem(dbid, slot.slotID);
         mysql.AddShipEquipment(dbid, new_);
 
@@ -195,7 +200,7 @@ public class ServerHandle: MonoBehaviour
             slot = inventory.Add(old);
             mysql.AddItemToInventory(dbid, slot);
         }
-        equipment.Add(new_);        
+        equipment.Add(new_);
     }
 
     public static void ReplacePlayerEquipment(int from, Packet packet)
@@ -227,13 +232,13 @@ public class ServerHandle: MonoBehaviour
         int dbid = Server.clients[from].player.dbid;
         Inventory inventory = Server.clients[from].player.inventory;
         SerializableObjects.InventorySlot slot1 = packet.ReadInventorySlot();
-        SerializableObjects.InventorySlot slot2 = packet.ReadInventorySlot();        
+        SerializableObjects.InventorySlot slot2 = packet.ReadInventorySlot();
 
         InventorySlot s1 = SlotFromSerializable(slot1);
         InventorySlot s2 = SlotFromSerializable(slot2);
 
         InventorySlot slot_1 = inventory.FindSlot(s1.slotID);
-        InventorySlot slot_2 = inventory.FindSlot(s2.slotID);        
+        InventorySlot slot_2 = inventory.FindSlot(s2.slotID);
 
         if (slot_1.item != null && slot_2.item != null)
         {
@@ -269,7 +274,8 @@ public class ServerHandle: MonoBehaviour
         }
     }
 
-    public static void RemoveShipEquipment(int from, Packet packet) {
+    public static void RemoveShipEquipment(int from, Packet packet)
+    {
         int dbid = Server.clients[from].player.dbid;
         ShipEquipment equipment = Server.clients[from].player.ship_equipment;
         Inventory inventory = Server.clients[from].player.inventory;
@@ -301,11 +307,11 @@ public class ServerHandle: MonoBehaviour
     }
 
     protected static Item ItemFromSerializable(SerializableObjects.Item it)
-    {        
+    {
         Item item = new Item();
         item.id = it.id;
         item.name = it.name;
-        item.item_type = it.item_type;           
+        item.item_type = it.item_type;
 
         return item;
     }
@@ -320,7 +326,7 @@ public class ServerHandle: MonoBehaviour
             item.id = slot.item.id;
             item.name = slot.item.name;
             item.item_type = slot.item.item_type;
-            s.item = item;            
+            s.item = item;
         }
 
         s.quantity = slot.quantity;
@@ -329,7 +335,8 @@ public class ServerHandle: MonoBehaviour
         return s;
     }
 
-    public static void SearchChest(int from, Packet packet) {
+    public static void SearchChest(int from, Packet packet)
+    {
         Server.clients[from].player.SearchChest();
     }
 
@@ -342,7 +349,8 @@ public class ServerHandle: MonoBehaviour
         ServerSend.OnGameStart(from, stats, exp, data);        
     }*/
 
-    public static void Shoot(int from, Packet packet) {
+    public static void Shoot(int from, Packet packet)
+    {
         CannonShot shootScript = Server.clients[from].player.GetComponent<CannonShot>();
         shootScript.Shoot(packet.ReadString());
     }
@@ -353,13 +361,15 @@ public class ServerHandle: MonoBehaviour
         cannonRotate.CannonRotate(packet.ReadString(), packet.ReadString());
     }
 
-    public static void CollectLoot(int from, Packet packet) {
+    public static void CollectLoot(int from, Packet packet)
+    {
         int dbid = Server.clients[from].player.dbid;
         List<int> items = packet.ReadIntList();
 
         Player player = Server.clients[from].player;
 
-        bool ItemInList(ItemDrop drop) {
+        bool ItemInList(ItemDrop drop)
+        {
             foreach (int item_id in items)
                 if (item_id == drop.item.item_id)
                     return true;
@@ -379,12 +389,13 @@ public class ServerHandle: MonoBehaviour
                     if (drop.item.item_type.Equals("resource"))
                     {
                         id = mysql.GetPlayerItemId(dbid, drop.item);
-                        if (id==0)
+                        if (id == 0)
                         {
                             id = mysql.AddPlayerItem(dbid, drop.item);
                         }
                     }
-                    else {
+                    else
+                    {
                         id = mysql.AddPlayerItem(dbid, drop.item);
                     }
 
@@ -398,7 +409,7 @@ public class ServerHandle: MonoBehaviour
                     //ako postoji update-ati
                     mysql.AddItemToInventory(dbid, slot);
                 }
-            }            
+            }
         }
 
         player.lootCache = null;
@@ -411,21 +422,23 @@ public class ServerHandle: MonoBehaviour
 
     }
 
-    public static void ChatMessage(int from, Packet packet) {
+    public static void ChatMessage(int from, Packet packet)
+    {
         Player player = Server.clients[from].player;
         Message message = packet.ReadMessage();
-        message.from = player.data.username;        
+        message.from = player.data.username;
         chat.OnChatMessage(from, message);
     }
 
-    public static void CreateGroup(int from, Packet packet) {
+    public static void CreateGroup(int from, Packet packet)
+    {
         Player player = Server.clients[from].player;
 
         if (player.ownedGroup != null)
         {
             Message msg = new Message();
             msg.messageType = Message.MessageType.gameInfo;
-            msg.text = "You already own a group!";            
+            msg.text = "You already own a group!";
             ServerSend.OnGameMessage(from, msg);
             ServerSend.GroupCreateStatus(from, false);
         }
@@ -442,31 +455,37 @@ public class ServerHandle: MonoBehaviour
         }
     }
 
-    public static void GetGroupList(int from, Packet packet) {
+    public static void GetGroupList(int from, Packet packet)
+    {
         ServerSend.GroupList(from);
     }
 
-    public static void ApplyToGroup(int from, Packet packet) {
+    public static void ApplyToGroup(int from, Packet packet)
+    {
         int groupId = packet.ReadInt();
 
         Player applicant = Server.clients[from].player;
 
-        if (applicant.group != null || (NetworkManager.groups.ContainsKey(groupId) && NetworkManager.groups[groupId].players.Count==Group.maxPlayers))
+        if (applicant.group != null || (NetworkManager.groups.ContainsKey(groupId) && NetworkManager.groups[groupId].players.Count == Group.maxPlayers))
             return;
 
         bool groupFound = false;
-        foreach (Group group in NetworkManager.groups.Values) {
-            if (group.groupId == groupId) {
+        foreach (Group group in NetworkManager.groups.Values)
+        {
+            if (group.groupId == groupId)
+            {
                 groupFound = true;
                 Player owner = Server.FindPlayerByDBid(group.owner);
 
-                if (owner != null) {
+                if (owner != null)
+                {
                     ServerSend.PlayerAppliedToGroup(applicant, owner.id);
                 }
             }
         }
 
-        if (!groupFound) {
+        if (!groupFound)
+        {
             Message msg = new Message();
             msg.messageType = Message.MessageType.gameInfo;
             msg.text = "Group does not exits anymore!";
@@ -475,7 +494,8 @@ public class ServerHandle: MonoBehaviour
         }
     }
 
-    public static void AcceptGroupApplicant(int from, Packet packet) {
+    public static void AcceptGroupApplicant(int from, Packet packet)
+    {
         int applicantId = packet.ReadInt();
 
         Message msg = new Message();
@@ -487,7 +507,8 @@ public class ServerHandle: MonoBehaviour
         Player applicant = Server.clients[applicantId].player;
         Group group = owner.group;
 
-        if (group != null) {
+        if (group != null)
+        {
             group.AddPlayer(applicant);
         }
     }
@@ -502,16 +523,60 @@ public class ServerHandle: MonoBehaviour
         ServerSend.OnGameMessage(applicantId, msg);
     }
 
-    public static void KickGroupMember(int from, Packet packet) {
+    public static void KickGroupMember(int from, Packet packet)
+    {
         Group group = Server.clients[from].player.group;
         Player player = Server.clients[packet.ReadInt()].player;
 
-        group.RemovePlayer(player);        
+        group.RemovePlayer(player);
 
         Message msg = new Message();
         msg.messageType = Message.MessageType.gameInfo;
         msg.text = "You have been kicked from group!";
         ServerSend.OnGameMessage(player.id, msg);
         ServerSend.KickedFromGroup(player.id);
+    }
+
+    public static void LeaveGroup(int from, Packet packet)
+    {
+        Player player = Server.clients[from].player;
+        Group group = Server.clients[from].player.group;
+
+        foreach (int dbid in group.players)
+        {
+            if (dbid != player.dbid)
+            {
+                Message msg = new Message();
+                msg.messageType = Message.MessageType.gameInfo;
+                msg.text = "Player " + player.data.username + " left group!";
+                ServerSend.OnGameMessage(Server.FindPlayerByDBid(dbid).id, msg);
+            }
+        }
+
+        if (group.owner == player.dbid)
+            player.TransferGroupOwner();
+
+        group.RemovePlayer(player);
+        ServerSend.GroupMembers(group.groupId);
+
+        if (group.players.Count == 0)
+            group.Disband();
+    }
+
+    public static void GetPlayerList(int from, Packet packet)
+    {
+        List<PlayerData> players = new List<PlayerData>();
+
+        foreach (Client client in Server.clients.Values) {
+            if (client.player != null && client.player.id!=from) {
+                players.Add(client.player.data);
+            }
+        }
+        
+        ServerSend.PlayerList(from, players);
+    }
+
+    public static void InvitePlayer(int from, Packet packet)
+    {
     }
 }

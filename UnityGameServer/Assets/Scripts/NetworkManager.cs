@@ -231,6 +231,15 @@ public class NetworkManager : MonoBehaviour
                 case (int)ClientPackets.kickGroupMember:
                     ServerHandle.KickGroupMember(client.id, packet.packet);
                     break;
+                case (int)ClientPackets.leaveGroup:
+                    ServerHandle.LeaveGroup(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.getPlayerList:
+                    ServerHandle.GetPlayerList(client.id, packet.packet);
+                    break;
+                case (int)ClientPackets.invitePlayer:
+                    ServerHandle.InvitePlayer(client.id, packet.packet);
+                    break;
             }
         }
 

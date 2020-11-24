@@ -50,7 +50,8 @@ public enum ServerPackets
     groupList,
     playerAppliedToGroup,
     groupMembers,
-    kickedFromGroup
+    kickedFromGroup,
+    playerList
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -88,7 +89,10 @@ public enum ClientPackets
     applyToGroup,
     acceptGroupApplicant,
     declineGroupApplicant,
-    kickGroupMember
+    kickGroupMember,
+    leaveGroup,
+    getPlayerList,
+    invitePlayer
 }
 
 public class Packet: IDisposable
@@ -318,6 +322,13 @@ public class Packet: IDisposable
     }
 
     public void Write(List<SerializableObjects.GroupMember> _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(List<SerializableObjects.PlayerData> _value)
     {
         byte[] data = ObjectToByteArray(_value);
         Write(data.Length); // Add the length of the string to the packet

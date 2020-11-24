@@ -17,7 +17,7 @@ public class ServerSend: MonoBehaviour
     /// <summary>Sends a packet to a client via TCP.</summary>
     /// <param name="_toClient">The client to send the packet the packet to.</param>
     /// <param name="_packet">The packet to send to the client.</param>    
-    private static void SendTCPData(int _toClient, Packet _packet)
+    public static void SendTCPData(int _toClient, Packet _packet)
     {
         _packet.WriteLength();
         Server.clients[_toClient].tcp.SendData(_packet);
@@ -651,7 +651,8 @@ public class ServerSend: MonoBehaviour
         using (Packet _packet = new Packet((int)ServerPackets.playerAppliedToGroup))
         {
             _packet.Write(from.id);
-            _packet.Write(from.data.username);            
+            _packet.Write(from.data.level);
+            _packet.Write(from.data.username);
             SendTCPData(to, _packet);
         }
     }
@@ -744,6 +745,15 @@ public class ServerSend: MonoBehaviour
     {
         using (Packet _packet = new Packet((int)ServerPackets.kickedFromGroup))
         {            
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void PlayerList(int to, List<PlayerData> data)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.playerList))
+        {
+            _packet.Write(data);
             SendTCPData(to, _packet);
         }
     }
