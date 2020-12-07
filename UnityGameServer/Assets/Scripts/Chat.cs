@@ -6,7 +6,7 @@ using UnityEngine;
 public class Chat : MonoBehaviour
 {
     public void OnChatMessage(int from, Message message) {
-        if (message.messageType == Message.MessageType.playerMessage)
+        if (message.messageType == Message.MessageType.playerMessage || message.messageType==Message.MessageType.gameInfo)
         {
             //broadcast message
             ServerSend.ChatMessage(from, message);            

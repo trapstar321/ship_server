@@ -11,7 +11,7 @@ public class PlayerInputs
     public int inputSequenceNumber;
     public bool left;
     public bool right;
-    public bool forward;
+    public bool forward;    
 }
 
 public class Client: MonoBehaviour
@@ -229,8 +229,8 @@ public class Client: MonoBehaviour
     /// <param name="_playerName">The username of the new player.</param>
     public void SendIntoGame(PlayerData data, string _playerName, int dbid)
     {        
-        player = NetworkManager.instance.InstantiatePlayer(data.X, data.Y, data.Z);
-        player.transform.eulerAngles = new Vector3(0, data.Y_rot, 0);
+        player = NetworkManager.instance.InstantiatePlayer(data.X_SHIP, data.Y_SHIP, data.Z_SHIP);
+        player.transform.eulerAngles = new Vector3(0, data.Y_ROT_SHIP, 0);
         player.Initialize(id, dbid);
 
         // Send the new player to all players (including himself)
@@ -238,7 +238,7 @@ public class Client: MonoBehaviour
         {
             if (_client.player != null)
             {
-                ServerSend.SpawnPlayer(_client.id, player);
+                ServerSend.SpawnShip(_client.id, player);
             }
         }
 
@@ -249,12 +249,38 @@ public class Client: MonoBehaviour
             {
                 if (_client.id != id)
                 {
-                    ServerSend.SpawnPlayer(id, _client.player);                    
+                    ServerSend.SpawnShip(id, _client.player);                    
                 }
             }
         }
 
         player.Load();
+
+        // Send the new player to all players except himself
+        if (!player.data.is_on_ship)
+        {
+            foreach(Client _client in Server.clients.Values)
+            {
+                if (_client.player != null)
+                {
+                    if(_client.player.id!=id)
+                        ServerSend.SpawnPlayer(_client.id, player);
+                }
+            }
+        }
+
+        // Send all players to the new player
+        foreach (Client _client in Server.clients.Values)
+        {
+            if (_client.player != null)
+            {
+                if (_client.id != id)
+                {
+                    if(!_client.player.data.is_on_ship)
+                        ServerSend.SpawnPlayer(id, _client.player);
+                }
+            }
+        }
 
         /*foreach (ItemSpawner _itemSpawner in ItemSpawner.spawners.Values)
         {
@@ -275,6 +301,7 @@ public class Client: MonoBehaviour
         ThreadManager.ExecuteOnMainThread(() =>
         {
             UnityEngine.Object.Destroy(player.gameObject);
+            Destroy(player.playerInstance);
             lastInputSequenceNumber = 0;
             inputBuffer.Clear();
             player.TransferGroupOwner();

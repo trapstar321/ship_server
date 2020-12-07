@@ -10,7 +10,7 @@ using UnityEngine;
 public enum ServerPackets
 {
     welcome = 1,
-    spawnPlayer,
+    spawnShip,
     playerPosition,
     playerDisconnected,
     playerHealth,
@@ -51,7 +51,16 @@ public enum ServerPackets
     playerAppliedToGroup,
     groupMembers,
     kickedFromGroup,
-    playerList
+    playerList,
+    leaveShip,
+    enterShip,
+    destroyResource,
+    spawnPlayer,
+    playerInputs,
+    animationInputs,
+    mouseLook,
+    destroyPlayerCharacter,
+    instantiatePlayerCharacter
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -92,7 +101,14 @@ public enum ClientPackets
     kickGroupMember,
     leaveGroup,
     getPlayerList,
-    invitePlayer
+    invitePlayer,
+    acceptGroupInvitation,
+    declineGroupInvitation,
+    leaveEnterShip,
+    playerInputs,
+    mouseX,
+    animationInputs,
+    gatherResource
 }
 
 public class Packet: IDisposable

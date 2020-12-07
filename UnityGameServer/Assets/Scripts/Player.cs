@@ -37,6 +37,7 @@ public class Player : MonoBehaviour
     public List<BaseStat> stats;
     public List<Experience> exp;
     public PlayerData data;
+    public List<PlayerSkillLevel> skills;
 
     public float attack;
     public float health;
@@ -48,13 +49,18 @@ public class Player : MonoBehaviour
     public float crit_chance;
     public float cannon_force;
 
-
     BoatMovement movement;
     SphereCollider playerEnterCollider;
 
     public List<ItemDrop> lootCache;
     public Group group;
     public Group ownedGroup;
+    
+    private bool isOnDock;
+    public GameObject playerPrefab;
+    public GameObject playerInstance;
+    public GameObject dock;
+    private Mysql mysql;
 
     void Awake() {
         //mBody = GetComponent<Rigidbody>();        
@@ -66,7 +72,8 @@ public class Player : MonoBehaviour
 
         movement = GetComponent<BoatMovement>();
         playerEnterCollider = GetComponentInChildren<SphereCollider>();
-        playerEnterCollider.radius = NetworkManager.visibilityRadius / 2;        
+        playerEnterCollider.radius = NetworkManager.visibilityRadius / 2;
+        mysql = FindObjectOfType<Mysql>();
     }
 
     private void Start()
@@ -96,12 +103,21 @@ public class Player : MonoBehaviour
         List<BaseStat> stats = mysql.ReadBaseStatsTable();
         List<Experience> exp = mysql.ReadExperienceTable();
         PlayerData data = mysql.ReadPlayerData(dbid);
+        List<PlayerSkillLevel> skills = mysql.ReadPlayerSkills(dbid);
 
         this.stats = stats;
         this.exp = exp;
         this.data = data;
+        this.skills = skills;
 
         LoadBaseStats();
+
+        if (!data.is_on_ship) {
+            playerInstance = Instantiate(playerPrefab, new Vector3(data.X_PLAYER, data.Y_PLAYER, data.Z_PLAYER), Quaternion.identity);
+            playerInstance.GetComponent<PlayerCharacter>().id = id;
+            playerInstance.transform.Find("PlayerSphere").GetComponent<SphereCollider>().radius = NetworkManager.visibilityRadius / 2;
+            playerInstance.transform.eulerAngles = new Vector3(0, data.Y_ROT_PLAYER, 0);            
+        }
 
         ServerSend.OnGameStart(id, stats, exp, data);
 
@@ -236,8 +252,8 @@ public class Player : MonoBehaviour
             EnemyAI npc = other.gameObject.GetComponent<CannonBall>().npc;
 
             Vector3 tempPos = other.transform.position - new Vector3(0f, 0.5f, 0f);
-            
-            if (player==null)
+
+            if (player == null)
                 TakeDamage(npc);
             else
                 TakeDamage(player);
@@ -245,8 +261,9 @@ public class Player : MonoBehaviour
             Debug.Log("Hit by " + other.name);
             other.gameObject.SetActive(false);
         }
-        else if (other.name.Equals("Sphere")) {
-            int otherPlayerId = other.GetComponentInParent<Player>().id;            
+        else if (other.name.Equals("Sphere"))
+        {
+            int otherPlayerId = other.GetComponentInParent<Player>().id;
             ServerSend.Stats(otherPlayerId, id);
 
             CannonController cannonController = other.GetComponentInParent<CannonController>();
@@ -254,11 +271,39 @@ public class Player : MonoBehaviour
             Quaternion rightRotation = cannonController.R_Cannon_1.transform.localRotation;
             ServerSend.CannonRotate(otherPlayerId, id, leftRotation, "Left");
             ServerSend.CannonRotate(otherPlayerId, id, rightRotation, "Right");
+
+            bool isOnShip = Server.clients[otherPlayerId].player.data.is_on_ship;
+            if (isOnShip)
+                ServerSend.DestroyPlayerCharacter(id, otherPlayerId);
+        }
+        else if (other.name.Equals("PlayerSphere"))
+        {
+            int otherPlayerId = other.GetComponentInParent<PlayerCharacter>().id;
+            GameObject playerCharacter = Server.clients[otherPlayerId].player.playerInstance;
+
+            if (otherPlayerId != id)
+            {
+                Vector3 position = playerCharacter.transform.position;
+                ServerSend.InstantiatePlayerCharacter(id, otherPlayerId, position, playerCharacter.transform.eulerAngles.y);
+            }
         }
         else if (other.name.Equals("NPCSphere"))
         {
             int npcId = other.GetComponentInParent<EnemyAI>().id;
             ServerSend.NPCStats(npcId, id);
+        }
+        else if (other.tag.Equals("Dock"))
+        {
+            dock = other.gameObject;
+            isOnDock = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.tag.Equals("Dock"))
+        {
+            isOnDock = false;
         }
     }
 
@@ -423,5 +468,35 @@ public class Player : MonoBehaviour
                 ownedGroup = group;
             }
         }
+    }
+
+    public void LeaveEnterShip() {
+        if (isOnDock) {
+            Vector3 spawnPosition = dock.transform.Find("SpawnPosition").transform.position;
+
+            if (data.is_on_ship)
+            {
+                playerInstance = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
+                playerInstance.transform.Find("PlayerSphere").GetComponent<SphereCollider>().radius = NetworkManager.visibilityRadius / 2;
+                playerInstance.GetComponent<PlayerCharacter>().id = id;
+                data.is_on_ship = false;
+                ServerSend.LeaveShip(id, spawnPosition, 180f);
+            }
+            else {                
+                ServerSend.EnterShip(id, transform.position);
+                Destroy(playerInstance);
+                data.is_on_ship = true;                
+            }
+            mysql.UpdatePlayerIsOnShip(dbid, data.is_on_ship);
+        }
+    }
+
+    public PlayerSkillLevel FindSkill(int skillID) {
+        foreach (PlayerSkillLevel skill in skills) {
+            if (skill.skill_id == skillID) {
+                return skill;
+            }
+        }
+        return null;
     }
 }

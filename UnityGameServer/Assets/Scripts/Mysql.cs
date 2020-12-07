@@ -1002,7 +1002,8 @@ public class Mysql : MonoBehaviour
     }
 
     public PlayerData ReadPlayerData(int id) {
-        string sql = @"select LEVEL,EXPERIENCE, USERNAME, X, Y, Z, Y_rot
+        string sql = @"select LEVEL,EXPERIENCE, USERNAME, X_SHIP, Y_SHIP, Z_SHIP, Y_ROT_SHIP,
+                        X_PLAYER, Y_PLAYER, Z_PLAYER, Y_ROT_PLAYER, IS_ON_SHIP
                        from player where id=@id";
 
         var cmd = new MySqlCommand(sql, con);
@@ -1015,31 +1016,59 @@ public class Mysql : MonoBehaviour
         {
             int level = rdr.GetInt32("LEVEL");
             int experience = rdr.GetInt32("EXPERIENCE");
-            float X = 0;
-            if (!rdr.IsDBNull(2))
-                X = rdr.GetFloat("X");
-
-            float Y = 0;
+            float X_ship = 0;
             if (!rdr.IsDBNull(3))
-                Y = rdr.GetFloat("Y");
+                X_ship = rdr.GetFloat("X_SHIP");
 
-            float Z = 0;
+            float Y_ship = 0;
             if (!rdr.IsDBNull(4))
-                Z = rdr.GetFloat("Z");
+                Y_ship = rdr.GetFloat("Y_SHIP");
 
-            float Y_rot = 0;
+            float Z_ship = 0;
             if (!rdr.IsDBNull(5))
-                Y_rot = rdr.GetFloat("Y_rot");
+                Z_ship = rdr.GetFloat("Z_SHIP");
+
+            float Y_rot_ship = 0;
+            if (!rdr.IsDBNull(6))
+                Y_rot_ship = rdr.GetFloat("Y_ROT_SHIP");
+
+            float X_player = 0;
+            if (!rdr.IsDBNull(7))
+                X_player = rdr.GetFloat("X_PLAYER");
+
+            float Y_player = 0;
+            if (!rdr.IsDBNull(8))
+                Y_player = rdr.GetFloat("Y_PLAYER");
+
+            float Z_player = 0;
+            if (!rdr.IsDBNull(9))
+                Z_player = rdr.GetFloat("Z_PLAYER");
+
+            float Y_rot_player = 0;
+            if (!rdr.IsDBNull(10))
+                Y_rot_player = rdr.GetFloat("Y_ROT_PLAYER");
+
+            bool is_on_ship = false;
+            if (!rdr.IsDBNull(11))
+                is_on_ship = rdr.GetBoolean("IS_ON_SHIP");
 
             string username = rdr.GetString("USERNAME");
 
             data = new PlayerData();
             data.level = level;
             data.experience = experience;
-            data.X = X;
-            data.Y = Y;
-            data.Z = Z;
-            data.Y_rot = Y_rot;
+            data.X_SHIP = X_ship;
+            data.Y_SHIP = Y_ship;
+            data.Z_SHIP = Z_ship;
+            data.Y_ROT_SHIP = Y_rot_ship;
+
+            data.X_PLAYER = X_player;
+            data.Y_PLAYER = Y_player;
+            data.Z_PLAYER = Z_player;
+            data.Y_ROT_PLAYER = Y_rot_player;
+
+            data.is_on_ship = is_on_ship;
+
             data.username = username;
         }
         rdr.Close();
@@ -1174,8 +1203,8 @@ public class Mysql : MonoBehaviour
         return players;
     }
 
-    public void UpdatePlayerPosition(int id, float X, float Y, float Z, float Y_rot) {
-        string sql = @"UPDATE player set X=@x, Y=@y, Z=@z, Y_rot=@Y_rot WHERE id=@id";
+    public void UpdateShipPosition(int id, float X, float Y, float Z, float Y_rot) {
+        string sql = @"UPDATE player set X_SHIP=@x, Y_SHIP=@y, Z_SHIP=@z, Y_ROT_SHIP=@Y_rot WHERE id=@id";
 
         var cmd = new MySqlCommand(sql, con);
         cmd.CommandText = sql;       
@@ -1188,6 +1217,37 @@ public class Mysql : MonoBehaviour
         cmd.Parameters.AddWithValue("@Y_rot", Y_rot);
         cmd.Parameters.AddWithValue("@id", id);
         cmd.ExecuteNonQuery();       
+    }
+
+    public void UpdatePlayerPosition(int id, float X, float Y, float Z, float Y_rot)
+    {
+        string sql = @"UPDATE player set X_PLAYER=@x, Y_PLAYER=@y, Z_PLAYER=@z, Y_ROT_PLAYER=@Y_rot WHERE id=@id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.CommandText = sql;
+        cmd.Parameters.Clear();
+        cmd.Parameters.AddWithValue("@X", X);
+        cmd.Parameters.AddWithValue("@Y", Y);
+        cmd.Parameters.AddWithValue("@Z", Z);
+        cmd.Parameters.AddWithValue("@Y_rot", Y_rot);
+        cmd.Parameters.AddWithValue("@id", id);
+        cmd.ExecuteNonQuery();
+    }
+
+    public void UpdatePlayerIsOnShip(int id, bool isOnShip)
+    {
+        string sql = @"UPDATE player set IS_ON_SHIP=@on_ship WHERE id=@id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.CommandText = sql;
+        cmd.Parameters.Clear();
+        cmd.Parameters.AddWithValue("@on_ship", isOnShip);        
+        cmd.Parameters.AddWithValue("@id", id);
+        cmd.ExecuteNonQuery();
     }
 
     public int Login(string username, string password) {
@@ -1206,5 +1266,47 @@ public class Mysql : MonoBehaviour
         }
         rdr.Close();
         return id;
+    }
+
+    public List<PlayerSkillLevel> ReadPlayerSkills(int playerID)
+    {
+        string sql = @"select a.id, a.skill_id, lvl, dmg, exp_start, exp_end, skill_name
+                        from skill_level as a
+                        inner join skill as b
+                        on a.skill_id=b.id
+                        inner join player_skill_level as c
+                        on a.id = c.skill_level_id
+                        where c.player_id=@id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.Parameters.AddWithValue("@id", playerID);
+        
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        List<PlayerSkillLevel> skills = new List<PlayerSkillLevel>();        
+        while (rdr.Read())
+        {
+            int id = rdr.GetInt32("ID");
+            int skill_id = rdr.GetInt32("SKILL_ID");
+            int level = rdr.GetInt32("LVL");
+            int damage = rdr.GetInt32("DMG");
+            int exp_start = rdr.GetInt32("EXP_START");
+            int exp_end = rdr.GetInt32("EXP_END");
+            string skill_name = rdr.GetString("SKILL_NAME");
+
+            PlayerSkillLevel skill = new PlayerSkillLevel();
+            skill.id = id;
+            skill.skill_id = skill_id;
+            skill.level = level;
+            skill.damage = damage;
+            skill.experience_start = exp_start;
+            skill.experience_end = exp_end;
+            skill.name = skill_name;
+
+            skills.Add(skill);
+        }
+        rdr.Close();
+
+        return skills;
     }
 }

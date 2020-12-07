@@ -28,9 +28,17 @@ public class Inventory : MonoBehaviour
         {
             foreach (InventorySlot slot in items) {
                 if (item.item_type.Equals("resource")){
-                    if (slot.item!=null && item.item_id==slot.item.item_id) {
+                    if (slot.item != null && item.item_id == slot.item.item_id)
+                    {
                         slot.quantity += quantity;
                         s = slot;
+                        break;
+                    }
+                    else if(slot.item==null) {
+                        slot.item = item;
+                        slot.quantity = quantity;
+                        s = slot;
+                        break;
                     }
                 }
                 else {

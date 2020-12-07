@@ -1,4 +1,5 @@
 ﻿using SerializableObjects;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,7 +13,7 @@ public class NetworkManager : MonoBehaviour
     public GameObject playerPrefab;
     public GameObject enemyPrefab;
     public GameObject projectilePrefab;
-    public static float visibilityRadius = 200;
+    public static float visibilityRadius = 50;
 
     float lastPositionUpdateTime = -1;
     float positionUpdateDifference = 5;
@@ -20,6 +21,7 @@ public class NetworkManager : MonoBehaviour
     Mysql mysql;
 
     public static Dictionary<int, Group> groups = new Dictionary<int, Group>();
+    public static Dictionary<string, int> invitationLinks = new Dictionary<string, int>();
 
     public class PacketData {
         public int type;
@@ -120,8 +122,13 @@ public class NetworkManager : MonoBehaviour
             Player player = client.player;
 
             if (player != null)
-            {
-                mysql.UpdatePlayerPosition(player.dbid, player.transform.position.x, player.transform.position.y, player.transform.position.z, player.transform.eulerAngles.y);
+            {               
+                mysql.UpdateShipPosition(player.dbid, player.transform.position.x, player.transform.position.y, player.transform.position.z, player.transform.eulerAngles.y);
+
+                if (!player.data.is_on_ship) {
+                    Transform transform = player.playerInstance.transform;
+                    mysql.UpdatePlayerPosition(player.dbid, transform.position.x, transform.position.y, transform.position.z, transform.eulerAngles.y);
+                }
             }
         }
     }
@@ -137,109 +144,137 @@ public class NetworkManager : MonoBehaviour
         int end = buffer[client.id].Count;            
 
         foreach (PacketData packet in buffer[client.id]) {
-            switch (packet.type) {
-                /*case (int)ClientPackets.welcomeReceived:
-                    ServerHandle.WelcomeReceived(client.id, packet.packet);
-                    break;*/
-                case (int)ClientPackets.login:
-                    ServerHandle.Login(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.playerMovement:
-                    ServerHandle.PlayerMovement(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.joystick:
-                    ServerHandle.Joystick(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.position:
-                    ServerHandle.Position(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.test:
-                    ServerHandle.test(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.getInventory:
-                    ServerHandle.GetInventory(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.dropItem:
-                    ServerHandle.DropItem(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.dragAndDrop:
-                    ServerHandle.DragAndDrop(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.searchChest:
-                    ServerHandle.SearchChest(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.addShipEquipment:
-                    ServerHandle.AddShipEquipment(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.removeShipEquipment:
-                    ServerHandle.RemoveShipEquipment(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.getShipEquipment:
-                    ServerHandle.GetShipEquipment(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.replaceShipEquipment:
-                    ServerHandle.ReplaceShipEquipment(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.addItemToInventory:
-                    ServerHandle.AddItemToInventory(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.removeItemFromInventory:
-                    ServerHandle.RemoveItemFromInventory(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.removePlayerEquipment:
-                    ServerHandle.RemovePlayerEquipment(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.getPlayerEquipment:
-                    ServerHandle.GetPlayerEquipment(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.replacePlayerEquipment:
-                    ServerHandle.ReplacePlayerEquipment(client.id, packet.packet);
-                    break;
-                /*case (int)ClientPackets.onGameStart:
-                    ServerHandle.OnGameStart(client.id, packet.packet);
-                    break;*/
-                case (int)ClientPackets.shoot:
-                    ServerHandle.Shoot(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.cannonRotate:
-                    ServerHandle.CannonRotate(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.collectLoot:
-                    ServerHandle.CollectLoot(client.id, packet.packet);                    
-                    break;
-                case (int)ClientPackets.discardLoot:
-                    ServerHandle.DiscardLoot(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.chatMessage:
-                    ServerHandle.ChatMessage(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.createGroup:
-                    ServerHandle.CreateGroup(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.getGroupList:
-                    ServerHandle.GetGroupList(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.applyToGroup:
-                    ServerHandle.ApplyToGroup(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.acceptGroupApplicant:
-                    ServerHandle.AcceptGroupApplicant(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.declineGroupApplicant:
-                    ServerHandle.DeclineGroupApplicant(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.kickGroupMember:
-                    ServerHandle.KickGroupMember(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.leaveGroup:
-                    ServerHandle.LeaveGroup(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.getPlayerList:
-                    ServerHandle.GetPlayerList(client.id, packet.packet);
-                    break;
-                case (int)ClientPackets.invitePlayer:
-                    ServerHandle.InvitePlayer(client.id, packet.packet);
-                    break;
+            try
+            {
+                switch (packet.type)
+                {
+                    /*case (int)ClientPackets.welcomeReceived:
+                        ServerHandle.WelcomeReceived(client.id, packet.packet);
+                        break;*/
+                    case (int)ClientPackets.login:
+                        ServerHandle.Login(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.playerMovement:
+                        ServerHandle.PlayerMovement(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.joystick:
+                        ServerHandle.Joystick(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.position:
+                        ServerHandle.Position(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.test:
+                        ServerHandle.test(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.getInventory:
+                        ServerHandle.GetInventory(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.dropItem:
+                        ServerHandle.DropItem(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.dragAndDrop:
+                        ServerHandle.DragAndDrop(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.searchChest:
+                        ServerHandle.SearchChest(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.addShipEquipment:
+                        ServerHandle.AddShipEquipment(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.removeShipEquipment:
+                        ServerHandle.RemoveShipEquipment(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.getShipEquipment:
+                        ServerHandle.GetShipEquipment(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.replaceShipEquipment:
+                        ServerHandle.ReplaceShipEquipment(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.addItemToInventory:
+                        ServerHandle.AddItemToInventory(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.removeItemFromInventory:
+                        ServerHandle.RemoveItemFromInventory(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.removePlayerEquipment:
+                        ServerHandle.RemovePlayerEquipment(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.getPlayerEquipment:
+                        ServerHandle.GetPlayerEquipment(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.replacePlayerEquipment:
+                        ServerHandle.ReplacePlayerEquipment(client.id, packet.packet);
+                        break;
+                    /*case (int)ClientPackets.onGameStart:
+                        ServerHandle.OnGameStart(client.id, packet.packet);
+                        break;*/
+                    case (int)ClientPackets.shoot:
+                        ServerHandle.Shoot(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.cannonRotate:
+                        ServerHandle.CannonRotate(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.collectLoot:
+                        ServerHandle.CollectLoot(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.discardLoot:
+                        ServerHandle.DiscardLoot(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.chatMessage:
+                        ServerHandle.ChatMessage(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.createGroup:
+                        ServerHandle.CreateGroup(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.getGroupList:
+                        ServerHandle.GetGroupList(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.applyToGroup:
+                        ServerHandle.ApplyToGroup(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.acceptGroupApplicant:
+                        ServerHandle.AcceptGroupApplicant(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.declineGroupApplicant:
+                        ServerHandle.DeclineGroupApplicant(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.kickGroupMember:
+                        ServerHandle.KickGroupMember(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.leaveGroup:
+                        ServerHandle.LeaveGroup(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.getPlayerList:
+                        ServerHandle.GetPlayerList(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.invitePlayer:
+                        ServerHandle.InvitePlayer(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.acceptGroupInvitation:
+                        ServerHandle.AcceptGroupInvitation(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.declineGroupInvitation:
+                        ServerHandle.DeclineGroupInvitation(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.leaveEnterShip:
+                        ServerHandle.LeaveEnterShip(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.playerInputs:
+                        ServerHandle.PlayerInputs(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.animationInputs:
+                        ServerHandle.AnimationInputs(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.mouseX:
+                        ServerHandle.MouseX(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.gatherResource:
+                        ServerHandle.GatherResource(client.id, packet.packet);
+                        break;
+                }
+            }
+            catch (Exception ex) {
+                Debug.LogError("NetworkManager.cs ProcessBuffer(): "+ex.Message+" "+ex.StackTrace);
             }
         }
 

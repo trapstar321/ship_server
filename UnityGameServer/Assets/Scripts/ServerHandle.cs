@@ -546,10 +546,14 @@ public class ServerHandle : MonoBehaviour
         {
             if (dbid != player.dbid)
             {
-                Message msg = new Message();
-                msg.messageType = Message.MessageType.gameInfo;
-                msg.text = "Player " + player.data.username + " left group!";
-                ServerSend.OnGameMessage(Server.FindPlayerByDBid(dbid).id, msg);
+                Player otherPlayer = Server.FindPlayerByDBid(dbid);
+                if (otherPlayer != null)
+                {
+                    Message msg = new Message();
+                    msg.messageType = Message.MessageType.gameInfo;
+                    msg.text = "Player " + player.data.username + " left group!";
+                    ServerSend.OnGameMessage(player.id, msg);
+                }
             }
         }
 
@@ -567,16 +571,198 @@ public class ServerHandle : MonoBehaviour
     {
         List<PlayerData> players = new List<PlayerData>();
 
-        foreach (Client client in Server.clients.Values) {
-            if (client.player != null && client.player.id!=from) {
+        foreach (Client client in Server.clients.Values)
+        {
+            if (client.player != null && client.player.id != from)
+            {
                 players.Add(client.player.data);
             }
         }
-        
+
         ServerSend.PlayerList(from, players);
     }
 
     public static void InvitePlayer(int from, Packet packet)
     {
+        Group group = null;
+        string username = packet.ReadString();
+        foreach (Group g in NetworkManager.groups.Values)
+        {
+            if (g.owner == Server.clients[from].player.dbid)
+                group = g;
+        }
+
+        foreach (Client client in Server.clients.Values)
+        {
+            if (client.player != null && client.player.data.username == username)
+            {
+                string acceptLink = "invite_accept" + System.Guid.NewGuid().ToString();
+                string declineLink = "invite_decline" + System.Guid.NewGuid().ToString();
+                NetworkManager.invitationLinks.Add(acceptLink, group.groupId);
+                NetworkManager.invitationLinks.Add(declineLink, group.groupId);
+
+                string accept = $"<link={acceptLink}><color=green><u>Accept</u></color></link>";
+                string decline = $"<link={declineLink}><color=#FF0006><u>Decline</u></color></link>";
+
+                Message msg = new Message();
+                msg.messageType = Message.MessageType.privateMessage;
+                msg.text = $"{accept} or {decline} invite from {client.player.data.username} (lvl {client.player.data.level})";
+                ServerSend.ChatMessage(from, msg, client.player.id);
+            }
+        }
+    }
+
+    public static void AcceptGroupInvitation(int from, Packet packet)
+    {
+        string link = packet.ReadString();
+
+        if (NetworkManager.invitationLinks.ContainsKey(link)) {
+            int groupId = NetworkManager.invitationLinks[link];
+            NetworkManager.invitationLinks.Remove(link);
+            if (NetworkManager.groups.ContainsKey(groupId))
+            {
+                Group group = NetworkManager.groups[groupId];
+                int applicantId = from;
+
+                Message msg = new Message();
+                msg.messageType = Message.MessageType.gameInfo;
+                msg.text = "Welcome to group!";
+                ServerSend.OnGameMessage(applicantId, msg);
+
+                Player applicant = Server.clients[applicantId].player;
+
+                if (group != null)
+                {
+                    group.AddPlayer(applicant);
+                }
+            }
+            else {
+                Message msg = new Message();
+                msg.messageType = Message.MessageType.gameInfo;
+                msg.text = "Group does not exist anymore!";
+                ServerSend.OnGameMessage(from, msg);
+            }
+        }
+    }
+
+    public static void DeclineGroupInvitation(int from, Packet packet)
+    {
+        string link = packet.ReadString();
+
+        if (NetworkManager.invitationLinks.ContainsKey(link)) {
+            int groupId = NetworkManager.invitationLinks[link];
+            Group group = NetworkManager.groups[groupId];
+            Player player = Server.clients[from].player;
+
+            if (group != null) {
+                Message msg = new Message();
+                msg.messageType = Message.MessageType.privateMessage;
+                msg.text = $"Player {player.data.username} decline group invitation!";
+                ServerSend.ChatMessage(from, msg, Server.FindPlayerByDBid(group.owner).id);
+            }
+        }
+    }
+
+    public static void LeaveEnterShip(int from, Packet packet) {
+        Player player = Server.clients[from].player;
+        player.LeaveEnterShip();
+    }
+
+    public static void PlayerInputs(int from, Packet packet) {
+        Player player = Server.clients[from].player;
+
+        if (player.playerInstance != null)
+        {
+            Vector3 position = player.playerInstance.transform.position;
+            PlayerMovement movement = player.playerInstance.GetComponent<PlayerMovement>();
+            CharacterAnimationController animationController = player.playerInstance.GetComponentInChildren<CharacterAnimationController>();
+            bool w = packet.ReadBool();
+            bool leftShift = packet.ReadBool();
+            bool jump = packet.ReadBool();
+            bool leftMouseDown = packet.ReadBool();
+            Vector3 move = packet.ReadVector3();
+
+            PlayerMovement.PlayerInputs input = new PlayerMovement.PlayerInputs() { w = w, leftShift = leftShift, jump = jump, move = move, leftMouseDown = leftMouseDown };
+            movement.buffer.Add(input);
+
+            ServerSend.PlayerInputs(from, input, position);
+        }
+    }
+
+    public static void AnimationInputs(int from, Packet packet)
+    {
+        Player player = Server.clients[from].player;
+        if(player.playerInstance != null)
+        {
+            Vector3 position = player.playerInstance.transform.position;
+
+            PlayerMovement movement = player.playerInstance.GetComponent<PlayerMovement>();
+            CharacterAnimationController animationController = player.playerInstance.GetComponentInChildren<CharacterAnimationController>();
+
+            bool w = packet.ReadBool();
+            bool leftShift = packet.ReadBool();
+            bool jump = packet.ReadBool();
+            bool leftMouseDown = packet.ReadBool();
+
+            CharacterAnimationController.AnimationInputs input = new CharacterAnimationController.AnimationInputs() { w = w, leftShift = leftShift, jump = jump, leftMouseDown = leftMouseDown };
+            animationController.buffer.Add(input);
+
+            ServerSend.AnimationInputs(from, input, position);
+        }
+    }
+
+    public static void MouseX(int from, Packet packet) {
+        Player player = Server.clients[from].player;
+        if(player.playerInstance != null)
+        {
+            Vector3 position = player.playerInstance.transform.position;
+
+            mouseLook look = player.playerInstance.GetComponent<mouseLook>();
+            float x = packet.ReadFloat();
+            look.buffer.Add(x);
+
+            ServerSend.MouseLook(from, x, position);
+        }
+    }
+
+    public static void GatherResource(int from, Packet packet) {                        
+        //TODO: respawn time
+        int resourceID = packet.ReadInt();
+        Player player = Server.clients[from].player;
+        PlayerSkillLevel skill = player.FindSkill(1);
+        
+        if (spawnManager.objects.ContainsKey(resourceID) && player.playerInstance.GetComponent<PlayerMovement>().gatheringEnabled) {
+            GameObject gameObject = spawnManager.objects[resourceID].gameObject;              
+
+            Resource resource = gameObject.GetComponent<Resource>();
+            int numberOfResource = resource.GatherResource(skill.damage);
+
+            if (numberOfResource > 0)
+            {
+                int id = mysql.GetPlayerItemId(player.dbid, resource.item);
+                if (id == 0)
+                {
+                    id = mysql.AddPlayerItem(player.dbid, resource.item);
+                }
+
+                InventorySlot slot = player.inventory.Add(resource.item, numberOfResource);
+                slot.item.id = id;
+
+                //dodati inventory slot u bazu ako ne postoji
+                //ako postoji update-ati
+                mysql.AddItemToInventory(player.dbid, slot);
+
+                ServerSend.AddToInventory(from, slot);
+
+                if (resource.Empty()) {
+                    ServerSend.DestroyResource(resourceID);
+                    //trebamo proći kroz sve kliente koji su gatherali taj resource i stopirati i njihovu animaciju
+                    GameObject simpleCharacter = player.playerInstance.transform.Find("simpleCharacter_v2").gameObject;
+                    CharacterAnimationController animationController = simpleCharacter.GetComponent<CharacterAnimationController>();
+                    animationController.choping = false;
+                    resource.Gathered();
+                }
+            }
+        }
     }
 }
