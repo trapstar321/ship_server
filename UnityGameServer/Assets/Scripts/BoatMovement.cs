@@ -26,65 +26,71 @@ public class BoatMovement : MonoBehaviour
  
     private void FixedUpdate()
     {
-        for (int i = buffer.Count - 1; i >= 0; i--)
+        if (buffer.Count == 0)
+            return;
+
+        int i = 0;
+        //for (int i = buffer.Count - 1; i >= 0; i--)
+        //{
+        left = buffer[i].x == 1;
+        right = buffer[i].y == 1;
+        forward = buffer[i].z==1;
+        if (right)
         {
-            left = buffer[i].x == 1;
-            right = buffer[i].y == 1;
-            forward = buffer[i].z==1;
-            if (right)
+            rotSpeed = rotSpeed + 0.5f;
+            if (rotSpeed <= player.rotation)
             {
-                rotSpeed = rotSpeed + 0.5f;
-                if (rotSpeed <= player.rotation)
-                {
-                    transform.Rotate(0f, rotSpeed, 0f);
-                }
-                else
-                {
-                    rotSpeed = player.rotation;
-                    transform.Rotate(0f, rotSpeed, 0f);
-                }
-                //transform.Rotate(0f, player.rotation, 0f);
+                transform.Rotate(0f, rotSpeed, 0f);
             }
             else
             {
-
+                rotSpeed = player.rotation;
+                transform.Rotate(0f, rotSpeed, 0f);
             }
-            if (left)
-            {
-                rotSpeed = rotSpeed + 0.5f;
-                if (rotSpeed <= player.rotation)
-                {
-                    transform.Rotate(0f, -rotSpeed, 0f);
-                }
-                else
-                {
-                    transform.Rotate(0f, -player.rotation, 0f);
-                }
-                //transform.Rotate(0f, -player.rotation, 0f);
-            }
-            else
-            {
-
-            }
-
-            if (forward)
-            {                                
-                FloatForward();
-            }
-
-            right = false;
-            left = false;
-            forward = false;            
-
-            buffer.RemoveAt(i);
+            //transform.Rotate(0f, player.rotation, 0f);
         }
+        else
+        {
+
+        }
+        if (left)
+        {
+            rotSpeed = rotSpeed + 0.5f;
+            if (rotSpeed <= player.rotation)
+            {
+                transform.Rotate(0f, -rotSpeed, 0f);
+            }
+            else
+            {
+                transform.Rotate(0f, -player.rotation, 0f);
+            }
+            //transform.Rotate(0f, -player.rotation, 0f);
+        }
+        else
+        {
+
+        }
+
+        if (forward)
+        {                                
+            FloatForward();
+        }
+
+        //Physics.Simulate(Time.fixedDeltaTime);
+
+        right = false;
+        left = false;
+        forward = false;            
+
+        buffer.RemoveAt(0);
+        //}
     }   
 
     void FloatForward()
     {
-        rb.AddForce(transform.forward * player.speed);
-        
-        
+        //rb.AddForce(transform.forward * player.speed);
+        rb.MovePosition(transform.position + transform.forward * player.speed * Time.fixedDeltaTime);
+
         /*speed = speed + 2f;
         if (speed <= player.speed)
         {   

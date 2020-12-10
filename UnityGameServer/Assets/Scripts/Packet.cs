@@ -108,7 +108,8 @@ public enum ClientPackets
     playerInputs,
     mouseX,
     animationInputs,
-    gatherResource
+    gatherResource,
+    inputMsg
 }
 
 public class Packet: IDisposable
@@ -650,6 +651,26 @@ public class Packet: IDisposable
         catch
         {
             throw new Exception("Could not read value of type 'SerializableObjects.Message'!");
+        }
+    }
+
+    public SerializableObjects.InputMessage ReadInputMsg(bool _moveReadPos = true)
+    {
+        try
+        {
+            int _length = ReadInt(); // Get the length of the string
+            byte[] data = new byte[_length];
+            Array.Copy(readableBuffer, readPos, data, 0, _length);
+            if (_moveReadPos && data.Length > 0)
+            {
+                // If _moveReadPos is true string is not empty
+                readPos += _length; // Increase readPos by the length of the string
+            }
+            return FromByteArray<SerializableObjects.InputMessage>(data); // Return the string
+        }
+        catch
+        {
+            throw new Exception("Could not read value of type 'SerializableObjects.InputMessage'!");
         }
     }
 

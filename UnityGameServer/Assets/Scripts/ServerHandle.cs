@@ -2,13 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Vector3 = UnityEngine.Vector3;
+using Quaternion = UnityEngine.Quaternion;
 
 public class ServerHandle : MonoBehaviour
 {
     private static SpawnManager spawnManager;
     private static Mysql mysql;
     private static Chat chat;
-
+    
     private void Awake()
     {
         spawnManager = FindObjectOfType<SpawnManager>();
@@ -616,7 +618,8 @@ public class ServerHandle : MonoBehaviour
     {
         string link = packet.ReadString();
 
-        if (NetworkManager.invitationLinks.ContainsKey(link)) {
+        if (NetworkManager.invitationLinks.ContainsKey(link))
+        {
             int groupId = NetworkManager.invitationLinks[link];
             NetworkManager.invitationLinks.Remove(link);
             if (NetworkManager.groups.ContainsKey(groupId))
@@ -636,7 +639,8 @@ public class ServerHandle : MonoBehaviour
                     group.AddPlayer(applicant);
                 }
             }
-            else {
+            else
+            {
                 Message msg = new Message();
                 msg.messageType = Message.MessageType.gameInfo;
                 msg.text = "Group does not exist anymore!";
@@ -649,12 +653,14 @@ public class ServerHandle : MonoBehaviour
     {
         string link = packet.ReadString();
 
-        if (NetworkManager.invitationLinks.ContainsKey(link)) {
+        if (NetworkManager.invitationLinks.ContainsKey(link))
+        {
             int groupId = NetworkManager.invitationLinks[link];
             Group group = NetworkManager.groups[groupId];
             Player player = Server.clients[from].player;
 
-            if (group != null) {
+            if (group != null)
+            {
                 Message msg = new Message();
                 msg.messageType = Message.MessageType.privateMessage;
                 msg.text = $"Player {player.data.username} decline group invitation!";
@@ -663,12 +669,14 @@ public class ServerHandle : MonoBehaviour
         }
     }
 
-    public static void LeaveEnterShip(int from, Packet packet) {
+    public static void LeaveEnterShip(int from, Packet packet)
+    {
         Player player = Server.clients[from].player;
         player.LeaveEnterShip();
     }
 
-    public static void PlayerInputs(int from, Packet packet) {
+    public static void PlayerInputs(int from, Packet packet)
+    {
         Player player = Server.clients[from].player;
 
         if (player.playerInstance != null)
@@ -692,7 +700,7 @@ public class ServerHandle : MonoBehaviour
     public static void AnimationInputs(int from, Packet packet)
     {
         Player player = Server.clients[from].player;
-        if(player.playerInstance != null)
+        if (player.playerInstance != null)
         {
             Vector3 position = player.playerInstance.transform.position;
 
@@ -711,9 +719,10 @@ public class ServerHandle : MonoBehaviour
         }
     }
 
-    public static void MouseX(int from, Packet packet) {
+    public static void MouseX(int from, Packet packet)
+    {
         Player player = Server.clients[from].player;
-        if(player.playerInstance != null)
+        if (player.playerInstance != null)
         {
             Vector3 position = player.playerInstance.transform.position;
 
@@ -725,14 +734,16 @@ public class ServerHandle : MonoBehaviour
         }
     }
 
-    public static void GatherResource(int from, Packet packet) {                        
+    public static void GatherResource(int from, Packet packet)
+    {
         //TODO: respawn time
         int resourceID = packet.ReadInt();
         Player player = Server.clients[from].player;
         PlayerSkillLevel skill = player.FindSkill(1);
-        
-        if (spawnManager.objects.ContainsKey(resourceID) && player.playerInstance.GetComponent<PlayerMovement>().gatheringEnabled) {
-            GameObject gameObject = spawnManager.objects[resourceID].gameObject;              
+
+        if (spawnManager.objects.ContainsKey(resourceID) && player.playerInstance.GetComponent<PlayerMovement>().gatheringEnabled)
+        {
+            GameObject gameObject = spawnManager.objects[resourceID].gameObject;
 
             Resource resource = gameObject.GetComponent<Resource>();
             int numberOfResource = resource.GatherResource(skill.damage);
@@ -754,7 +765,8 @@ public class ServerHandle : MonoBehaviour
 
                 ServerSend.AddToInventory(from, slot);
 
-                if (resource.Empty()) {
+                if (resource.Empty())
+                {
                     ServerSend.DestroyResource(resourceID);
                     //trebamo proći kroz sve kliente koji su gatherali taj resource i stopirati i njihovu animaciju
                     GameObject simpleCharacter = player.playerInstance.transform.Find("simpleCharacter_v2").gameObject;

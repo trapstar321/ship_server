@@ -24,24 +24,33 @@ public class Inventory : MonoBehaviour
     public InventorySlot Add(Item item, int quantity=1)
     {
         InventorySlot s = null;
+        bool found = false;
         if (!item.isDefaultItem)
         {
-            foreach (InventorySlot slot in items) {
-                if (item.item_type.Equals("resource")){
+            if (item.item_type.Equals("resource"))
+            {
+                foreach (InventorySlot slot in items)
+                {
                     if (slot.item != null && item.item_id == slot.item.item_id)
                     {
+                        found = true;
                         slot.quantity += quantity;
                         s = slot;
                         break;
                     }
-                    else if(slot.item==null) {
+                }
+            }
+
+            foreach (InventorySlot slot in items) {
+                if (!found && item.item_type.Equals("resource")){                    
+                    if(slot.item==null) {
                         slot.item = item;
                         slot.quantity = quantity;
                         s = slot;
                         break;
                     }
                 }
-                else {
+                else if(!item.item_type.Equals("resource")){
                     if (slot.item == null) {
                         slot.item = item;
                         slot.quantity = quantity;
