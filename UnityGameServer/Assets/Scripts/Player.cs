@@ -403,7 +403,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void Move(Vector3 newPos)
+    public void Move(BoatMovement.MovementOrder newPos)
     {
         movement.buffer.Add(newPos);
     }

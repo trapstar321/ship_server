@@ -5,6 +5,12 @@ using UnityEngine.UI;
 
 public class BoatMovement : MonoBehaviour
 {
+    public class MovementOrder {
+        public PlayerInputs input;
+        public int lastInputSequenceNumber;
+        public Player player;
+    }
+
     public Rigidbody rb;    
     float maxSpeed;
     public float maxRotation;
@@ -15,26 +21,22 @@ public class BoatMovement : MonoBehaviour
     public bool left;
     public bool right;
 
-    public List<Vector3> buffer = new List<Vector3>();
+    public List<MovementOrder> buffer = new List<MovementOrder>();
 
     private void Awake()
     {
         player = GetComponent<Player>();
         rb = GetComponent<Rigidbody>();        
-    }
+    }    
 
- 
     private void FixedUpdate()
     {
         if (buffer.Count == 0)
-            return;
-
-        int i = 0;
-        //for (int i = buffer.Count - 1; i >= 0; i--)
-        //{
-        left = buffer[i].x == 1;
-        right = buffer[i].y == 1;
-        forward = buffer[i].z==1;
+            return;        
+        
+        left = buffer[0].input.left;
+        right = buffer[0].input.right;
+        forward = buffer[0].input.forward;
         if (right)
         {
             rotSpeed = rotSpeed + 0.5f;
@@ -47,7 +49,6 @@ public class BoatMovement : MonoBehaviour
                 rotSpeed = player.rotation;
                 transform.Rotate(0f, rotSpeed, 0f);
             }
-            //transform.Rotate(0f, player.rotation, 0f);
         }
         else
         {
@@ -64,7 +65,6 @@ public class BoatMovement : MonoBehaviour
             {
                 transform.Rotate(0f, -player.rotation, 0f);
             }
-            //transform.Rotate(0f, -player.rotation, 0f);
         }
         else
         {
@@ -73,17 +73,15 @@ public class BoatMovement : MonoBehaviour
 
         if (forward)
         {                                
-            FloatForward();
+            FloatForward();            
         }
-
-        //Physics.Simulate(Time.fixedDeltaTime);
 
         right = false;
         left = false;
-        forward = false;            
+        forward = false;
 
+        ServerSend.PlayerPosition(buffer[0].input, buffer[0].lastInputSequenceNumber, buffer[0].player, NetworkManager.visibilityRadius);
         buffer.RemoveAt(0);
-        //}
     }   
 
     void FloatForward()

@@ -295,20 +295,20 @@ public class NetworkManager : MonoBehaviour
             PlayerInputs input = client.inputBuffer[i];
             lastInput = input;
             lastInputSequenceNumber = input.inputSequenceNumber;
-            client.player.Move(new Vector3(input.left ? 1 : 0, input.right ? 1 : 0, input.forward ? 1 : 0));
-            //Debug.Log("SN " + input.inputSequenceNumber + " moveCount = " + moveCount + $" position={client.player.transform.position} move {input.left},{input.right},{input.forward}");
+            client.player.Move(new BoatMovement.MovementOrder() { input = input, lastInputSequenceNumber = lastInputSequenceNumber, player = client.player});
+            Debug.Log("SN " + input.inputSequenceNumber + " moveCount = " + moveCount + $" position={client.player.transform.position} move {input.left},{input.right},{input.forward}");
             moveCount += 1;
             //client.inputBuffer.RemoveAt(i);                        
         }
         if (end != 0)
             client.inputBuffer.RemoveRange(0, end);
 
-        if (lastInputSequenceNumber != 0)
+        /*if (lastInputSequenceNumber != 0)
         {
             client.lastInputSequenceNumber = lastInputSequenceNumber;
             send.PlayerPosition(lastInput, client.lastInputSequenceNumber, client.player, visibilityRadius);
             //Debug.Log("SN " + client.lastInputSequenceNumber + ", position=" + client.player.transform.position);
-        }
+        }*/
         //Debug.Log("LSN:" + client.lastInputSequenceNumber);
     }
 

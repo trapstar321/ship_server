@@ -205,6 +205,23 @@ public class ServerSend: MonoBehaviour
         }
     }
 
+    private static void SendTCPDataRadiusStatic(Packet _packet, Vector3 position, float visibilityRadius)
+    {
+        _packet.WriteLength();
+
+        for (int i = 1; i <= Server.MaxPlayers; i++)
+        {            
+            if (Server.clients[i].player != null)
+            {
+                float distance = Vector3.Distance(position, Server.clients[i].player.transform.position);
+                if (Math.Abs(Vector3.Distance(position, Server.clients[i].player.transform.position)) < visibilityRadius)
+                {
+                    Server.clients[i].tcp.SendData(_packet);
+                }
+            }            
+        }
+    }
+
     /// <summary>Sends a packet to all clients via UDP.</summary>
     /// <param name="_packet">The packet to send.</param>
     private static void SendUDPDataToAll(Packet _packet)
@@ -288,7 +305,7 @@ public class ServerSend: MonoBehaviour
 
     /// <summary>Sends a player's updated position to all clients.</summary>
     /// <param name="_player">The player whose position to update.</param>
-    public void PlayerPosition(PlayerInputs lastInput, int lastInputSequenceNumber, Player _player, float visibilityRadius)
+    public static void PlayerPosition(PlayerInputs lastInput, int lastInputSequenceNumber, Player _player, float visibilityRadius)
     {
         //using (Packet _packet = new Packet((int)ServerPackets.playerPosition))
         //{
@@ -303,7 +320,7 @@ public class ServerSend: MonoBehaviour
 
         //outputBuffer.Add(_packet);
         //SendTCPDataToAll(_packet);
-        SendTCPDataRadius(_packet, _player.transform.position, visibilityRadius);
+        SendTCPDataRadiusStatic(_packet, _player.transform.position, visibilityRadius);
         //}
     }
 
