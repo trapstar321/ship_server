@@ -24,6 +24,8 @@ public class NetworkManager : MonoBehaviour
 
     public static Dictionary<int, Group> groups = new Dictionary<int, Group>();
     public static Dictionary<string, int> invitationLinks = new Dictionary<string, int>();
+    public static List<SkillLevel> skillLevel;
+    public static List<Recipe> recipes;
 
     public class PacketData {
         public int type;
@@ -48,7 +50,7 @@ public class NetworkManager : MonoBehaviour
             Destroy(this);
         }
 
-        mysql = FindObjectOfType<Mysql>();
+        mysql = FindObjectOfType<Mysql>();        
     }
 
     private void Update()
@@ -273,6 +275,18 @@ public class NetworkManager : MonoBehaviour
                     case (int)ClientPackets.gatherResource:
                         ServerHandle.GatherResource(client.id, packet.packet);
                         break;
+                    case (int)ClientPackets.playerSkills:
+                        ServerSend.PlayerSkills(client.id);
+                        break;
+                    case (int)ClientPackets.makeSelected:
+                        ServerHandle.CraftSelected(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.cancelCrafting:
+                        ServerHandle.CancelCrafting(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.requestCrafting:
+                        ServerHandle.RequestCrafting(client.id, packet.packet);
+                        break;
                 }
             }
             catch (Exception ex) {
@@ -314,5 +328,23 @@ public class NetworkManager : MonoBehaviour
 
     public static void PlayerDisconnected(int id) {
         buffer.Remove(id);
+    }
+
+    public static SkillLevel FindSkill(SkillType skillType, int level) {
+        foreach (SkillLevel skillLevel in skillLevel) {
+            if (skillLevel.skill == skillType && skillLevel.level == level) {
+                return skillLevel;
+            }
+        }
+        return null;
+    }
+
+    public static Recipe FindRecipe(int recipeId) {
+        foreach (Recipe recipe in recipes) {
+            if (recipe.id == recipeId) {
+                return recipe;
+            }
+        }
+        return null;
     }
 }

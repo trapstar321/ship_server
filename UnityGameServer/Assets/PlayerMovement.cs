@@ -14,8 +14,10 @@ public class PlayerMovement : MonoBehaviour
     public Transform groundCheck;
     public float groundDistance = 0.4f;
     public LayerMask groundMask;
+    public bool isOnDock=false;
 
     public bool gatheringEnabled;
+    public CraftingSpot craftingSpot;
 
     Vector3 velocity;
     public bool isGrounded;
@@ -75,6 +77,13 @@ public class PlayerMovement : MonoBehaviour
         {
             gatheringEnabled = true;
         }
+        else if (other.tag.Equals("Dock")) {
+            isOnDock = true;
+        }
+        else if (other.tag.Equals("CraftingSpot"))
+        {
+            craftingSpot = other.GetComponent<CraftingSpot>();
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -82,6 +91,13 @@ public class PlayerMovement : MonoBehaviour
         if (other.tag.Equals("Resource"))
         {
             gatheringEnabled = false;
+        }
+        else if (other.tag.Equals("Dock")) {
+            isOnDock = false;
+        }
+        else if (other.tag.Equals("CraftingSpot"))
+        {
+            craftingSpot = null;
         }
     }
 }

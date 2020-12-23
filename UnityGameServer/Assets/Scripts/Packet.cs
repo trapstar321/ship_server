@@ -60,7 +60,11 @@ public enum ServerPackets
     animationInputs,
     mouseLook,
     destroyPlayerCharacter,
-    instantiatePlayerCharacter
+    instantiatePlayerCharacter,
+    playerSkills,
+    recipes,
+    craftStatus,
+    requestCraftingResponse
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -109,7 +113,11 @@ public enum ClientPackets
     mouseX,
     animationInputs,
     gatherResource,
-    inputMsg
+    inputMsg,
+    playerSkills,
+    makeSelected,
+    cancelCrafting,
+    requestCrafting
 }
 
 public class Packet: IDisposable
@@ -346,6 +354,27 @@ public class Packet: IDisposable
     }
 
     public void Write(List<SerializableObjects.PlayerData> _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(List<SerializableObjects.PlayerSkillLevel> _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(List<SerializableObjects.SkillLevel> _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(List<SerializableObjects.Recipe> _value)
     {
         byte[] data = ObjectToByteArray(_value);
         Write(data.Length); // Add the length of the string to the packet

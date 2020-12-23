@@ -23,6 +23,7 @@ public class Item : ScriptableObject,IComparable
     public int cannon_reload_speed;
     public int crit_chance;
     public int cannon_force;
+    public bool stackable;
 
     public int dropChance;
     public float maxLootQuantity;

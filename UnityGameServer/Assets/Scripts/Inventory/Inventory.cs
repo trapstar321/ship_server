@@ -27,7 +27,7 @@ public class Inventory : MonoBehaviour
         bool found = false;
         if (!item.isDefaultItem)
         {
-            if (item.item_type.Equals("resource"))
+            if (item.stackable)
             {
                 foreach (InventorySlot slot in items)
                 {
@@ -42,7 +42,7 @@ public class Inventory : MonoBehaviour
             }
 
             foreach (InventorySlot slot in items) {
-                if (!found && item.item_type.Equals("resource")){                    
+                if (!found && item.stackable){                    
                     if(slot.item==null) {
                         slot.item = item;
                         slot.quantity = quantity;
@@ -50,7 +50,7 @@ public class Inventory : MonoBehaviour
                         break;
                     }
                 }
-                else if(!item.item_type.Equals("resource")){
+                else if(!item.stackable){
                     if (slot.item == null) {
                         slot.item = item;
                         slot.quantity = quantity;
@@ -95,6 +95,22 @@ public class Inventory : MonoBehaviour
         
         if (onItemChangedCallback != null)
             onItemChangedCallback.Invoke();
+    }
+
+    public void RemoveAmount(int slotID, int amount) {
+        for (int i = 0; i < items.Count; i++)
+        {
+            if (slotID == items[i].slotID)
+            {
+                if (items[i].quantity-amount == 0)
+                {
+                    items[i].ClearSlot();
+                }
+                else {
+                    items[i].quantity -= amount;
+                }
+            }
+        }
     }
 
     public void DragAndDrop(InventorySlot slot1, InventorySlot slot2) {

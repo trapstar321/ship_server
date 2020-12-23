@@ -436,7 +436,8 @@ public class ServerSend: MonoBehaviour
                 rotation = slot.item.rotation,
                 cannon_reload_speed = slot.item.cannon_reload_speed,
                 crit_chance = slot.item.crit_chance,
-                cannon_force = slot.item.cannon_force
+                cannon_force = slot.item.cannon_force,
+                stackable = slot.item.stackable
             };
         }
 
@@ -466,7 +467,8 @@ public class ServerSend: MonoBehaviour
             rotation = item.rotation,
             cannon_reload_speed = item.cannon_reload_speed,
             crit_chance = item.crit_chance,
-            cannon_force = item.cannon_force
+            cannon_force = item.cannon_force,
+            stackable = item.stackable
         };
     }
 
@@ -937,6 +939,56 @@ public class ServerSend: MonoBehaviour
             _packet.Write(from);
             _packet.Write(position);
             _packet.Write(Y_rot);
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void PlayerSkills(int to) {
+        Player player = Server.clients[to].player;
+        List<PlayerSkillLevel> pSkills = player.skills;
+        List<SkillLevel> skills = NetworkManager.skillLevel;
+
+        using (Packet _packet = new Packet((int)ServerPackets.playerSkills))
+        {
+            _packet.Write(pSkills);
+            _packet.Write(skills);            
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void Recipes(int to)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.recipes))
+        {
+            _packet.Write(NetworkManager.recipes);            
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void CraftStatus(int to, int amount, float time, string iconName, string itemName)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.craftStatus))
+        {            
+            _packet.Write(amount);
+            _packet.Write(time);
+            _packet.Write(iconName);
+            _packet.Write(itemName);
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void RequestCraftingResponse(int to, CraftingSpot craftingSpot)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.requestCraftingResponse))
+        {
+            if (craftingSpot != null)
+            {
+                _packet.Write(true);
+                _packet.Write((int)craftingSpot.skillType);
+            }
+            else {
+                _packet.Write(false);
+            }
             SendTCPData(to, _packet);
         }
     }

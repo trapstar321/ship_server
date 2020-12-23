@@ -484,7 +484,8 @@ public class Player : MonoBehaviour
                 data.is_on_ship = false;
                 ServerSend.LeaveShip(id, spawnPosition, 180f);
             }
-            else {                
+            else if (playerInstance.GetComponent<PlayerMovement>().isOnDock)
+            {                
                 ServerSend.EnterShip(id, transform.position);
                 Destroy(playerInstance);
                 data.is_on_ship = true;                
@@ -493,12 +494,43 @@ public class Player : MonoBehaviour
         }
     }
 
-    public PlayerSkillLevel FindSkill(int skillID) {
+    public PlayerSkillLevel FindSkill(SkillType skillType) {
         foreach (PlayerSkillLevel skill in skills) {
-            if (skill.skill_id == skillID) {
+            if (skill.skill_id == (int)skillType) {
                 return skill;
             }
         }
         return null;
+    }
+
+    public void ResourceExperienceGained(Resource resource, int experienceGained, Player player) {
+        PlayerSkillLevel pSkillLevel = FindSkill(resource.skill_type);
+        pSkillLevel.experience += experienceGained;
+        SkillLevel skillLevel = NetworkManager.FindSkill(resource.skill_type, pSkillLevel.level);
+        SkillLevel nextSkillLevel = NetworkManager.FindSkill(resource.skill_type, pSkillLevel.level + 1);
+
+        if (skillLevel.experienceEnd < pSkillLevel.experience && nextSkillLevel!=null) {
+            //level up
+            mysql.DeletePlayerSkillLevel(player.dbid, (int)resource.skill_type, pSkillLevel.level);
+            mysql.InsertPlayerSkillLevel(player.dbid, nextSkillLevel.skill_level_id, pSkillLevel.experience);
+            player.skills = mysql.ReadPlayerSkills(player.dbid);
+        }
+    }
+
+    public PlayerSkillLevel FindSkillRequirement(int skillId) {
+        foreach (PlayerSkillLevel level in skills)
+        {
+            if (level.id == skillId)
+                return level;
+        }
+        return null;
+    }
+
+    public bool HasSkillRequirement(int skillId) {
+        foreach (PlayerSkillLevel level in skills) {
+            if (level.id == skillId)
+                return true;
+        }
+        return false;
     }
 }

@@ -17,10 +17,13 @@ public class Mysql : MonoBehaviour
     // Start is called before the first frame update
     private void Awake()
     {
-        string cs = $"server={server};userid={userid};password={password};database={database}";
+        string cs = $"server={server};userid={userid};password={password};database={database};";
 
         con = new MySqlConnection(cs);
         con.Open();
+
+        NetworkManager.skillLevel = ReadSkillLevel();
+        NetworkManager.recipes = ReadRecipes();
     }
 
     void Start()
@@ -36,7 +39,7 @@ public class Mysql : MonoBehaviour
 
     public List<InventorySlot> ReadInventory(int playerID)
     {
-        string sql = @"SELECT b.id as INV_SLOT_ID, b.SLOT_ID, b.QUANTITY, c.id, d.id as item_id, d.name, d.icon_name, d.is_default_item, d.item_type,
+        string sql = @"SELECT b.id as INV_SLOT_ID, b.SLOT_ID, b.QUANTITY, c.id, d.id as item_id, d.name, d.icon_name, d.is_default_item, d.item_type,d.stackable,
                         ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE, CANNON_FORCE
                         FROM inventory a 
                         inner join inventory_slot as b 
@@ -72,6 +75,7 @@ public class Mysql : MonoBehaviour
             int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
             int crit_chance = rdr.GetInt32("CRIT_CHANCE");
             int cannon_force = rdr.GetInt32("CANNON_FORCE");
+            bool stackable = rdr.GetBoolean("STACKABLE");
 
             Item item = new Item();
             item.id = id;
@@ -89,6 +93,7 @@ public class Mysql : MonoBehaviour
             item.cannon_reload_speed = cannon_reload_speed;
             item.crit_chance = crit_chance;
             item.cannon_force = cannon_force;
+            item.stackable = stackable;
 
             InventorySlot slot = new InventorySlot() { id= inv_slot_id, slotID = slot_id, quantity = quantity, item = item };
             slots.Add(slot);
@@ -130,6 +135,7 @@ public class Mysql : MonoBehaviour
             int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
             int crit_chance = rdr.GetInt32("CRIT_CHANCE");
             int cannon_force = rdr.GetInt32("CANNON_FORCE");
+            bool stackable = rdr.GetBoolean("STACKABLE");
 
             Item item = new Item();
             item.id = id;
@@ -147,6 +153,7 @@ public class Mysql : MonoBehaviour
             item.cannon_reload_speed = cannon_reload_speed;
             item.crit_chance = crit_chance;
             item.cannon_force = cannon_force;
+            item.stackable = stackable;
 
             slot = new InventorySlot() { id = inv_slot_id, slotID = slot_id, quantity = quantity, item = item };            
         }
@@ -156,7 +163,7 @@ public class Mysql : MonoBehaviour
 
     public List<Item> ReadShipEquipment(int playerID)
     {
-        string sql = @"select b.id, c.id as item_id, c.name, c.icon_name, c.is_default_item, c.item_type,
+        string sql = @"select b.id, c.id as item_id, c.name, c.icon_name, c.is_default_item, c.item_type,c.stackable,
                         ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE, CANNON_FORCE
                         from ship_equipment as a
                         inner join player_item as b
@@ -186,6 +193,7 @@ public class Mysql : MonoBehaviour
             int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
             int crit_chance = rdr.GetInt32("CRIT_CHANCE");
             int cannon_force = rdr.GetInt32("CANNON_FORCE");
+            bool stackable = rdr.GetBoolean("STACKABLE");
 
             Item item = new Item();
             item.id = id;
@@ -203,6 +211,7 @@ public class Mysql : MonoBehaviour
             item.cannon_reload_speed = cannon_reload_speed;
             item.crit_chance = crit_chance;
             item.cannon_force = cannon_force;
+            item.stackable = stackable;
 
             items.Add(item);
         }
@@ -212,7 +221,7 @@ public class Mysql : MonoBehaviour
 
     public List<Item> ReadPlayerEquipment(int playerID)
     {
-        string sql = @"select b.id, c.id as item_id, c.name, c.icon_name, c.is_default_item, c.item_type,
+        string sql = @"select b.id, c.id as item_id, c.name, c.icon_name, c.is_default_item, c.item_type, c.stackable,
                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE, CANNON_FORCE
                         from player_equipment as a
                         inner join player_item as b
@@ -242,6 +251,7 @@ public class Mysql : MonoBehaviour
             int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
             int crit_chance = rdr.GetInt32("CRIT_CHANCE");
             int cannon_force = rdr.GetInt32("CANNON_FORCE");
+            bool stackable = rdr.GetBoolean("STACKABLE");
 
             Item item = new Item();
             item.id = id;
@@ -259,6 +269,7 @@ public class Mysql : MonoBehaviour
             item.cannon_reload_speed = cannon_reload_speed;
             item.crit_chance = crit_chance;
             item.cannon_force = cannon_force;
+            item.stackable = stackable;
             items.Add(item);
         }
         rdr.Close();
@@ -269,7 +280,7 @@ public class Mysql : MonoBehaviour
     {
         string sql = @"select ID, NAME, ICON_NAME, IS_DEFAULT_ITEM, ITEM_TYPE, 
                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE, CANNON_FORCE,DROP_CHANCE,
-                       MAX_LOOT_QUANTITY
+                       MAX_LOOT_QUANTITY, STACKABLE
                        from item";
 
         var cmd = new MySqlCommand(sql, con);
@@ -292,6 +303,7 @@ public class Mysql : MonoBehaviour
             int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
             int crit_chance = rdr.GetInt32("CRIT_CHANCE");
             int cannon_force = rdr.GetInt32("CANNON_FORCE");
+            bool stackable = rdr.GetBoolean("STACKABLE");
 
             int drop_chance = 0;
             if (!rdr.IsDBNull(14))
@@ -322,6 +334,7 @@ public class Mysql : MonoBehaviour
             item.cannon_force = cannon_force;
             item.dropChance = drop_chance;
             item.maxLootQuantity = max_loot_quantity;
+            item.stackable = stackable;
             items.Add(item);
         }
         rdr.Close();
@@ -356,6 +369,7 @@ public class Mysql : MonoBehaviour
             int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
             int crit_chance = rdr.GetInt32("CRIT_CHANCE");
             int cannon_force = rdr.GetInt32("CANNON_FORCE");
+            bool stackable = rdr.GetBoolean("STACKABLE");
 
             Item item = new Item();
             item.id = id;
@@ -373,6 +387,7 @@ public class Mysql : MonoBehaviour
             item.cannon_reload_speed = cannon_reload_speed;
             item.crit_chance = crit_chance;
             item.cannon_force = cannon_force;
+            item.stackable = stackable;
             items.Add(item);
         }
         rdr.Close();
@@ -381,7 +396,7 @@ public class Mysql : MonoBehaviour
 
     public Item ReadItem(int id)
     {
-        string sql = @"select ID, NAME, ICON_NAME, IS_DEFAULT_ITEM, ITEM_TYPE,
+        string sql = @"select ID, NAME, ICON_NAME, IS_DEFAULT_ITEM, ITEM_TYPE,STACKABLE,
                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE,CANNON_FORCE
                        from item where id=@id";
 
@@ -406,6 +421,7 @@ public class Mysql : MonoBehaviour
             int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
             int crit_chance = rdr.GetInt32("CRIT_CHANCE");
             int cannon_force = rdr.GetInt32("CANNON_FORCE");
+            bool stackable = rdr.GetBoolean("STACKABLE");
 
             item.item_id = item_id;
             item.name = name;
@@ -421,6 +437,7 @@ public class Mysql : MonoBehaviour
             item.cannon_reload_speed = cannon_reload_speed;
             item.crit_chance = crit_chance;
             item.cannon_force = cannon_force;
+            item.stackable = stackable;
         }
         rdr.Close();
         return item;
@@ -430,9 +447,9 @@ public class Mysql : MonoBehaviour
     {
         string sql = @"insert into item(NAME, ICON_NAME, IS_DEFAULT_ITEM, ITEM_TYPE,
                                         ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE,
-                                        CANNON_FORCE)
+                                        CANNON_FORCE,STACKABLE)
                        select @name, @icon_name, 0, @type, @attack, @health, @defence, @rotation, @speed, @visibility, 
-                              @cannon_reload_speed,@crit_chance,@cannon_force";
+                              @cannon_reload_speed,@crit_chance,@cannon_force,@stackable";
 
         var cmd = new MySqlCommand(sql, con);
         cmd.CommandText = sql;
@@ -449,6 +466,7 @@ public class Mysql : MonoBehaviour
         cmd.Parameters.AddWithValue("@cannon_reload_speed", item.cannon_reload_speed);
         cmd.Parameters.AddWithValue("@crit_chance", item.crit_chance);
         cmd.Parameters.AddWithValue("@cannon_force", item.cannon_force);
+        cmd.Parameters.AddWithValue("@stackable", item.stackable);
         cmd.ExecuteNonQuery();
     }
 
@@ -457,7 +475,7 @@ public class Mysql : MonoBehaviour
         string sql = @"update item set NAME=@name, ICON_NAME=@icon_name, ITEM_TYPE=@type,
                                        ATTACK=@attack,HEALTH=@health,DEFENCE=@defence,ROTATION=@rotation,SPEED=@speed,
                                        VISIBILITY=@visibility,CANNON_RELOAD_SPEED=@cannon_reload_speed,CRIT_CHANCE=@crit_chance,
-                                       CANNON_FORCE=@cannon_force
+                                       CANNON_FORCE=@cannon_force, STACKABLE=@stackable
                        where ID=@id";
 
         var cmd = new MySqlCommand(sql, con);
@@ -476,6 +494,7 @@ public class Mysql : MonoBehaviour
         cmd.Parameters.AddWithValue("@cannon_reload_speed", item.cannon_reload_speed);
         cmd.Parameters.AddWithValue("@crit_chance", item.crit_chance);
         cmd.Parameters.AddWithValue("@cannon_force", item.cannon_force);
+        cmd.Parameters.AddWithValue("@stackable", item.stackable);
         cmd.ExecuteNonQuery();
     }
 
@@ -740,7 +759,7 @@ public class Mysql : MonoBehaviour
 
         reader.Close();
 
-        sql = "update inventory_slot set item_id=null where id=@id";
+        sql = "update inventory_slot set item_id=null, quantity=0 where id=@id";
         cmd.CommandText = sql;
         cmd.Parameters.Clear();
         cmd.Parameters.AddWithValue("@id", id);
@@ -796,6 +815,23 @@ public class Mysql : MonoBehaviour
             cmd.ExecuteNonQuery();
         }
     }
+
+    public void UpdateItemQuantity(int dbid, InventorySlot slot) {
+        string sql = @"update inventory_slot a
+                        inner join inventory as b
+                        on a.id=b.slot_id
+                        set a.quantity=@quantity
+                        where player_id = @player_id and a.slot_id=@slot_id";
+
+        var cmd = new MySqlCommand(sql, con);
+
+        cmd.CommandText = sql;
+        cmd.Parameters.Clear();
+        cmd.Parameters.AddWithValue("@quantity", slot.quantity);        
+        cmd.Parameters.AddWithValue("@player_id", dbid);
+        cmd.Parameters.AddWithValue("@slot_id", slot.slotID);
+        cmd.ExecuteNonQuery();
+    }    
 
     public void SaveInventorySlot(int player, InventorySlot slot)
     {
@@ -1270,7 +1306,7 @@ public class Mysql : MonoBehaviour
 
     public List<PlayerSkillLevel> ReadPlayerSkills(int playerID)
     {
-        string sql = @"select a.id, a.skill_id, lvl, dmg, exp_start, exp_end, skill_name
+        string sql = @"select a.id, a.skill_id, lvl, modifier, exp_start, exp_end, skill_name, experience
                         from skill_level as a
                         inner join skill as b
                         on a.skill_id=b.id
@@ -1289,24 +1325,221 @@ public class Mysql : MonoBehaviour
             int id = rdr.GetInt32("ID");
             int skill_id = rdr.GetInt32("SKILL_ID");
             int level = rdr.GetInt32("LVL");
-            int damage = rdr.GetInt32("DMG");
+            int modifier = rdr.GetInt32("MODIFIER");
             int exp_start = rdr.GetInt32("EXP_START");
             int exp_end = rdr.GetInt32("EXP_END");
             string skill_name = rdr.GetString("SKILL_NAME");
+            int experience = rdr.GetInt32("EXPERIENCE");
 
             PlayerSkillLevel skill = new PlayerSkillLevel();
             skill.id = id;
             skill.skill_id = skill_id;
             skill.level = level;
-            skill.damage = damage;
+            skill.modifier = modifier;
             skill.experience_start = exp_start;
             skill.experience_end = exp_end;
             skill.name = skill_name;
+            skill.experience = experience;
 
             skills.Add(skill);
         }
         rdr.Close();
 
         return skills;
+    }
+
+    public List<ResourceSpawn> ReadResourceSpawns()
+    {
+        string sql = @"select* from resource as a
+                        inner join resource_spawn as b
+                        on a.id=b.resource_id";
+
+        var cmd = new MySqlCommand(sql, con);        
+
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        List<ResourceSpawn> spawns = new List<ResourceSpawn>();
+        while (rdr.Read())
+        {
+            Resource_ resource = new Resource_();
+            resource.ITEM_ID = rdr.GetInt32("ITEM_ID");
+            resource.RESOURCE_TYPE = rdr.GetInt32("RESOURCE_TYPE");
+            resource.RESOURCE_HP = rdr.GetFloat("RESOURCE_HP");
+            resource.RESOURCE_COUNT = rdr.GetInt32("RESOURCE_COUNT");
+            resource.SKILL_TYPE = (SkillType)rdr.GetInt32("SKILL_TYPE");
+            resource.EXPERIENCE = rdr.GetFloat("EXPERIENCE");
+
+            ResourceSpawn spawn = new ResourceSpawn();
+            spawn.RESOURCE = resource;
+            spawn.RESPAWN_TIME = rdr.GetFloat("RESPAWN_TIME");
+            spawn.X = rdr.GetFloat("X");
+            spawn.Y = rdr.GetFloat("Y");
+            spawn.Z = rdr.GetFloat("Z");            
+
+            spawns.Add(spawn);
+        }
+        rdr.Close();
+
+        return spawns;
+    }
+
+    public List<SkillLevel> ReadSkillLevel()
+    {
+        string sql = @"select a.id, skill_id, lvl, modifier, exp_start, exp_end, skill_name, icon
+                        from skill_level as a
+                        inner join skill as b
+                        on a.skill_id=b.id";
+
+        var cmd = new MySqlCommand(sql, con);
+
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        List<SkillLevel> skills = new List<SkillLevel>();
+        while (rdr.Read())
+        {
+            SkillLevel skillLevel = new SkillLevel();
+            skillLevel.skill_level_id = rdr.GetInt32("ID");
+            skillLevel.skill = (SkillType)rdr.GetInt32("SKILL_ID");
+            skillLevel.modifier = rdr.GetInt32("MODIFIER");
+            skillLevel.experienceStart = rdr.GetInt32("EXP_START");
+            skillLevel.experienceEnd = rdr.GetInt32("EXP_END");
+            skillLevel.level = rdr.GetInt32("LVL");
+            skillLevel.skillName = rdr.GetString("SKILL_NAME");
+            skillLevel.icon = rdr.GetString("ICON");
+            
+            skills.Add(skillLevel);
+        }
+        rdr.Close();
+
+        return skills;
+    }
+
+    public void UpdateSkillExperience(int player_id, int skill_id, int experience)
+    {
+        string sql = @"update player_skill_level a
+                        inner join skill_level as b
+                        on a.skill_level_id=b.id
+                        set a.experience=a.experience + @experience
+                        where player_id=@player_id and skill_id=@skill_id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.CommandText = sql;
+        cmd.Parameters.Clear();
+        cmd.Parameters.AddWithValue("@player_id", player_id);
+        cmd.Parameters.AddWithValue("@skill_id", skill_id);
+        cmd.Parameters.AddWithValue("@experience", experience);        
+        cmd.ExecuteNonQuery();
+    }
+
+    public void DeletePlayerSkillLevel(int player_id, int skill_id, int lvl) {
+        string sql = @"delete a
+                        from player_skill_level as a
+                        inner join skill_level as b
+                        on a.skill_level_id = b.id
+                        where player_id = @player_id and skill_id = @skill_id and lvl = @level";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.CommandText = sql;
+        cmd.Parameters.Clear();
+        cmd.Parameters.AddWithValue("@player_id", player_id);
+        cmd.Parameters.AddWithValue("@skill_id", skill_id);
+        cmd.Parameters.AddWithValue("@level", lvl);
+        cmd.ExecuteNonQuery();
+    }
+
+    public void InsertPlayerSkillLevel(int player_id, int skill_level_id, int experience) {
+        string sql = @"insert into player_skill_level
+                        (player_id, skill_level_id, experience)
+                        select @player_id, @skill_level_id, @experience";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.CommandText = sql;
+        cmd.Parameters.Clear();
+        cmd.Parameters.AddWithValue("@player_id", player_id);
+        cmd.Parameters.AddWithValue("@skill_level_id", skill_level_id);
+        cmd.Parameters.AddWithValue("@experience", experience);
+        cmd.ExecuteNonQuery();
+    }
+
+    public List<Recipe> ReadRecipes()
+    {
+        string sql = @"select a.id, a.recipe_name, a.time_to_craft, b.crafting_exp, b.icon_name, a.item_id
+                        from recipe as a
+                        inner join item as b
+                        on a.item_id=b.id";
+
+        var cmd = new MySqlCommand(sql, con);
+
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        List<Recipe> recipes = new List<Recipe>();
+        while (rdr.Read())
+        {
+            Recipe recipe = new Recipe();
+            recipe.id = rdr.GetInt32("ID");
+            recipe.name = rdr.GetString("recipe_name");
+            recipe.time_to_craft = rdr.GetFloat("time_to_craft");
+            recipe.experience = rdr.GetInt32("crafting_exp");
+            recipe.icon_name = rdr.GetString("icon_name");
+            recipe.item_id = rdr.GetInt32("item_id");
+
+            recipes.Add(recipe);
+        }
+        rdr.Close();        
+
+        foreach (Recipe recipe in recipes) {
+            string itemsSql = @"select a.id, b.id as item_id, b.name, b.icon_name, quantity 
+                                from recipe_item_requirements as a
+                                inner join item as b
+                                on a.item_id = b.id
+                                where a.recipe_id = @id";
+            var itemsCmd = new MySqlCommand(itemsSql, con);
+            recipe.items = new List<RecipeItemRequirement>();
+            itemsCmd.Parameters.AddWithValue("@id", recipe.id);
+
+            MySqlDataReader itemsRdr = itemsCmd.ExecuteReader();
+            while (itemsRdr.Read())
+            {
+                RecipeItemRequirement item = new RecipeItemRequirement();
+                item.id = itemsRdr.GetInt32("ID");
+                item.item_id = itemsRdr.GetInt32("item_id");
+                item.icon_name = itemsRdr.GetString("ICON_NAME");
+                item.item_name = itemsRdr.GetString("NAME");
+                item.quantity = itemsRdr.GetInt32("QUANTITY");
+                recipe.items.Add(item);
+            }
+            itemsRdr.Close();
+
+            string skillSql = @"select skill_level_id, lvl, skill_name, modifier
+                                from recipe as a
+                                inner join recipe_skill_requirements as b
+                                on a.id=b.recipe_id
+                                inner join skill_level as c
+                                on b.skill_level_id=c.id
+                                inner join skill as d
+                                on c.skill_id=d.id
+                                where a.id=@id";
+            var skillCmd = new MySqlCommand(skillSql, con);
+            recipe.skill = new RecipeSkillRequirement();
+            skillCmd.Parameters.AddWithValue("@id", recipe.id);
+
+            MySqlDataReader skillRdr = skillCmd.ExecuteReader();
+            while (skillRdr.Read())
+            {
+                recipe.skill.skill_level_id = skillRdr.GetInt32("SKILL_LEVEL_ID");
+                recipe.skill.level = skillRdr.GetInt32("LVL");
+                recipe.skill.skill_name = skillRdr.GetString("SKILL_NAME");
+                recipe.skill.modifier = skillRdr.GetInt32("MODIFIER");
+            }
+            skillRdr.Close();
+        }
+
+        return recipes;
     }
 }

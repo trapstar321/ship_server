@@ -12,6 +12,7 @@ TagManager:
   - Dock
   - Tree
   - Resource
+  - CraftingSpot
   layers:
   - Default
   - TransparentFX

@@ -81,6 +81,13 @@ select* from inventory_slot
 select* from player_item
 select* from item where id>20
 select* from ship_equipment
+SELECT* FROM player
+
+select* from item
+
+update item set item_type='general' where id=2
+
+update player set is_on_ship=1 where id in (1)
 
 insert into player
 (username, level, experience)
@@ -253,7 +260,7 @@ select 1, 158
 union all
 select 1, 159
 
-SELECT a.id,b.SLOT_ID, b.QUANTITY, c.id, d.id as item_id, d.name, d.icon_name, d.is_default_item, d.item_type 
+SELECT a.id,b.id,b.SLOT_ID, b.QUANTITY, c.id, d.id as item_id, d.name, d.icon_name, d.is_default_item, d.item_type 
                         FROM inventory a 
                         inner join inventory_slot as b 
                         on a.slot_id=b.id 
@@ -263,6 +270,12 @@ SELECT a.id,b.SLOT_ID, b.QUANTITY, c.id, d.id as item_id, d.name, d.icon_name, d
                         inner join item as d
                         on c.item_id=d.id
                         where a.player_id=1
+
+delete from inventory where id=174
+delete from inventory_slot where id=176
+delete from player_item where id=50
+
+select* from player_item where player_id=2
                         
                         update item set item_type='jib_sail' where id in (5)
                         update item set item_type='hull' where id in (9)
@@ -310,4 +323,195 @@ select 1, 4, 22, 10000, 30000
 union all
 select 1, 5, 28, 30000, 100000
                   
-select* from skill_level                  
+select* from skill_level          
+
+create table player_skill_level
+(
+	ID bigint not null auto_increment,
+    PLAYER_ID int not null,
+    SKILL_LEVEL_ID bigint not null,
+    EXPERIENCE int not null,
+    PRIMARY KEY(ID),
+    foreign key(player_id) references player(id),    
+    foreign key(skill_level_id) references skill_level(id)    
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;        
+
+insert into player_skill_level
+(player_id, skill_level_id, experience)
+select 1, 1, 0
+union all
+select 2, 1, 0
+union all
+select 3, 1, 0
+
+select a.id, a.skill_id, lvl, dmg, exp_start, exp_end, skill_name
+from skill_level as a
+inner join skill as b
+on a.skill_id=b.id
+inner join player_skill_level as c
+on a.id = c.skill_level_id
+where c.player_id=1
+
+select* from player_skill_level
+
+select* from skill_level
+
+select* from experience;
+
+select* from item
+ select* from player
+ update player set x_player=32, y_player=1, z_player=45 where id=1
+ 
+ select * from player_item where player_id=2
+ 
+ delete from player_item where id=47
+ 
+ create table resource_spawn
+ (
+	ID bigint NOT NULL auto_increment,
+    ITEM_ID int null,   
+    RESOURCE_TYPE int not null,
+    RESOURCE_HP float not null,
+    RESOURCE_COUNT int not null,
+    RESPAWN_TIME float not null,
+    X float not null,
+    Y float not null,
+    Z float not null,
+    PRIMARY KEY(ID),
+    FOREIGN KEY(ITEM_ID) references item(ID)    
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
+
+insert into resource_spawn
+(item_id, resource_type, resource_hp, resource_count, respawn_time, x, y, z)
+select 35, 5, 3000, 30, 15, 22, 0.93, 54
+union all
+select 36, 6, 1000, 10, 15, 21, 0.7, 50
+union all
+select 37, 7, 1500, 15, 15, 21, 0.7, 50
+
+select* from resource_spawn where item_id=37
+update resource_spawn set x=18, y=1, z=53 where item_id=37
+
+select a.id, a.skill_id, lvl, dmg, exp_start, exp_end, skill_name, experience
+                        from skill_level as a
+                        inner join skill as b
+                        on a.skill_id=b.id
+                        inner join player_skill_level as c
+                        on a.id = c.skill_level_id
+                        where c.player_id=1
+
+delete a
+from player_skill_level as a
+inner join skill_level as b
+on a.skill_level_id=b.id
+where player_id=1 and skill_id=1 and lvl=2
+
+update player_skill_level a
+inner join skill_level as b
+on a.skill_level_id=b.id
+set a.experience=999
+where player_id=1 and skill_id=1
+                        
+select* from player_skill_level 
+
+update player_skill_level set experience=3999 where id=82
+
+delete from player_skill_level where player_id=1 and skill_level_id=2
+
+insert into player_skill_level
+(player_id, skill_level_id, experience)
+select 1, 1, 999
+
+select id, skill_id, lvl, dmg, exp_start, exp_end, skill_name
+from skill_level as a
+inner join skill as b
+on a.skill_id=b.id
+
+insert into player_skill_level
+(player_id, skill_level_id, experience)
+select 1, 1, 999
+
+select* from resource_spawn
+insert into player_skill_level
+(player_id, skill_level_id, experience)
+select 1, 6, 0                       
+union all
+select 2, 6, 0
+union all
+select 3, 6, 0
+                        
+select* from skill      
+select* from skill_level    
+
+insert into skill_level
+(skill_id, lvl, dmg, exp_start, exp_end)
+select 2, 1, 5, 0, 1000
+union all              
+select 2, 2, 8, 1000, 4000
+union all
+select 2, 3, 12, 4000, 10000
+union all
+select 2, 4, 15, 10000, 30000
+union all
+select 2, 5, 18, 30000, 100000
+
+update resource_spawn set skill_type=2 where id<>1
+
+ create table resource_spawn
+ (
+	ID bigint NOT NULL auto_increment,    
+    RESOURCE_ID bigint not null,
+    RESPAWN_TIME float not null,    
+    X float not null,
+    Y float not null,
+    Z float not null,    
+    PRIMARY KEY(ID),
+    FOREIGN KEY(RESOURCE_ID) references resource(ID) 
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
+
+
+
+insert into resource_spawn
+(resource_id, respawn_time, x,y,z)
+select 1, 15, 32, 0.9, 46
+union all
+select 2, 10, 28, 0.8, 51
+union all
+select 3, 10, 29, 0.6, 48
+union all
+select 4, 15, 22, 0.9, 54
+union all
+select 5, 15, 21, 0.7, 50
+union all
+select 6, 15, 18, 1, 53
+
+ create table resource
+ (
+	ID bigint NOT NULL auto_increment,
+    ITEM_ID int null,   
+    RESOURCE_TYPE int not null,
+    RESOURCE_HP float not null,
+    RESOURCE_COUNT int not null,
+    EXPERIENCE float not null,
+    PRIMARY KEY(ID),
+    FOREIGN KEY(ITEM_ID) references item(ID)    
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
+
+select* from resource as a
+inner join resource_spawn as b
+on a.id=b.resource_id
+
+select* from player_skill_level
+
+update resource set experience=50 where id>=1
+
+update skill_level set exp_end=999 where id=1
+update skill_level set exp_end=3999 where id=2
+update skill_level set exp_end=9999 where id=3
+update skill_level set exp_end=29999 where id=4
+update skill_level set exp_end=99999 where id=5
+update skill_level set exp_end=999 where id=6
+update skill_level set exp_end=3999 where id=7
+update skill_level set exp_end=9999 where id=8
+update skill_level set exp_end=29999 where id=9
+update skill_level set exp_end=99999 where id=10

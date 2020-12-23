@@ -10,7 +10,8 @@ public class ServerHandle : MonoBehaviour
     private static SpawnManager spawnManager;
     private static Mysql mysql;
     private static Chat chat;
-    
+    private static List<Crafting> craftingList = new List<Crafting>();
+
     private void Awake()
     {
         spawnManager = FindObjectOfType<SpawnManager>();
@@ -36,6 +37,7 @@ public class ServerHandle : MonoBehaviour
         ServerSend.Time(Time.time);
         NetworkManager.SendNPCBaseStats(_fromClient);
         spawnManager.SendAllGameObjects(_fromClient);
+        ServerSend.Recipes(_fromClient);
 
         //send current stats to all
         //send stats from all to player
@@ -244,7 +246,7 @@ public class ServerHandle : MonoBehaviour
 
         if (slot_1.item != null && slot_2.item != null)
         {
-            if (slot_1.item.item_id == slot_2.item.item_id)
+            if (slot_1.item.item_id == slot_2.item.item_id && slot_1.item.stackable)
             {
                 mysql.DragAndDrop_Stack(dbid, slot_1, slot_2);
             }
@@ -314,6 +316,7 @@ public class ServerHandle : MonoBehaviour
         item.id = it.id;
         item.name = it.name;
         item.item_type = it.item_type;
+        item.stackable = it.stackable;
 
         return item;
     }
@@ -328,6 +331,7 @@ public class ServerHandle : MonoBehaviour
             item.id = slot.item.id;
             item.name = slot.item.name;
             item.item_type = slot.item.item_type;
+            item.stackable = slot.item.stackable;
             s.item = item;
         }
 
@@ -388,7 +392,7 @@ public class ServerHandle : MonoBehaviour
                     //player_item tabela
                     //add player item 
                     //if resource provjeriti da li postoji, ako postoji ne dodati
-                    if (drop.item.item_type.Equals("resource"))
+                    if (drop.item.stackable)
                     {
                         id = mysql.GetPlayerItemId(dbid, drop.item);
                         if (id == 0)
@@ -738,15 +742,19 @@ public class ServerHandle : MonoBehaviour
     {
         //TODO: respawn time
         int resourceID = packet.ReadInt();
+
+        GameObject gameObject = spawnManager.objects[resourceID].gameObject;
+        Resource resource = gameObject.GetComponent<Resource>();
         Player player = Server.clients[from].player;
-        PlayerSkillLevel skill = player.FindSkill(1);
+        PlayerSkillLevel skill = player.FindSkill(resource.skill_type);
 
         if (spawnManager.objects.ContainsKey(resourceID) && player.playerInstance.GetComponent<PlayerMovement>().gatheringEnabled)
         {
-            GameObject gameObject = spawnManager.objects[resourceID].gameObject;
-
-            Resource resource = gameObject.GetComponent<Resource>();
-            int numberOfResource = resource.GatherResource(skill.damage);
+            int numberOfResource = 0;
+            int experienceGained = 0;
+            resource.GatherResource(skill.modifier, out numberOfResource, out experienceGained);
+            mysql.UpdateSkillExperience(player.dbid, (int)resource.skill_type, experienceGained);
+            player.ResourceExperienceGained(resource, experienceGained, player);
 
             if (numberOfResource > 0)
             {
@@ -776,5 +784,43 @@ public class ServerHandle : MonoBehaviour
                 }
             }
         }
+    }
+
+    public static void CraftSelected(int from, Packet packet)
+    {
+        int recipeID = packet.ReadInt();
+        int makeAmount = packet.ReadInt();       
+
+        Item craftingItem = null;
+        Recipe recipe = NetworkManager.FindRecipe(recipeID);
+        craftingItem = mysql.ReadItem(recipe.item_id);
+
+        GameObject go = Resources.Load("Prefabs/Crafting", typeof(GameObject)) as GameObject;
+        go = Instantiate(go);
+        Crafting crafting = go.GetComponent<Crafting>();
+        crafting.Initialize(from, recipeID, mysql);
+        craftingList.Add(crafting);
+        int maxAmount = crafting.GetMaxCraftAmount();
+
+        PlayerSkillLevel level = Server.clients[from].player.FindSkillRequirement(recipe.skill.skill_level_id);
+        if (makeAmount <= maxAmount && Server.clients[from].player.HasSkillRequirement(recipe.skill.skill_level_id)) {
+            crafting.Craft(makeAmount, level.modifier, recipe.time_to_craft);            
+        }
+    }
+
+    public static void CancelCrafting(int from, Packet packet)
+    {
+        foreach(Crafting craft in craftingList)
+        {
+            if(craft.from == from)
+            {
+                craft.Stop();
+            }
+        }
+    }
+
+    public static void RequestCrafting(int from, Packet packet) {
+        CraftingSpot craftingSpot = Server.clients[from].player.playerInstance.GetComponent<PlayerMovement>().craftingSpot;        
+        ServerSend.RequestCraftingResponse(from, craftingSpot);        
     }
 }
