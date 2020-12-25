@@ -62,6 +62,7 @@ public class Resource : MonoBehaviour
         if (experienceLeft <= 0)
         {
             experience = (int)this.experience - lastExpCalc;
+            lastExpCalc = 0;
         }
         else
         {

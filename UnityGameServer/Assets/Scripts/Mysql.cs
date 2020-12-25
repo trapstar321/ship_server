@@ -1469,7 +1469,7 @@ public class Mysql : MonoBehaviour
 
     public List<Recipe> ReadRecipes()
     {
-        string sql = @"select a.id, a.recipe_name, a.time_to_craft, b.crafting_exp, b.icon_name, a.item_id
+        string sql = @"select a.id, a.recipe_name, a.time_to_craft, b.crafting_exp, b.icon_name, a.item_id, a.skill_id
                         from recipe as a
                         inner join item as b
                         on a.item_id=b.id";
@@ -1488,6 +1488,7 @@ public class Mysql : MonoBehaviour
             recipe.experience = rdr.GetInt32("crafting_exp");
             recipe.icon_name = rdr.GetString("icon_name");
             recipe.item_id = rdr.GetInt32("item_id");
+            recipe.skill_id = rdr.GetInt32("skill_id");
 
             recipes.Add(recipe);
         }

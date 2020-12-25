@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Vector3 = UnityEngine.Vector3;
 
 public class Crafting: MonoBehaviour
 {
@@ -144,6 +145,11 @@ public class Crafting: MonoBehaviour
                         mysql.UpdateItemQuantity(player.dbid, slot);
                     }
                 }
+
+                mysql.UpdateSkillExperience(player.dbid, (int)recipe.skill_id, recipe.experience);
+                player.ExperienceGained((SkillType)recipe.skill_id, recipe.experience, player);
+                player.skills = mysql.ReadPlayerSkills(player.dbid);
+
                 i--;
                 ServerSend.Inventory(from, Server.clients[from].player.inventory);
                 

@@ -503,17 +503,16 @@ public class Player : MonoBehaviour
         return null;
     }
 
-    public void ResourceExperienceGained(Resource resource, int experienceGained, Player player) {
-        PlayerSkillLevel pSkillLevel = FindSkill(resource.skill_type);
+    public void ExperienceGained(SkillType skill_type, int experienceGained, Player player) {
+        PlayerSkillLevel pSkillLevel = FindSkill(skill_type);
         pSkillLevel.experience += experienceGained;
-        SkillLevel skillLevel = NetworkManager.FindSkill(resource.skill_type, pSkillLevel.level);
-        SkillLevel nextSkillLevel = NetworkManager.FindSkill(resource.skill_type, pSkillLevel.level + 1);
+        SkillLevel skillLevel = NetworkManager.FindSkill(skill_type, pSkillLevel.level);
+        SkillLevel nextSkillLevel = NetworkManager.FindSkill(skill_type, pSkillLevel.level + 1);
 
         if (skillLevel.experienceEnd < pSkillLevel.experience && nextSkillLevel!=null) {
             //level up
-            mysql.DeletePlayerSkillLevel(player.dbid, (int)resource.skill_type, pSkillLevel.level);
-            mysql.InsertPlayerSkillLevel(player.dbid, nextSkillLevel.skill_level_id, pSkillLevel.experience);
-            player.skills = mysql.ReadPlayerSkills(player.dbid);
+            mysql.DeletePlayerSkillLevel(player.dbid, (int)skill_type, pSkillLevel.level);
+            mysql.InsertPlayerSkillLevel(player.dbid, nextSkillLevel.skill_level_id, pSkillLevel.experience);            
         }
     }
 

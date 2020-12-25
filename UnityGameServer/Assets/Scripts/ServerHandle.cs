@@ -754,7 +754,8 @@ public class ServerHandle : MonoBehaviour
             int experienceGained = 0;
             resource.GatherResource(skill.modifier, out numberOfResource, out experienceGained);
             mysql.UpdateSkillExperience(player.dbid, (int)resource.skill_type, experienceGained);
-            player.ResourceExperienceGained(resource, experienceGained, player);
+            player.ExperienceGained(resource.skill_type, experienceGained, player);
+            player.skills = mysql.ReadPlayerSkills(player.dbid);
 
             if (numberOfResource > 0)
             {

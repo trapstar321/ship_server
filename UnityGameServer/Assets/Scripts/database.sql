@@ -392,7 +392,7 @@ select 37, 7, 1500, 15, 15, 21, 0.7, 50
 select* from resource_spawn where item_id=37
 update resource_spawn set x=18, y=1, z=53 where item_id=37
 
-select a.id, a.skill_id, lvl, dmg, exp_start, exp_end, skill_name, experience
+select a.id, a.skill_id, lvl, modifier, exp_start, exp_end, skill_name, experience
                         from skill_level as a
                         inner join skill as b
                         on a.skill_id=b.id
@@ -422,7 +422,7 @@ insert into player_skill_level
 (player_id, skill_level_id, experience)
 select 1, 1, 999
 
-select id, skill_id, lvl, dmg, exp_start, exp_end, skill_name
+select a.id, skill_id, lvl, modifier, exp_start, exp_end, skill_name
 from skill_level as a
 inner join skill as b
 on a.skill_id=b.id
@@ -515,3 +515,144 @@ update skill_level set exp_end=3999 where id=7
 update skill_level set exp_end=9999 where id=8
 update skill_level set exp_end=29999 where id=9
 update skill_level set exp_end=99999 where id=10
+
+alter table skill_level rename column dmg to modifier
+
+recipe (id, name, item_id, time_to_craft)
+recipe_requirements(id, reciper_id, item_id, quantity)
+recipe_skill_requirements(id, recipe_id, skill_id)
+
+create table recipe
+(
+	ID bigint NOT NULL auto_increment,
+    ITEM_ID int not null,   
+    RECIPE_NAME varchar(1000) not null,
+    TIME_TO_CRAFT float not null,
+    PRIMARY KEY(ID),
+    FOREIGN KEY(ITEM_ID) references item(ID)    
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
+
+create table recipe_item_requirements(
+	ID bigint NOT NULL auto_increment,
+    RECIPE_ID bigint not null, 
+    ITEM_ID int not null,
+    QUANTITY int not null,
+    PRIMARY KEY(ID),
+    FOREIGN KEY(ITEM_ID) references item(ID),    
+    FOREIGN KEY(RECIPE_ID) references recipe(ID)    
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
+
+create table recipe_skill_requirements
+(
+	ID bigint NOT NULL auto_increment,
+    RECIPE_ID bigint not null, 
+    SKILL_LEVEL_ID bigint not null,
+    PRIMARY KEY(ID),    
+    FOREIGN KEY(RECIPE_ID) references recipe(ID)    ,
+    FOREIGN KEY(SKILL_LEVEL_ID) references skill_level(ID)  
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
+
+insert into recipe_skill_requirements
+(recipe_id, skill_level_id)
+select 2, 32
+
+update item set crafting_exp=10 where id=43
+
+select* from item
+insert into recipe
+(item_id, recipe_name, time_to_craft)
+select 41, 'Bread', 5
+
+insert into recipe_item_requirements
+(recipe_id, item_id, quantity)
+select 2, 42, 2
+
+
+select a.id, a.recipe_name, a.time_to_craft, b.crafting_exp
+from recipe as a
+inner join item as b
+on a.item_id=b.id
+
+select a.id, b.id as item_id, b.name, b.icon_name, quantity 
+from recipe_item_requirements as a
+inner join item as b
+on a.item_id=b.id
+where a.recipe_id=1
+
+alter table 
+
+
+select skill_level_id, lvl, skill_name, modifier
+from recipe as a
+inner join recipe_skill_requirements as b
+on a.id=b.recipe_id
+inner join skill_level as c
+on b.skill_level_id=c.id
+inner join skill as d
+on c.skill_id=d.id
+where a.id=1
+
+select* from recipe
+select* from inventory_slot as a
+inner join inventory as b
+on a.id=b.slot_id
+where b.player_id=1 and a.slot_id=28
+select* from inventory
+
+update inventory_slot set item_id=57, quantity=100 where id=182
+update inventory_slot set item_id=58, quantity=100 where id=155
+
+select* from player_item
+
+update inventory_slot a
+inner join inventory as b
+on a.id=b.slot_id
+set a.quantity=930
+where player_id = 1 and a.slot_id=11
+
+select a.id, a.skill_id, lvl, modifier, exp_start, exp_end, skill_name, experience
+                        from skill_level as a
+                        inner join skill as b
+                        on a.skill_id=b.id
+                        inner join player_skill_level as c
+                        on a.id = c.skill_level_id
+                        where c.player_id=1
+
+select* from skill_level where id=32
+select* from skill
+
+select a.id, b.id as item_id, b.name, b.icon_name, quantity 
+                                from recipe_item_requirements as a
+                                inner join item as b
+                                on a.item_id = b.id
+                                where a.recipe_id = 1
+                                
+select a.id, a.recipe_name, a.time_to_craft, b.crafting_exp, b.icon_name, a.item_id
+                        from recipe as a
+                        inner join item as b
+                        on a.item_id=b.id
+
+select* from recipe_skill_requirements where recipe_id=2
+update recipe_skill_requirements set skill_level_id=33 where id=2
+                        
+select* from recipe       
+select* from item
+
+update item set crafting_exp = 5 where id=2       
+
+select* from item        
+select* from inventory_slot where item_id=58
+select* from player_item where item_id=39
+
+update inventory_slot set quantity=100 where id=155
+
+create table trader
+(
+	ID bigint NOT NULL auto_increment,
+    NAME varchar(1000) not null,
+    X float not null,
+    Y float not null,
+    Z float not null,
+    Y_ROT float not null    ,
+    PRIMARY KEY(ID)    
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 

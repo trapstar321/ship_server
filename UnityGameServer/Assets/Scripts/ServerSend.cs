@@ -985,6 +985,7 @@ public class ServerSend: MonoBehaviour
             {
                 _packet.Write(true);
                 _packet.Write((int)craftingSpot.skillType);
+                _packet.Write(Server.clients[to].player.skills);
             }
             else {
                 _packet.Write(false);
