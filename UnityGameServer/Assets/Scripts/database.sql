@@ -359,6 +359,14 @@ select* from skill_level
 select* from experience;
 
 select* from item
+select* from trader_inventory
+
+select buy_price, sell_price, name from trader_inventory as a
+inner join item as b
+on a.item_id=b.id
+
+alter table trader_inventory add BUY_PRICE float not null default 1
+
  select* from player
  update player set x_player=32, y_player=1, z_player=45 where id=1
  
@@ -656,3 +664,32 @@ create table trader
     Y_ROT float not null    ,
     PRIMARY KEY(ID)    
 )DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
+
+create table trader_inventory
+(
+	ID bigint NOT NULL auto_increment,
+    TRADER_ID bigint not null,    
+    ITEM_ID int not null,
+    QUANTITY int not null,
+    PRICE float not null,
+    PRIMARY KEY(ID),
+    FOREIGN KEY(TRADER_ID) references trader(ID)  ,
+    FOREIGN KEY(ITEM_ID) references item(ID)  
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
+
+select* from trader
+select* from trader_inventory
+select* from resource_spawn
+
+alter table trader add column ITEM_RESPAWN_TIME float null
+
+update trader set item_respawn_time=1 where id=1
+
+select* from resource
+select* from resource_spawn
+
+select* from trader_inventory
+
+alter table trader add GAME_OBJECT_TYPE int null
+select * from trader_inventory where trader_id=1
+alter table player rename column gold to GOLD

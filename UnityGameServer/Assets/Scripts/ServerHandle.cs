@@ -824,4 +824,41 @@ public class ServerHandle : MonoBehaviour
         CraftingSpot craftingSpot = Server.clients[from].player.playerInstance.GetComponent<PlayerMovement>().craftingSpot;        
         ServerSend.RequestCraftingResponse(from, craftingSpot);        
     }
+
+    public static void TraderInventoryRequest(int from, Packet packet)
+    {
+        List<SerializableObjects.Trader> traders = NetworkManager.traders[from];
+        int traderId = packet.ReadInt();
+        foreach (SerializableObjects.Trader trader in traders)
+        {
+            if (trader.id == traderId)
+            {
+                ServerSend.TraderInventory(from, trader);
+            }
+        }
+    }
+
+    public static void BuyItem(int from, Packet packet)
+    {
+        int itemID = packet.ReadInt();
+        int amount = packet.ReadInt();
+
+        //provjeriti da li je blizu istog trader-a
+        //provjeriti da li ima golda
+        //dodati u inventory ako ima mjesta
+        //smanjiti gold
+        //smanjiti quantity na traderitem objektu za taj item
+        //javiti da li je item kupljen ili ne (not enough space, not enough gold, not enough items required)
+    }
+
+    public static void SellItem(int from, Packet packet)
+    {
+        int itemID = packet.ReadInt();
+        int amount = packet.ReadInt();
+
+        //provjeriti da li traderitem objekt ima tu količinu
+        //provjeriti da li item postoji u trader itemima
+        //dodati gold player-u
+        //ukloniti item iz inventory-ja        
+    }
 }

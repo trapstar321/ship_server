@@ -26,6 +26,7 @@ public class NetworkManager : MonoBehaviour
     public static Dictionary<string, int> invitationLinks = new Dictionary<string, int>();
     public static List<SkillLevel> skillLevel;
     public static List<Recipe> recipes;
+    public static Dictionary<int, List<SerializableObjects.Trader>> traders = new Dictionary<int, List<SerializableObjects.Trader>>();
 
     public class PacketData {
         public int type;
@@ -286,6 +287,15 @@ public class NetworkManager : MonoBehaviour
                         break;
                     case (int)ClientPackets.requestCrafting:
                         ServerHandle.RequestCrafting(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.traderInventoryRequest:
+                        ServerHandle.TraderInventoryRequest(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.buyItem:
+                        ServerHandle.BuyItem(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.sellItem:
+                        ServerHandle.SellItem(client.id, packet.packet);
                         break;
                 }
             }

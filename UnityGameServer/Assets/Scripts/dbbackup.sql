@@ -225,6 +225,7 @@ CREATE TABLE `player` (
   `Z_PLAYER` float DEFAULT NULL,
   `IS_ON_SHIP` tinyint(1) DEFAULT NULL,
   `Y_ROT_PLAYER` float DEFAULT NULL,
+  `GOLD` float DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -235,7 +236,7 @@ CREATE TABLE `player` (
 
 LOCK TABLES `player` WRITE;
 /*!40000 ALTER TABLE `player` DISABLE KEYS */;
-INSERT INTO `player` VALUES (1,'player1',1,0,36.8344,75.58,0.295679,193.434,'',31.3565,0.948965,52.5131,0,4.56431),(2,'player2',1,0,3.53998,29.7738,0.280522,173.176,'',33.8256,0.168252,76.8579,1,117.734),(3,'player3',1,0,0,0,0,356.393,'',NULL,NULL,NULL,1,NULL);
+INSERT INTO `player` VALUES (1,'player1',1,0,36.8344,75.58,0.295679,193.434,'',29.1296,0.858382,53.4797,0,36.5799,10000),(2,'player2',1,0,3.53998,29.7738,0.280522,173.176,'',33.8256,0.168252,76.8579,1,117.734,10000),(3,'player3',1,0,0,0,0,356.393,'',NULL,NULL,NULL,1,NULL,10000);
 /*!40000 ALTER TABLE `player` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -603,6 +604,8 @@ CREATE TABLE `trader` (
   `Y` float NOT NULL,
   `Z` float NOT NULL,
   `Y_ROT` float NOT NULL,
+  `ITEM_RESPAWN_TIME` float DEFAULT NULL,
+  `GAME_OBJECT_TYPE` int DEFAULT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -613,7 +616,7 @@ CREATE TABLE `trader` (
 
 LOCK TABLES `trader` WRITE;
 /*!40000 ALTER TABLE `trader` DISABLE KEYS */;
-INSERT INTO `trader` VALUES (1,'Joe',30,0.9,54,145);
+INSERT INTO `trader` VALUES (1,'Joe',30,0.9,54,145,1,8);
 /*!40000 ALTER TABLE `trader` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -629,13 +632,14 @@ CREATE TABLE `trader_inventory` (
   `TRADER_ID` bigint NOT NULL,
   `ITEM_ID` int NOT NULL,
   `QUANTITY` int NOT NULL,
-  `PRICE` float NOT NULL,
+  `SELL_PRICE` float NOT NULL,
+  `BUY_PRICE` float NOT NULL DEFAULT '1',
   PRIMARY KEY (`ID`),
   KEY `TRADER_ID` (`TRADER_ID`),
   KEY `ITEM_ID` (`ITEM_ID`),
   CONSTRAINT `trader_inventory_ibfk_1` FOREIGN KEY (`TRADER_ID`) REFERENCES `trader` (`ID`),
   CONSTRAINT `trader_inventory_ibfk_2` FOREIGN KEY (`ITEM_ID`) REFERENCES `item` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -644,7 +648,7 @@ CREATE TABLE `trader_inventory` (
 
 LOCK TABLES `trader_inventory` WRITE;
 /*!40000 ALTER TABLE `trader_inventory` DISABLE KEYS */;
-INSERT INTO `trader_inventory` VALUES (1,1,30,100,5),(2,1,31,40,20),(3,1,35,100,2),(4,1,36,60,15),(5,1,37,100,5),(6,1,38,500,1),(7,1,39,300,3),(8,1,40,100,2),(9,1,42,100,4);
+INSERT INTO `trader_inventory` VALUES (1,1,30,100,5,1),(2,1,31,40,20,1),(3,1,35,100,2,1),(4,1,36,60,15,1),(5,1,37,100,5,1),(6,1,38,500,1,1),(7,1,39,300,3,1),(8,1,40,100,2,1),(9,1,42,100,4,1);
 /*!40000 ALTER TABLE `trader_inventory` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -657,4 +661,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-12-25 22:04:07
+-- Dump completed on 2020-12-29 22:27:23

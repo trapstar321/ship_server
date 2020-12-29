@@ -1039,7 +1039,7 @@ public class Mysql : MonoBehaviour
 
     public PlayerData ReadPlayerData(int id) {
         string sql = @"select LEVEL,EXPERIENCE, USERNAME, X_SHIP, Y_SHIP, Z_SHIP, Y_ROT_SHIP,
-                        X_PLAYER, Y_PLAYER, Z_PLAYER, Y_ROT_PLAYER, IS_ON_SHIP
+                        X_PLAYER, Y_PLAYER, Z_PLAYER, Y_ROT_PLAYER, IS_ON_SHIP, GOLD
                        from player where id=@id";
 
         var cmd = new MySqlCommand(sql, con);
@@ -1089,6 +1089,7 @@ public class Mysql : MonoBehaviour
                 is_on_ship = rdr.GetBoolean("IS_ON_SHIP");
 
             string username = rdr.GetString("USERNAME");
+            float gold = rdr.GetFloat("GOLD");
 
             data = new PlayerData();
             data.level = level;
@@ -1106,6 +1107,7 @@ public class Mysql : MonoBehaviour
             data.is_on_ship = is_on_ship;
 
             data.username = username;
+            data.gold = gold;
         }
         rdr.Close();
         return data;
@@ -1542,5 +1544,54 @@ public class Mysql : MonoBehaviour
         }
 
         return recipes;
+    }
+
+    public List<SerializableObjects.Trader> ReadTraders()
+    {
+        string sql = @"select* from trader";
+
+        var cmd = new MySqlCommand(sql, con);
+
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        List<SerializableObjects.Trader> traders = new List<SerializableObjects.Trader>();
+        while (rdr.Read())
+        {
+            SerializableObjects.Trader trader = new SerializableObjects.Trader();
+            trader.id = rdr.GetInt32("ID");
+            trader.name = rdr.GetString("NAME");
+            trader.x = rdr.GetFloat("X");
+            trader.y = rdr.GetFloat("Y");
+            trader.z = rdr.GetFloat("Z");
+            trader.y_rot = rdr.GetFloat("Y_ROT");
+            trader.item_respawn_time = rdr.GetFloat("ITEM_RESPAWN_TIME");
+            trader.game_object_type = rdr.GetInt32("GAME_OBJECT_TYPE");
+
+            traders.Add(trader);
+        }
+        rdr.Close();        
+
+        foreach(SerializableObjects.Trader trader in traders)
+        {
+            string traderSql = @"select * from trader_inventory where trader_id = @id";
+            var traderCmd = new MySqlCommand(traderSql, con);
+            trader.inventory = new List<TraderItem>();
+            traderCmd.Parameters.AddWithValue("@id", trader.id);
+
+            MySqlDataReader traderRdr = traderCmd.ExecuteReader();
+            while (traderRdr.Read())
+            {
+                TraderItem item = new TraderItem();
+                item.item_id = traderRdr.GetInt32("ITEM_ID");
+                item.quantity = traderRdr.GetInt32("QUANTITY");
+                item.sell_price = traderRdr.GetFloat("SELL_PRICE");
+                item.buy_price = traderRdr.GetFloat("BUY_PRICE");
+
+                trader.inventory.Add(item);
+            }
+            traderRdr.Close();
+        }        
+
+        return traders;
     }
 }

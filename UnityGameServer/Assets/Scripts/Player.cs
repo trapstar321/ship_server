@@ -107,6 +107,10 @@ public class Player : MonoBehaviour
         PlayerData data = mysql.ReadPlayerData(dbid);
         List<PlayerSkillLevel> skills = mysql.ReadPlayerSkills(dbid);
 
+        if (!NetworkManager.traders.ContainsKey(dbid)) {
+            NetworkManager.traders.Add(dbid, mysql.ReadTraders());
+        }
+
         this.stats = stats;
         this.exp = exp;
         this.data = data;

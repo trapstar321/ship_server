@@ -15,12 +15,14 @@ public class SpawnManager : MonoBehaviour
         goldRock,
         coal, 
         silverRock,
-        tinRock
+        tinRock,
+        traderGeneric
     }
 
     public class Spawn {
         public int id;
         public GameObjectType type;
+        public ObjectType objectType;
         public GameObject gameObject;
     }
 
@@ -45,22 +47,24 @@ public class SpawnManager : MonoBehaviour
         prefabs.Add(GameObjectType.coal, Resources.Load("Prefabs/Coal", typeof(GameObject)) as GameObject);
         prefabs.Add(GameObjectType.silverRock, Resources.Load("Prefabs/SilverRock", typeof(GameObject)) as GameObject);
         prefabs.Add(GameObjectType.tinRock, Resources.Load("Prefabs/TinRock", typeof(GameObject)) as GameObject);
+        prefabs.Add(GameObjectType.traderGeneric, Resources.Load("Prefabs/TraderGeneric", typeof(GameObject)) as GameObject);
     }
 
     // Start is called before the first frame update
     void Start()
     {
         List<ResourceSpawn> resourceSpawns = mysql.ReadResourceSpawns();
+        List<SerializableObjects.Trader> traders = mysql.ReadTraders();
 
         //create Chest prefab
         int id = NextId();
         GameObject chest = Instantiate(prefabs[GameObjectType.chest], new Vector3(-3.57f, -2f, -8.83f), Quaternion.identity);
-        objects.Add(id, new Spawn() { id = id, type = GameObjectType.chest, gameObject = chest });
+        objects.Add(id, new Spawn() { id = id, type = GameObjectType.chest, gameObject = chest, objectType=ObjectType.CHEST });
 
         foreach (ResourceSpawn spawn in resourceSpawns) {
             id = NextId();
             GameObject go = Instantiate(prefabs[(GameObjectType)spawn.RESOURCE.RESOURCE_TYPE], new Vector3(spawn.X, spawn.Y, spawn.Z), Quaternion.identity);
-            objects.Add(id, new Spawn() { id = id, type = (GameObjectType)spawn.RESOURCE.RESOURCE_TYPE, gameObject = go });
+            objects.Add(id, new Spawn() { id = id, type = (GameObjectType)spawn.RESOURCE.RESOURCE_TYPE, gameObject = go, objectType=ObjectType.RESOURCE });
 
             Item item = mysql.ReadItem(spawn.RESOURCE.ITEM_ID);
             
@@ -74,6 +78,16 @@ public class SpawnManager : MonoBehaviour
             resource.item = item;
 
             resource.Initialize();
+        }
+
+        foreach (SerializableObjects.Trader trader in traders) {
+            id = NextId();
+            GameObject go = Instantiate(prefabs[(GameObjectType)trader.game_object_type], new Vector3(trader.x, trader.y, trader.z), Quaternion.identity);
+            go.transform.eulerAngles = new Vector3(0, trader.y_rot, 0);
+            objects.Add(id, new Spawn() { id = id, type = (GameObjectType)trader.game_object_type, gameObject = go, objectType=ObjectType.TRADER });
+
+            Trader traderScript = go.GetComponent<Trader>();
+            traderScript.id = trader.id;
         }
 
         /*id = NextId();

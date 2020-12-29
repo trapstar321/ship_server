@@ -17,7 +17,9 @@ public class PlayerMovement : MonoBehaviour
     public bool isOnDock=false;
 
     public bool gatheringEnabled;
+    public bool tradingEnabled;
     public CraftingSpot craftingSpot;
+    public Trader trader;
 
     Vector3 velocity;
     public bool isGrounded;
@@ -84,6 +86,11 @@ public class PlayerMovement : MonoBehaviour
         {
             craftingSpot = other.GetComponent<CraftingSpot>();
         }
+        else if (other.tag == "Trader")
+        {                        
+            tradingEnabled = true;
+            trader = other.gameObject.GetComponent<Trader>();
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -98,6 +105,11 @@ public class PlayerMovement : MonoBehaviour
         else if (other.tag.Equals("CraftingSpot"))
         {
             craftingSpot = null;
+        }
+        else if (other.tag == "Trader")
+        {
+            tradingEnabled = false;
+            trader = null;
         }
     }
 }
