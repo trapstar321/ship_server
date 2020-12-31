@@ -843,12 +843,26 @@ public class ServerHandle : MonoBehaviour
         int itemID = packet.ReadInt();
         int amount = packet.ReadInt();
 
-        //provjeriti da li je blizu istog trader-a
-        //provjeriti da li ima golda
-        //dodati u inventory ako ima mjesta
-        //smanjiti gold
-        //smanjiti quantity na traderitem objektu za taj item
-        //javiti da li je item kupljen ili ne (not enough space, not enough gold, not enough items required)
+        Player player = Server.clients[from].player;
+        PlayerMovement playerCharacter = Server.clients[from].player.playerInstance.GetComponent<PlayerMovement>();
+        if (playerCharacter.trader!=null) {
+            SerializableObjects.TraderItem traderItem = NetworkManager.FindTraderItem(from, playerCharacter.trader.id, itemID);
+            SerializableObjects.Trader trader = NetworkManager.FindTrader(from, playerCharacter.trader.id);
+            float totalPrice = traderItem.sell_price * amount;
+
+            if (traderItem != null && totalPrice < player.data.gold && amount<=traderItem.quantity && player.inventory.HasSpace())
+            {
+                traderItem.quantity -= amount;
+                mysql.InventoryAdd(player, SerializableToItem(traderItem.item), amount);
+
+                player.data.gold -= totalPrice;
+                mysql.UpdatePlayerGold(player.dbid, player.data.gold);
+
+                ServerSend.Inventory(from, player.inventory);
+                ServerSend.PlayerData(from, player.data);
+                ServerSend.TraderInventory(from, trader);                
+            }
+        }             
     }
 
     public static void SellItem(int from, Packet packet)
@@ -856,9 +870,47 @@ public class ServerHandle : MonoBehaviour
         int itemID = packet.ReadInt();
         int amount = packet.ReadInt();
 
-        //provjeriti da li traderitem objekt ima tu količinu
-        //provjeriti da li item postoji u trader itemima
-        //dodati gold player-u
+        Player player = Server.clients[from].player;
+        PlayerMovement playerCharacter = Server.clients[from].player.playerInstance.GetComponent<PlayerMovement>();
+        SerializableObjects.Trader trader = NetworkManager.FindTrader(from, playerCharacter.trader.id);
+        SerializableObjects.TraderItem traderItem = NetworkManager.FindTraderItem(from, playerCharacter.trader.id, itemID);        
+
+        if (playerCharacter.trader!=null && 
+            player.inventory.HasQuantity(itemID, amount) && 
+            traderItem!=null) {
+            float totalPrice = traderItem.buy_price * amount;
+
+            player.data.gold += totalPrice;
+            mysql.UpdatePlayerGold(player.dbid, player.data.gold);
+            mysql.InventoryRemove(player, itemID, amount);
+
+            ServerSend.Inventory(from, player.inventory);
+            ServerSend.PlayerData(from, player.data);
+            ServerSend.TraderInventory(from, trader);
+        }                       
         //ukloniti item iz inventory-ja        
+    }
+
+    protected static Item SerializableToItem(SerializableObjects.Item item)
+    {
+        return new Item()
+        {
+            id = item.id,
+            item_id = item.item_id,
+            iconName = item.iconName,
+            isDefaultItem = item.isDefaultItem,
+            name = item.name,
+            item_type = item.item_type,
+            attack = item.attack,
+            health = item.health,
+            defence = item.defence,
+            speed = item.speed,
+            visibility = item.visibility,
+            rotation = item.rotation,
+            cannon_reload_speed = item.cannon_reload_speed,
+            crit_chance = item.crit_chance,
+            cannon_force = item.cannon_force,
+            stackable = item.stackable
+        };
     }
 }

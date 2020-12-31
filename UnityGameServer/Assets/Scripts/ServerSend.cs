@@ -1035,6 +1035,7 @@ public class ServerSend : MonoBehaviour
         using (Packet _packet = new Packet((int)ServerPackets.playerData))
         {
             _packet.Write(data);
+            SendTCPData(to, _packet);
         }
     }
 }

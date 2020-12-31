@@ -147,4 +147,21 @@ public class Inventory : MonoBehaviour
         }
         return null;
     }
+
+    public bool HasSpace() {
+        foreach (InventorySlot slot in items) {
+            if (slot.item == null)
+                return true;
+        }
+        return false;
+    }
+
+    public bool HasQuantity(int itemId, int amount) {
+        foreach (InventorySlot slot in items) {
+            if (slot.item!=null && slot.item.item_id == itemId && amount <= slot.quantity) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

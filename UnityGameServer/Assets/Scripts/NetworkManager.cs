@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
@@ -39,6 +40,7 @@ public class NetworkManager : MonoBehaviour
     {
         send = FindObjectOfType<ServerSend>();
         StartCoroutine(Tick());
+        StartCoroutine(Respawn());
         wavesScript = GameObject.FindWithTag("Waves").GetComponent<Waves>();
 
         if (instance == null)
@@ -58,6 +60,7 @@ public class NetworkManager : MonoBehaviour
     {
         ServerSend.Time(Time.deltaTime);
         UpdatePlayerPosition();
+        RespawnTraders();
     }
 
     private void Start()
@@ -356,5 +359,53 @@ public class NetworkManager : MonoBehaviour
             }
         }
         return null;
+    }
+
+    public static SerializableObjects.Trader FindTrader(int from, int traderId) {
+        foreach (SerializableObjects.Trader trader in traders[from])
+        {
+            if (trader.id == traderId)
+            {
+                return trader;
+            }
+        }
+        return null;
+    }
+
+    public static SerializableObjects.TraderItem FindTraderItem(int from, int traderId, int item_id)
+    {
+        SerializableObjects.Trader trader = FindTrader(from, traderId);
+        foreach (SerializableObjects.TraderItem item in trader.inventory)
+        {
+            if (item.item_id==item_id)
+            {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    IEnumerator Respawn()
+    {
+        RespawnTraders();
+        yield return new WaitForSeconds(5);
+    }
+
+    public void RespawnTraders() {
+        foreach (int playerId in traders.Keys)
+        {
+            List<SerializableObjects.Trader> traders = NetworkManager.traders[playerId];
+
+            for(int i=0; i<traders.Count; i++)
+            {
+                SerializableObjects.Trader trader = traders[i];
+                if ((DateTime.Now - trader.respawned).TotalMinutes > trader.item_respawn_time)
+                {
+                    trader = mysql.ReadTrader(trader.id);
+                    trader.respawned = DateTime.Now;
+                    traders[i] = trader;
+                }
+            }
+        }
     }
 }

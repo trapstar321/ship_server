@@ -534,6 +534,29 @@ public class Mysql : MonoBehaviour
         return id;
     }
 
+    public int GetPlayerItemId(int player_id, int item_id)
+    {
+        string sql = @"select id from player_item where player_id=@player_id and item_id=@item_id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.Parameters.AddWithValue("@player_id", player_id);
+        cmd.Parameters.AddWithValue("@item_id", item_id);
+
+        MySqlDataReader reader = cmd.ExecuteReader();
+
+        int id = 0;
+
+        while (reader.Read())
+        {
+            id = reader.GetInt32("id");
+        }
+
+        reader.Close();
+        return id;
+    }
+
     public void DropItem(int player, InventorySlot slot)
     {
         string sql = @"select b.id from inventory as a
@@ -1274,6 +1297,20 @@ public class Mysql : MonoBehaviour
         cmd.ExecuteNonQuery();
     }
 
+    public void UpdatePlayerGold(int id, float gold)
+    {
+        string sql = @"UPDATE player set GOLD=@gold WHERE id=@id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.CommandText = sql;
+        cmd.Parameters.Clear();
+        cmd.Parameters.AddWithValue("@gold", gold);        
+        cmd.Parameters.AddWithValue("@id", id);
+        cmd.ExecuteNonQuery();
+    }
+
     public void UpdatePlayerIsOnShip(int id, bool isOnShip)
     {
         string sql = @"UPDATE player set IS_ON_SHIP=@on_ship WHERE id=@id";
@@ -1593,5 +1630,98 @@ public class Mysql : MonoBehaviour
         }        
 
         return traders;
+    }
+
+    public SerializableObjects.Trader ReadTrader(int traderId)
+    {
+        string sql = @"select* from trader where id=@id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.Parameters.AddWithValue("@id", traderId);
+
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        SerializableObjects.Trader trader = null;
+        while (rdr.Read())
+        {
+            SerializableObjects.Trader t = new SerializableObjects.Trader();
+            t.id = rdr.GetInt32("ID");
+            t.name = rdr.GetString("NAME");
+            t.x = rdr.GetFloat("X");
+            t.y = rdr.GetFloat("Y");
+            t.z = rdr.GetFloat("Z");
+            t.y_rot = rdr.GetFloat("Y_ROT");
+            t.item_respawn_time = rdr.GetFloat("ITEM_RESPAWN_TIME");
+            t.game_object_type = rdr.GetInt32("GAME_OBJECT_TYPE");
+
+            trader =t;
+        }
+        rdr.Close();
+        
+        string traderSql = @"select * from trader_inventory where trader_id = @id";
+        var traderCmd = new MySqlCommand(traderSql, con);
+        trader.inventory = new List<TraderItem>();
+        traderCmd.Parameters.AddWithValue("@id", trader.id);
+
+        MySqlDataReader traderRdr = traderCmd.ExecuteReader();
+        while (traderRdr.Read())
+        {
+            TraderItem item = new TraderItem();
+            item.item_id = traderRdr.GetInt32("ITEM_ID");
+            item.quantity = traderRdr.GetInt32("QUANTITY");
+            item.sell_price = traderRdr.GetFloat("SELL_PRICE");
+            item.buy_price = traderRdr.GetFloat("BUY_PRICE");
+
+            trader.inventory.Add(item);
+        }
+        traderRdr.Close();        
+
+        return trader;
+    }
+    public void InventoryAdd(Player player, Item item, int amount)
+    {
+        int id = 0;
+        if (item.stackable)
+        {
+            id = GetPlayerItemId(player.dbid, item);
+            if (id == 0)
+            {
+                id = AddPlayerItem(player.dbid, item);
+            }
+        }
+        else
+        {
+            id = AddPlayerItem(player.dbid, item);
+        }
+
+        InventorySlot slot = player.inventory.Add(item, amount);
+        slot.item.id = id;
+        AddItemToInventory(player.dbid, slot);
+    }
+
+    public void InventoryRemove(Player player, int item_id, int quantity) {
+        InventorySlot slot = FindSlot(player.inventory, item_id);
+        player.inventory.RemoveAmount(slot.slotID, quantity);
+
+        if (slot.item == null)
+        {
+            RemoveInventoryItem(player.dbid, slot.slotID);
+        }
+        else
+        {
+            UpdateItemQuantity(player.dbid, slot);
+        }
+    }
+
+    public InventorySlot FindSlot(Inventory inventory, int item_id)
+    {
+        foreach (InventorySlot slot in inventory.items)
+        {
+            if (slot.item != null && slot.item.item_id == item_id)
+            {
+                return slot;
+            }
+        }
+        return null;
     }
 }
