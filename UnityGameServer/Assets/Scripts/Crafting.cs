@@ -98,7 +98,7 @@ public class Crafting: MonoBehaviour
         float time = time_to_craft - time_to_craft / modifier;
         Player player = Server.clients[from].player;
 
-        ServerSend.CraftStatus(player.dbid, amount, time, craftingItem.iconName, craftingItem.name);
+        ServerSend.CraftStatus(player.id, amount, time, craftingItem.iconName, craftingItem.name);
 
         IEnumerator CraftCoroutine() {
             int i = amount;

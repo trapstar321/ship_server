@@ -269,7 +269,7 @@ SELECT a.id,b.id,b.SLOT_ID, b.QUANTITY, c.id, d.id as item_id, d.name, d.icon_na
                         and a.PLAYER_ID=c.PLAYER_ID
                         inner join item as d
                         on c.item_id=d.id
-                        where a.player_id=1
+                        where a.player_id=3
 
 delete from inventory where id=174
 delete from inventory_slot where id=176
@@ -588,7 +588,7 @@ on a.item_id=b.id
 where a.recipe_id=1
 
 alter table 
-
+select* from player
 
 select skill_level_id, lvl, skill_name, modifier
 from recipe as a
@@ -685,11 +685,81 @@ alter table trader add column ITEM_RESPAWN_TIME float null
 
 update trader set item_respawn_time=1 where id=1
 
-select* from resource
+select* from resourcetrade_broker_items_ibfk_2trade_broker_items_ibfk_2
 select* from resource_spawn
-
+use ship
 select* from trader_inventory
 
 alter table trader add GAME_OBJECT_TYPE int null
 select * from trader_inventory where trader_id=1
 alter table player rename column gold to GOLD
+
+select* from skill
+
+create table category
+(
+	ID bigint NOT NULL auto_increment,
+    NAME varchar(1000) not null,
+    PRIMARY KEY(ID)    
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+create table trade_broker
+(
+	ID bigint NOT NULL auto_increment,
+    X float not null,
+    Y float not null,
+    Z float not null,
+    Y_ROT float not null,
+    PRIMARY KEY(ID)    
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+select* from category
+
+insert into category
+(name, icon)
+select 'All categories', 'ListOfItems'
+
+update category set icon='WeaponArmor' where id=4
+update category set icon='Apple' where id=5
+update category set icon='Ingredient' where id=1
+update category set icon='Weapon' where id=2
+
+alter table category add ICON varchar(1000)
+
+select* from trader
+select* from trade_broker
+select* from trade_broker_items
+
+insert into trade_broker_items
+(player_item_id, quantity, price)
+select 51, 20, 5
+union all
+select 63, 25, 6
+union all
+select 64, 50, 7
+union all
+select 72, 50, 4
+union all
+select 73, 20, 9
+union all
+select 74, 30, 2
+
+select* from player_item
+
+select* from player_item where player_id = 2
+
+select* from category
+select* from trade_
+
+update trade_broker set game_object_type = 9,y=1 where id=1
+alter table trade_broker add GAME_OBJECT_TYPE int
+
+select* from trade_broker_items
+
+alter table trade_broker_items add PLAYER_ID int null
+
+select* from category
+
+
+
+

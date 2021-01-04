@@ -1580,6 +1580,8 @@ public class Mysql : MonoBehaviour
             skillRdr.Close();
         }
 
+        rdr.Close();
+
         return recipes;
     }
 
@@ -1627,11 +1629,41 @@ public class Mysql : MonoBehaviour
                 trader.inventory.Add(item);
             }
             traderRdr.Close();
+
+            foreach (TraderItem item in trader.inventory)
+            {
+                item.item = NetworkManager.ItemToSerializable(ReadItem(item.item_id));
+            }
         }        
 
         return traders;
     }
 
+    public List<SerializableObjects.TradeBroker> ReadTradeBrokers()
+    {
+        string sql = @"select* from trade_broker";
+
+        var cmd = new MySqlCommand(sql, con);
+
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        List<SerializableObjects.TradeBroker> traders = new List<SerializableObjects.TradeBroker>();
+        while (rdr.Read())
+        {
+            SerializableObjects.TradeBroker trader = new SerializableObjects.TradeBroker();
+            trader.id = rdr.GetInt32("ID");            
+            trader.x = rdr.GetFloat("X");
+            trader.y = rdr.GetFloat("Y");
+            trader.z = rdr.GetFloat("Z");
+            trader.y_rot = rdr.GetFloat("Y_ROT");
+            trader.game_object_type = rdr.GetInt32("GAME_OBJECT_TYPE");
+
+            traders.Add(trader);
+        }
+        rdr.Close();
+
+        return traders;
+    }
     public SerializableObjects.Trader ReadTrader(int traderId)
     {
         string sql = @"select* from trader where id=@id";
@@ -1678,6 +1710,116 @@ public class Mysql : MonoBehaviour
 
         return trader;
     }
+
+    public List<Category> ReadCategories()
+    {
+        string sql = @"select* from category";
+
+        var cmd = new MySqlCommand(sql, con);
+        
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        List<Category> categories = new List<Category>();
+        while (rdr.Read())
+        {
+            Category category = new Category();
+            category.id = rdr.GetInt32("ID");
+            category.name = rdr.GetString("NAME");
+            category.icon = rdr.GetString("ICON");
+
+            categories.Add(category);
+        }
+
+        rdr.Close();
+        return categories;
+    }
+
+    public List<TradeBrokerItem> ReadTradeBrokerItems(int? categoryId, string name) {
+        string sql = @"select distinct username, a.id, price, quantity, b.id as PLAYER_ITEM_ID, c.id as item_id, c.name, c.icon_name, c.is_default_item, c.item_type,c.stackable,
+                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE, CANNON_FORCE, DROP_CHANCE, MAX_LOOT_QUANTITY, STACKABLE 
+                        from trade_broker_items as a
+                        inner join player_item as b
+                        on a.player_item_id = b.id
+                        inner join item as c
+                        on b.item_id=c.id
+                        inner join item_category as d
+                        on d.item_id=c.id
+                        inner join category as e
+                        on d.category_id=e.id
+                        inner join player as f
+                        on b.player_id=f.id";
+        
+        if (categoryId.HasValue)
+        {
+            sql += " and e.id=@category_id";            
+        }
+
+        if (name != null)
+        {
+            sql += " and c.name like '%"+name+"%'";            
+        }
+
+        var cmd = new MySqlCommand(sql, con);
+        if(categoryId.HasValue)
+            cmd.Parameters.AddWithValue("@category_id", categoryId.Value);
+
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        List<TradeBrokerItem> items = new List<TradeBrokerItem>();
+        while (rdr.Read())
+        {
+            TradeBrokerItem broker_item = new TradeBrokerItem();
+
+            int id = rdr.GetInt32("ID");
+            int quantity = rdr.GetInt32("QUANTITY");
+            float price = rdr.GetFloat("PRICE");
+            int player_item_id = rdr.GetInt32("PLAYER_ITEM_ID");
+            int item_id = rdr.GetInt32("ID");
+            string item_name = rdr.GetString("NAME");
+            string icon_name = rdr.GetString("ICON_NAME");
+            string item_type = rdr.GetString("ITEM_TYPE");
+            bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
+            int attack = rdr.GetInt32("ATTACK");
+            int health = rdr.GetInt32("HEALTH");
+            int defence = rdr.GetInt32("DEFENCE");
+            int rotation = rdr.GetInt32("ROTATION");
+            int speed = rdr.GetInt32("SPEED");
+            int visibility = rdr.GetInt32("VISIBILITY");
+            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
+            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
+            int cannon_force = rdr.GetInt32("CANNON_FORCE");
+            bool stackable = rdr.GetBoolean("STACKABLE");
+            string seller = rdr.GetString("USERNAME");
+
+            SerializableObjects.Item item = new SerializableObjects.Item();
+            item.id = player_item_id;
+            item.item_id = item_id;
+            item.name = item_name;
+            item.iconName = icon_name;
+            item.isDefaultItem = is_default_item;
+            item.item_type = item_type;
+            item.attack = attack;
+            item.health = health;
+            item.defence = defence;
+            item.rotation = rotation;
+            item.speed = speed;
+            item.visibility = visibility;
+            item.cannon_reload_speed = cannon_reload_speed;
+            item.crit_chance = crit_chance;
+            item.cannon_force = cannon_force;            
+            item.stackable = stackable;
+
+            broker_item.item = item;
+            broker_item.price = price;
+            broker_item.quantity = quantity;
+            broker_item.id = id;
+            broker_item.seller = seller;
+            items.Add(broker_item);
+        }
+        rdr.Close();
+        return items;
+    }
+
     public void InventoryAdd(Player player, Item item, int amount)
     {
         int id = 0;

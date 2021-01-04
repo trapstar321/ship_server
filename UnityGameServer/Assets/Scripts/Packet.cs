@@ -66,7 +66,9 @@ public enum ServerPackets
     craftStatus,
     requestCraftingResponse,
     traderInventory,
-    playerData
+    playerData,
+    categories,
+    tradeBrokerItems
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -122,7 +124,9 @@ public enum ClientPackets
     requestCrafting,
     traderInventoryRequest,
     buyItem,
-    sellItem
+    sellItem,
+    tradeBrokerRequest,
+    readTradeBrokerItems
 }
 
 public class Packet: IDisposable
@@ -387,6 +391,20 @@ public class Packet: IDisposable
     }
 
     public void Write(SerializableObjects.Trader _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(List<SerializableObjects.Category> _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(List<SerializableObjects.TradeBrokerItem> _value)
     {
         byte[] data = ObjectToByteArray(_value);
         Write(data.Length); // Add the length of the string to the packet

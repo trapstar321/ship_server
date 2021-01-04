@@ -300,6 +300,12 @@ public class NetworkManager : MonoBehaviour
                     case (int)ClientPackets.sellItem:
                         ServerHandle.SellItem(client.id, packet.packet);
                         break;
+                    case (int)ClientPackets.tradeBrokerRequest:
+                        ServerHandle.TradeBrokerRequest(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.readTradeBrokerItems:
+                        ServerHandle.ReadTradeBrokerItems(client.id, packet.packet);
+                        break;
                 }
             }
             catch (Exception ex) {
@@ -407,5 +413,28 @@ public class NetworkManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    public static SerializableObjects.Item ItemToSerializable(Item item)
+    {
+        return new SerializableObjects.Item()
+        {
+            id = item.id,
+            item_id = item.item_id,
+            iconName = item.iconName,
+            isDefaultItem = item.isDefaultItem,
+            name = item.name,
+            item_type = item.item_type,
+            attack = item.attack,
+            health = item.health,
+            defence = item.defence,
+            speed = item.speed,
+            visibility = item.visibility,
+            rotation = item.rotation,
+            cannon_reload_speed = item.cannon_reload_speed,
+            crit_chance = item.crit_chance,
+            cannon_force = item.cannon_force,
+            stackable = item.stackable
+        };
     }
 }

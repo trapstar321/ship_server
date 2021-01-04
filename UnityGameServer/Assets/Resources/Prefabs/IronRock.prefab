@@ -107,7 +107,7 @@ GameObject:
   - component: {fileID: 5944368038173615604}
   m_Layer: 0
   m_Name: IronRock
-  m_TagString: Untagged
+  m_TagString: Resource
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -143,6 +143,8 @@ MonoBehaviour:
   currentHp: 1500
   resourceCount: 20
   itemId: 30
+  skill_type: 0
+  experience: 0
   respawnTime: 10
   respawning: 0
   gatheredTime: 0

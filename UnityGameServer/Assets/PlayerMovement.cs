@@ -18,6 +18,7 @@ public class PlayerMovement : MonoBehaviour
 
     public bool gatheringEnabled;
     public bool tradingEnabled;
+    public bool tradeBrokerEnabled;
     public CraftingSpot craftingSpot;
     public Trader trader;
 
@@ -79,7 +80,8 @@ public class PlayerMovement : MonoBehaviour
         {
             gatheringEnabled = true;
         }
-        else if (other.tag.Equals("Dock")) {
+        else if (other.tag.Equals("Dock"))
+        {
             isOnDock = true;
         }
         else if (other.tag.Equals("CraftingSpot"))
@@ -87,9 +89,12 @@ public class PlayerMovement : MonoBehaviour
             craftingSpot = other.GetComponent<CraftingSpot>();
         }
         else if (other.tag == "Trader")
-        {                        
+        {
             tradingEnabled = true;
             trader = other.gameObject.GetComponent<Trader>();
+        }
+        else if (other.tag == "TradeBroker") {
+            tradeBrokerEnabled = true;
         }
     }
 
@@ -110,6 +115,10 @@ public class PlayerMovement : MonoBehaviour
         {
             tradingEnabled = false;
             trader = null;
+        }
+        else if (other.tag == "TradeBroker")
+        {
+            tradeBrokerEnabled = false;
         }
     }
 }

@@ -385,7 +385,7 @@ public class ServerSend : MonoBehaviour
 
             foreach (Item i in items)
             {
-                it.Add(ItemToSerializable(i));
+                it.Add(NetworkManager.ItemToSerializable(i));
             }
 
             _packet.Write(it);
@@ -401,7 +401,7 @@ public class ServerSend : MonoBehaviour
 
             foreach (Item i in items)
             {
-                it.Add(ItemToSerializable(i));
+                it.Add(NetworkManager.ItemToSerializable(i));
             }
 
             _packet.Write(it);
@@ -453,34 +453,11 @@ public class ServerSend : MonoBehaviour
             quantity = slot.quantity,
             item = item
         };
-    }
-
-    protected static SerializableObjects.Item ItemToSerializable(Item item)
-    {
-        return new SerializableObjects.Item()
-        {
-            id = item.id,
-            item_id = item.item_id,
-            iconName = item.iconName,
-            isDefaultItem = item.isDefaultItem,
-            name = item.name,
-            item_type = item.item_type,
-            attack = item.attack,
-            health = item.health,
-            defence = item.defence,
-            speed = item.speed,
-            visibility = item.visibility,
-            rotation = item.rotation,
-            cannon_reload_speed = item.cannon_reload_speed,
-            crit_chance = item.crit_chance,
-            cannon_force = item.cannon_force,
-            stackable = item.stackable
-        };
-    }
+    }    
 
     protected static SerializableObjects.ItemDrop ItemDropToSerializable(ItemDrop drop)
     {
-        SerializableObjects.Item item = ItemToSerializable(drop.item);
+        SerializableObjects.Item item = NetworkManager.ItemToSerializable(drop.item);
 
         return new SerializableObjects.ItemDrop() { quantity = drop.quantity, item = item };
     }
@@ -1022,10 +999,28 @@ public class ServerSend : MonoBehaviour
         {
             foreach (TraderItem item in trader.inventory)
             {
-                item.item = ItemToSerializable(mysql.ReadItem(item.item_id));
+                item.item = NetworkManager.ItemToSerializable(mysql.ReadItem(item.item_id));
             }
 
             _packet.Write(trader);
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void Categories(int to, List<Category> categories)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.categories))
+        {
+            _packet.Write(categories);
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void TradeBrokerItems(int to, List<TradeBrokerItem> items)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.tradeBrokerItems))
+        {
+            _packet.Write(items);
             SendTCPData(to, _packet);
         }
     }

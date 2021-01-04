@@ -827,7 +827,8 @@ public class ServerHandle : MonoBehaviour
 
     public static void TraderInventoryRequest(int from, Packet packet)
     {
-        List<SerializableObjects.Trader> traders = NetworkManager.traders[from];
+        Player player = Server.clients[from].player;
+        List<SerializableObjects.Trader> traders = NetworkManager.traders[player.dbid];
         int traderId = packet.ReadInt();
         foreach (SerializableObjects.Trader trader in traders)
         {
@@ -838,6 +839,12 @@ public class ServerHandle : MonoBehaviour
         }
     }
 
+    public static void TradeBrokerRequest(int from, Packet packet)
+    {
+        List<Category> categories = mysql.ReadCategories();
+        ServerSend.Categories(from, categories);
+    }
+
     public static void BuyItem(int from, Packet packet)
     {
         int itemID = packet.ReadInt();
@@ -846,8 +853,8 @@ public class ServerHandle : MonoBehaviour
         Player player = Server.clients[from].player;
         PlayerMovement playerCharacter = Server.clients[from].player.playerInstance.GetComponent<PlayerMovement>();
         if (playerCharacter.trader!=null) {
-            SerializableObjects.TraderItem traderItem = NetworkManager.FindTraderItem(from, playerCharacter.trader.id, itemID);
-            SerializableObjects.Trader trader = NetworkManager.FindTrader(from, playerCharacter.trader.id);
+            SerializableObjects.TraderItem traderItem = NetworkManager.FindTraderItem(player.dbid, playerCharacter.trader.id, itemID);
+            SerializableObjects.Trader trader = NetworkManager.FindTrader(player.dbid, playerCharacter.trader.id);
             float totalPrice = traderItem.sell_price * amount;
 
             if (traderItem != null && totalPrice < player.data.gold && amount<=traderItem.quantity && player.inventory.HasSpace())
@@ -889,6 +896,14 @@ public class ServerHandle : MonoBehaviour
             ServerSend.TraderInventory(from, trader);
         }                       
         //ukloniti item iz inventory-ja        
+    }
+
+    public static void ReadTradeBrokerItems(int from, Packet packet) {
+        int categoryId = packet.ReadInt();
+        string name = packet.ReadString();
+
+        List<TradeBrokerItem> items = mysql.ReadTradeBrokerItems(categoryId, name.Length==0?null:name);
+        ServerSend.TradeBrokerItems(from, items);
     }
 
     protected static Item SerializableToItem(SerializableObjects.Item item)

@@ -16,7 +16,8 @@ public class SpawnManager : MonoBehaviour
         coal, 
         silverRock,
         tinRock,
-        traderGeneric
+        traderGeneric,
+        tradeBroker
     }
 
     public class Spawn {
@@ -48,6 +49,7 @@ public class SpawnManager : MonoBehaviour
         prefabs.Add(GameObjectType.silverRock, Resources.Load("Prefabs/SilverRock", typeof(GameObject)) as GameObject);
         prefabs.Add(GameObjectType.tinRock, Resources.Load("Prefabs/TinRock", typeof(GameObject)) as GameObject);
         prefabs.Add(GameObjectType.traderGeneric, Resources.Load("Prefabs/TraderGeneric", typeof(GameObject)) as GameObject);
+        prefabs.Add(GameObjectType.tradeBroker, Resources.Load("Prefabs/TradeBroker", typeof(GameObject)) as GameObject);
     }
 
     // Start is called before the first frame update
@@ -55,6 +57,7 @@ public class SpawnManager : MonoBehaviour
     {
         List<ResourceSpawn> resourceSpawns = mysql.ReadResourceSpawns();
         List<SerializableObjects.Trader> traders = mysql.ReadTraders();
+        List<TradeBroker> brokers = mysql.ReadTradeBrokers();
 
         //create Chest prefab
         int id = NextId();
@@ -88,6 +91,14 @@ public class SpawnManager : MonoBehaviour
 
             Trader traderScript = go.GetComponent<Trader>();
             traderScript.id = trader.id;
+        }
+
+        foreach (TradeBroker broker in brokers)
+        {
+            id = NextId();
+            GameObject go = Instantiate(prefabs[(GameObjectType)broker.game_object_type], new Vector3(broker.x, broker.y, broker.z), Quaternion.identity);
+            go.transform.eulerAngles = new Vector3(0, broker.y_rot, 0);
+            objects.Add(id, new Spawn() { id = id, type = (GameObjectType)broker.game_object_type, gameObject = go, objectType = ObjectType.TRADE_BROKER });            
         }
 
         /*id = NextId();

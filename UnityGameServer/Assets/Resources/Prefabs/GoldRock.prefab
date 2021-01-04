@@ -153,7 +153,7 @@ GameObject:
   - component: {fileID: 8255358948289777285}
   m_Layer: 0
   m_Name: GoldRock
-  m_TagString: Untagged
+  m_TagString: Resource
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -189,6 +189,8 @@ MonoBehaviour:
   currentHp: 500
   resourceCount: 5
   itemId: 31
+  skill_type: 0
+  experience: 0
   respawnTime: 10
   respawning: 0
   gatheredTime: 0
