@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SerializableObjects;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
@@ -165,5 +166,30 @@ public class Server
                 return client.player;
         }
         return null;
+    }
+
+    public static Player FindPlayerByUsername(string username)
+    {
+        foreach (Client client in clients.Values)
+        {
+            if (client.player != null && client.player.data.username.Equals(username))
+                return client.player;
+        }
+        return null;
+    }
+
+    public static int GetOtherPlayer(PlayerTrade trade, int from) {
+        int player1 = FindPlayerByUsername(trade.player1.username).id;
+        int player2 = FindPlayerByUsername(trade.player2.username).id;
+        int otherPlayer = 0;
+        if (player1 == from)
+        {
+            otherPlayer = player2;
+        }
+        else
+        {
+            otherPlayer = player1;
+        }
+        return otherPlayer;
     }
 }

@@ -313,11 +313,24 @@ public class Client: MonoBehaviour
             if (player.group != null)
                 groupId = player.group.groupId;
 
+            if (NetworkManager.trades.ContainsKey(player.id))
+            {
+                PlayerTrade trade = NetworkManager.trades[player.id];
+                int otherPlayer = Server.FindPlayerByUsername(trade.player2.username).id;
+
+                if (Server.clients.ContainsKey(otherPlayer))
+                {
+                    ServerSend.PlayerTradeCanceled(otherPlayer);
+                }
+                NetworkManager.trades.Remove(player.id);
+                NetworkManager.trades.Remove(otherPlayer);
+            }
+
             player = null;
 
             if (groupId != 0) {
                 ServerSend.GroupMembers(groupId);
-            }
+            }           
         });
 
         tcp.Disconnect();

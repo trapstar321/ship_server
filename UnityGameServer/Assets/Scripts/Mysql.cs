@@ -1136,16 +1136,16 @@ public class Mysql : MonoBehaviour
         return data;
     }
 
-    public List<BaseStat> ReadBaseStatsTable()
+    public List<ShipBaseStat> ReadShipBaseStatsTable()
     {
         string sql = @"select LEVEL,ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE,
                               CANNON_FORCE
-                       from base_stats";
+                       from ship_base_stats";
 
         var cmd = new MySqlCommand(sql, con);
         MySqlDataReader rdr = cmd.ExecuteReader();
 
-        List<BaseStat> stats = new List<BaseStat>();
+        List<ShipBaseStat> stats = new List<ShipBaseStat>();
         while (rdr.Read())
         {
             float level = rdr.GetFloat("LEVEL");
@@ -1159,7 +1159,7 @@ public class Mysql : MonoBehaviour
             float crit_chance = rdr.GetFloat("CRIT_CHANCE");
             float cannon_force = rdr.GetFloat("CANNON_FORCE");
 
-            BaseStat stat = new BaseStat();
+            ShipBaseStat stat = new ShipBaseStat();
             stat.level = level;
             stat.attack = attack;
             stat.health = health;
@@ -1176,7 +1176,40 @@ public class Mysql : MonoBehaviour
         return stats;
     }
 
-    public List<BaseStat> ReadNPCBaseStatsTable()
+    public List<PlayerBaseStat> ReadPlayerBaseStatsTable()
+    {
+        string sql = @"select LEVEL,ATTACK,HEALTH,DEFENCE,SPEED,CRIT_CHANCE,ENERGY
+                       from player_base_stats";
+
+        var cmd = new MySqlCommand(sql, con);
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        List<PlayerBaseStat> stats = new List<PlayerBaseStat>();
+        while (rdr.Read())
+        {
+            float level = rdr.GetFloat("LEVEL");
+            float attack = rdr.GetFloat("ATTACK");
+            float health = rdr.GetFloat("HEALTH");
+            float defence = rdr.GetFloat("DEFENCE");            
+            float speed = rdr.GetFloat("SPEED");
+            float crit_chance = rdr.GetFloat("CRIT_CHANCE");
+            float energy = rdr.GetFloat("ENERGY");
+
+            PlayerBaseStat stat = new PlayerBaseStat();
+            stat.level = level;
+            stat.attack = attack;
+            stat.health = health;
+            stat.defence = defence;            
+            stat.speed = speed;
+            stat.crit_chance = crit_chance;
+            stat.energy = energy;
+            stats.Add(stat);
+        }
+        rdr.Close();
+        return stats;
+    }
+
+    public List<ShipBaseStat> ReadNPCBaseStatsTable()
     {
         string sql = @"select LEVEL,ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE,
                               CANNON_FORCE
@@ -1185,7 +1218,7 @@ public class Mysql : MonoBehaviour
         var cmd = new MySqlCommand(sql, con);
         MySqlDataReader rdr = cmd.ExecuteReader();
 
-        List<BaseStat> stats = new List<BaseStat>();
+        List<ShipBaseStat> stats = new List<ShipBaseStat>();
         while (rdr.Read())
         {
             float level = rdr.GetFloat("LEVEL");
@@ -1199,7 +1232,7 @@ public class Mysql : MonoBehaviour
             float crit_chance = rdr.GetFloat("CRIT_CHANCE");
             float cannon_force = rdr.GetFloat("CANNON_FORCE");
 
-            BaseStat stat = new BaseStat();
+            ShipBaseStat stat = new ShipBaseStat();
             stat.level = level;
             stat.attack = attack;
             stat.health = health;
@@ -1706,7 +1739,12 @@ public class Mysql : MonoBehaviour
 
             trader.inventory.Add(item);
         }
-        traderRdr.Close();        
+        traderRdr.Close();
+
+        foreach (TraderItem item in trader.inventory)
+        {
+            item.item = NetworkManager.ItemToSerializable(ReadItem(item.item_id));
+        }
 
         return trader;
     }
@@ -1734,24 +1772,37 @@ public class Mysql : MonoBehaviour
         return categories;
     }
 
-    public List<TradeBrokerItem> ReadTradeBrokerItems(int? categoryId, string name) {
-        string sql = @"select distinct username, a.id, price, quantity, b.id as PLAYER_ITEM_ID, c.id as item_id, c.name, c.icon_name, c.is_default_item, c.item_type,c.stackable,
-                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE, CANNON_FORCE, DROP_CHANCE, MAX_LOOT_QUANTITY, STACKABLE 
-                        from trade_broker_items as a
-                        inner join player_item as b
-                        on a.player_item_id = b.id
+    public List<TradeBrokerItem> ReadTradeBrokerItems(int playerId, int? categoryId, string name, bool showMyItems, bool showSoldItems) {
+        string sql = @"select distinct username, a.player_id, a.id, price, quantity, c.id as item_id, c.name, c.icon_name, c.is_default_item, c.item_type,c.stackable,
+                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE, CANNON_FORCE, DROP_CHANCE, MAX_LOOT_QUANTITY, STACKABLE, SOLD
+                        from trade_broker_items as a                        
                         inner join item as c
-                        on b.item_id=c.id
+                        on a.item_id=c.id
                         inner join item_category as d
                         on d.item_id=c.id
                         inner join category as e
                         on d.category_id=e.id
                         inner join player as f
-                        on b.player_id=f.id";
+                        on a.player_id=f.id";
         
         if (categoryId.HasValue)
         {
             sql += " and e.id=@category_id";            
+        }
+
+        if (showMyItems)
+        {
+            sql += " and f.id = @player_id";
+        }
+
+        if (showSoldItems)
+        {
+            sql += " and f.id = @player_id";
+            sql += " and a.parent_id is not null";
+            sql += " and sold = true";
+        }
+        else {
+            sql += " and sold=false";
         }
 
         if (name != null)
@@ -1762,6 +1813,10 @@ public class Mysql : MonoBehaviour
         var cmd = new MySqlCommand(sql, con);
         if(categoryId.HasValue)
             cmd.Parameters.AddWithValue("@category_id", categoryId.Value);
+        if (showMyItems)
+            cmd.Parameters.AddWithValue("@player_id", playerId);
+        if(showSoldItems && !cmd.Parameters.Contains("@player_id"))
+            cmd.Parameters.AddWithValue("@player_id", playerId);
 
         MySqlDataReader rdr = cmd.ExecuteReader();
 
@@ -1772,9 +1827,8 @@ public class Mysql : MonoBehaviour
 
             int id = rdr.GetInt32("ID");
             int quantity = rdr.GetInt32("QUANTITY");
-            float price = rdr.GetFloat("PRICE");
-            int player_item_id = rdr.GetInt32("PLAYER_ITEM_ID");
-            int item_id = rdr.GetInt32("ID");
+            float price = rdr.GetFloat("PRICE");            
+            int item_id = rdr.GetInt32("ITEM_ID");
             string item_name = rdr.GetString("NAME");
             string icon_name = rdr.GetString("ICON_NAME");
             string item_type = rdr.GetString("ITEM_TYPE");
@@ -1790,9 +1844,10 @@ public class Mysql : MonoBehaviour
             int cannon_force = rdr.GetInt32("CANNON_FORCE");
             bool stackable = rdr.GetBoolean("STACKABLE");
             string seller = rdr.GetString("USERNAME");
+            int pId = rdr.GetInt32("PLAYER_ID");
+            bool sold = rdr.GetBoolean("SOLD");
 
-            SerializableObjects.Item item = new SerializableObjects.Item();
-            item.id = player_item_id;
+            SerializableObjects.Item item = new SerializableObjects.Item();            
             item.item_id = item_id;
             item.name = item_name;
             item.iconName = icon_name;
@@ -1808,16 +1863,260 @@ public class Mysql : MonoBehaviour
             item.crit_chance = crit_chance;
             item.cannon_force = cannon_force;            
             item.stackable = stackable;
+            
+            broker_item.item = item;
+            broker_item.price = price;
+            broker_item.quantity = quantity;
+            broker_item.id = id;
+            broker_item.seller = seller;
+            broker_item.IsMyItem = playerId == pId;
+            broker_item.sold = sold;
+            items.Add(broker_item);
+        }
+        rdr.Close();
+        return items;
+    }
+
+    public TradeBrokerItem ReadTradeBrokerItem(int playerId, int itemId)
+    {
+        string sql = @"select distinct username, a.player_id, a.id, price, quantity, c.id as item_id, c.name, c.icon_name, c.is_default_item, c.item_type,c.stackable,
+                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE, CANNON_FORCE, DROP_CHANCE, MAX_LOOT_QUANTITY, STACKABLE, SOLD, PARENT_ID
+                        from trade_broker_items as a                        
+                        inner join item as c
+                        on a.item_id=c.id
+                        inner join item_category as d
+                        on d.item_id=c.id
+                        inner join category as e
+                        on d.category_id=e.id
+                        inner join player as f
+                        on a.player_id=f.id
+                        where a.id=@id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.Parameters.AddWithValue("@id", itemId);
+        MySqlDataReader rdr = cmd.ExecuteReader();        
+
+        TradeBrokerItem broker_item = null;
+        while (rdr.Read())
+        {
+            broker_item = new TradeBrokerItem();
+
+            int id = rdr.GetInt32("ID");
+            int quantity = rdr.GetInt32("QUANTITY");
+            float price = rdr.GetFloat("PRICE");
+            int item_id = rdr.GetInt32("ITEM_ID");
+            string item_name = rdr.GetString("NAME");
+            string icon_name = rdr.GetString("ICON_NAME");
+            string item_type = rdr.GetString("ITEM_TYPE");
+            bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
+            int attack = rdr.GetInt32("ATTACK");
+            int health = rdr.GetInt32("HEALTH");
+            int defence = rdr.GetInt32("DEFENCE");
+            int rotation = rdr.GetInt32("ROTATION");
+            int speed = rdr.GetInt32("SPEED");
+            int visibility = rdr.GetInt32("VISIBILITY");
+            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
+            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
+            int cannon_force = rdr.GetInt32("CANNON_FORCE");
+            bool stackable = rdr.GetBoolean("STACKABLE");
+            string seller = rdr.GetString("USERNAME");
+            int pId = rdr.GetInt32("PLAYER_ID");
+            bool sold = rdr.GetBoolean("SOLD");
+            int? parent_id;
+            if (rdr.IsDBNull(24))
+            {
+                parent_id = null;
+            }
+            else {
+                parent_id = rdr.GetInt32("PARENT_ID");
+            }
+
+            SerializableObjects.Item item = new SerializableObjects.Item();
+            item.item_id = item_id;
+            item.name = item_name;
+            item.iconName = icon_name;
+            item.isDefaultItem = is_default_item;
+            item.item_type = item_type;
+            item.attack = attack;
+            item.health = health;
+            item.defence = defence;
+            item.rotation = rotation;
+            item.speed = speed;
+            item.visibility = visibility;
+            item.cannon_reload_speed = cannon_reload_speed;
+            item.crit_chance = crit_chance;
+            item.cannon_force = cannon_force;
+            item.stackable = stackable;
 
             broker_item.item = item;
             broker_item.price = price;
             broker_item.quantity = quantity;
             broker_item.id = id;
             broker_item.seller = seller;
-            items.Add(broker_item);
+            broker_item.seller_id = pId;
+            broker_item.IsMyItem = playerId == pId;
+            broker_item.sold = sold;
+            broker_item.parent_id = parent_id;
         }
         rdr.Close();
-        return items;
+        return broker_item;
+    }
+
+    public TradeBrokerItem ReadSoldTradeBrokerItem(int playerId, int itemId)
+    {
+        string sql = @"select distinct username, a.player_id, a.id, price, quantity, c.id as item_id, c.name, c.icon_name, c.is_default_item, c.item_type,c.stackable,
+                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE, CANNON_FORCE, DROP_CHANCE, MAX_LOOT_QUANTITY, STACKABLE, SOLD 
+                        from trade_broker_items as a                        
+                        inner join item as c
+                        on a.item_id=c.id
+                        inner join item_category as d
+                        on d.item_id=c.id
+                        inner join category as e
+                        on d.category_id=e.id
+                        inner join player as f
+                        on a.player_id=f.id
+                        where a.parent_id=@id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.Parameters.AddWithValue("@id", itemId);
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        TradeBrokerItem broker_item = null;
+        while (rdr.Read())
+        {
+            broker_item = new TradeBrokerItem();
+
+            int id = rdr.GetInt32("ID");
+            int quantity = rdr.GetInt32("QUANTITY");
+            float price = rdr.GetFloat("PRICE");
+            int item_id = rdr.GetInt32("ITEM_ID");
+            string item_name = rdr.GetString("NAME");
+            string icon_name = rdr.GetString("ICON_NAME");
+            string item_type = rdr.GetString("ITEM_TYPE");
+            bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
+            int attack = rdr.GetInt32("ATTACK");
+            int health = rdr.GetInt32("HEALTH");
+            int defence = rdr.GetInt32("DEFENCE");
+            int rotation = rdr.GetInt32("ROTATION");
+            int speed = rdr.GetInt32("SPEED");
+            int visibility = rdr.GetInt32("VISIBILITY");
+            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
+            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
+            int cannon_force = rdr.GetInt32("CANNON_FORCE");
+            bool stackable = rdr.GetBoolean("STACKABLE");
+            string seller = rdr.GetString("USERNAME");
+            int pId = rdr.GetInt32("PLAYER_ID");
+            bool sold = rdr.GetBoolean("SOLD");
+
+            SerializableObjects.Item item = new SerializableObjects.Item();
+            item.item_id = item_id;
+            item.name = item_name;
+            item.iconName = icon_name;
+            item.isDefaultItem = is_default_item;
+            item.item_type = item_type;
+            item.attack = attack;
+            item.health = health;
+            item.defence = defence;
+            item.rotation = rotation;
+            item.speed = speed;
+            item.visibility = visibility;
+            item.cannon_reload_speed = cannon_reload_speed;
+            item.crit_chance = crit_chance;
+            item.cannon_force = cannon_force;
+            item.stackable = stackable;
+
+            broker_item.item = item;
+            broker_item.price = price;
+            broker_item.quantity = quantity;
+            broker_item.id = id;
+            broker_item.seller_id = pId;
+            broker_item.seller = seller;
+            broker_item.IsMyItem = playerId == pId;
+            broker_item.sold = sold;
+        }
+        rdr.Close();
+        return broker_item;
+    }
+
+    public void AddTradeBrokerItem(int playerId, int itemId, int quantity, float price, int? parent_id=null, bool sold = false)
+    {
+        string sql = @"insert into trade_broker_items(item_id, quantity, price, player_id, parent_id, sold)
+                       select @item_id, @quantity, @price, @player_id, @parent_id, @sold";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.Parameters.AddWithValue("@item_id", itemId);
+        cmd.Parameters.AddWithValue("@quantity", quantity);
+        cmd.Parameters.AddWithValue("@price", price);
+        cmd.Parameters.AddWithValue("@player_id", playerId);
+        cmd.Parameters.AddWithValue("@sold", sold);
+
+        if (parent_id.HasValue)
+            cmd.Parameters.AddWithValue("@parent_id", parent_id);
+        else
+            cmd.Parameters.AddWithValue("@parent_id", DBNull.Value);
+
+        cmd.ExecuteNonQuery();        
+    }
+
+    public void UpdateTradeBrokerItem(int id, int quantity, bool sold=false)
+    {
+        string sql = @"update trade_broker_items set quantity=@quantity, sold=@sold where id=@id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.Parameters.AddWithValue("@id", id);
+        cmd.Parameters.AddWithValue("@quantity", quantity);
+        cmd.Parameters.AddWithValue("@sold", sold);
+
+        cmd.ExecuteNonQuery();
+    }
+
+    public void RemoveTradeBrokerItem(int id)
+    {
+        string sql = @"delete from trade_broker_items where id=@id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.Parameters.AddWithValue("@id", id);
+
+        cmd.ExecuteNonQuery();
+    }
+
+    public void DropTradeBrokerItem(int id)
+    {
+        string sql = @"delete from trade_broker_items where id=@id";                        
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.CommandText = sql;
+        cmd.Parameters.Clear();
+        cmd.Parameters.AddWithValue("@id", id);        
+        cmd.ExecuteNonQuery();
+    }
+
+    public bool TradeBrokerAllItemsCollected(int id) {
+        string sql = @"select* from trade_broker_items where parent_id=@id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.Parameters.AddWithValue("@id", id);
+
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        bool result = true;
+        while (rdr.Read())
+        {
+            result = false;
+            break;
+        }
+        rdr.Close();
+        return result;
     }
 
     public void InventoryAdd(Player player, Item item, int amount)

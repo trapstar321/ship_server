@@ -28,6 +28,8 @@ public class NetworkManager : MonoBehaviour
     public static List<SkillLevel> skillLevel;
     public static List<Recipe> recipes;
     public static Dictionary<int, List<SerializableObjects.Trader>> traders = new Dictionary<int, List<SerializableObjects.Trader>>();
+    public static Dictionary<string, PlayerTrade> tradeLinks = new Dictionary<string, PlayerTrade>();
+    public static Dictionary<int, PlayerTrade> trades = new Dictionary<int, PlayerTrade>();
 
     public class PacketData {
         public int type;
@@ -81,22 +83,9 @@ public class NetworkManager : MonoBehaviour
         return Instantiate(playerPrefab, new Vector3(x, y, z), Quaternion.identity).GetComponent<Player>();
     }
 
-    public static void SendStats(int from)
-    {
-        //send player stats to all
-        ServerSend.Stats(from);
-
-        //send all player stats to player
-        foreach (Client client in Server.clients.Values)
-        {
-            if (client.player != null && client.id != from)
-                ServerSend.Stats(client.id, from);
-        }
-    }
-
     public static void SendNPCBaseStats(int to) {
         Mysql mysql = FindObjectOfType<Mysql>();
-        List<BaseStat> stats = mysql.ReadNPCBaseStatsTable();
+        List<ShipBaseStat> stats = mysql.ReadNPCBaseStatsTable();
 
         ServerSend.BaseStats(to, stats, "npc");
     }
@@ -185,9 +174,6 @@ public class NetworkManager : MonoBehaviour
                         break;
                     case (int)ClientPackets.searchChest:
                         ServerHandle.SearchChest(client.id, packet.packet);
-                        break;
-                    case (int)ClientPackets.addShipEquipment:
-                        ServerHandle.AddShipEquipment(client.id, packet.packet);
                         break;
                     case (int)ClientPackets.removeShipEquipment:
                         ServerHandle.RemoveShipEquipment(client.id, packet.packet);
@@ -305,6 +291,48 @@ public class NetworkManager : MonoBehaviour
                         break;
                     case (int)ClientPackets.readTradeBrokerItems:
                         ServerHandle.ReadTradeBrokerItems(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.registerItemOnBroker:
+                        ServerHandle.RegisterItemOnBroker(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.removeItemFromBroker:
+                        ServerHandle.RemoveItemFromBroker(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.buyItemFromBroker:
+                        ServerHandle.BuyItemFromBroker(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.collectFromBroker:
+                        ServerHandle.CollectFromBroker(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.tradeRequest:
+                        ServerHandle.TradeRequest(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.acceptTrade:
+                        ServerHandle.AcceptTrade(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.declineTrade:
+                        ServerHandle.DeclineTrade(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.cancelPlayerTrade:
+                        ServerHandle.CancelPlayerTrade(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.playerTradeAddItem:
+                        ServerHandle.PlayerTradeAddItem(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.playerTradeRemoveItem:
+                        ServerHandle.PlayerTradeRemoveItem(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.playerTradeGoldChanged:
+                        ServerHandle.PlayerTradeGoldChanged(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.playerTradeAccept:
+                        ServerHandle.PlayerTradeAccept(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.isOnShip:
+                        ServerHandle.IsOnShip(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.switchTarget:
+                        ServerHandle.ShowPlayerHP(client.id, packet.packet);
                         break;
                 }
             }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
+using System.Linq;
 
 public class ServerHandle : MonoBehaviour
 {
@@ -30,6 +31,7 @@ public class ServerHandle : MonoBehaviour
             Debug.Log($"Player (ID: {_fromClient}) has assumed the wrong client ID ({_clientIdCheck})!");
         }*/
         ServerSend.Welcome(_fromClient);
+        ServerSend.Parameters(_fromClient, new Parameters() { visibilityRadius = NetworkManager.visibilityRadius });
         PlayerData data = mysql.ReadPlayerData(dbid);
         Server.clients[_fromClient].SendIntoGame(data, "username", dbid);
         //ServerSend.WavesMesh(_fromClient, NetworkManager.wavesScript.GenerateMesh());
@@ -130,7 +132,7 @@ public class ServerHandle : MonoBehaviour
 
     public static void GetPlayerEquipment(int from, Packet packet)
     {
-        PlayerEquipment equipment = Server.clients[from].player.player_equipment;
+        PlayerEquipment equipment = Server.clients[from].player.playerInstance.GetComponent<PlayerCharacter>().equipment;
 
         ServerSend.PlayerEquipment(from, equipment.Items());
 
@@ -158,7 +160,7 @@ public class ServerHandle : MonoBehaviour
         int dbid = Server.clients[from].player.dbid;
         Inventory inventory = Server.clients[from].player.inventory;
         ShipEquipment sequipment = Server.clients[from].player.ship_equipment;
-        PlayerEquipment pequipment = Server.clients[from].player.player_equipment;
+        PlayerEquipment pequipment = Server.clients[from].player.playerInstance.GetComponent<PlayerCharacter>().equipment;
 
         string eq = packet.ReadString();
         SerializableObjects.Item item = packet.ReadItem();
@@ -211,7 +213,7 @@ public class ServerHandle : MonoBehaviour
     {
         int dbid = Server.clients[from].player.dbid;
         Inventory inventory = Server.clients[from].player.inventory;
-        PlayerEquipment equipment = Server.clients[from].player.player_equipment;
+        PlayerEquipment equipment = Server.clients[from].player.playerInstance.GetComponent<PlayerCharacter>().equipment;
 
         SerializableObjects.InventorySlot sl = packet.ReadInventorySlot();
         InventorySlot slot = inventory.FindSlot(sl.slotID);
@@ -261,23 +263,6 @@ public class ServerHandle : MonoBehaviour
         inventory.DragAndDrop(slot_1, slot_2);
     }
 
-    public static void AddShipEquipment(int from, Packet packet)
-    {
-        int dbid = Server.clients[from].player.dbid;
-        ShipEquipment equipment = Server.clients[from].player.ship_equipment;
-        Inventory inventory = Server.clients[from].player.inventory;
-        SerializableObjects.InventorySlot slot = packet.ReadInventorySlot();
-
-        InventorySlot sl = SlotFromSerializable(slot);
-        sl = inventory.FindSlot(sl.slotID);
-
-        if (sl.item != null)
-        {
-            equipment.Add(sl.item);
-            mysql.AddShipEquipment(dbid, sl.item);
-        }
-    }
-
     public static void RemoveShipEquipment(int from, Packet packet)
     {
         int dbid = Server.clients[from].player.dbid;
@@ -297,7 +282,7 @@ public class ServerHandle : MonoBehaviour
     public static void RemovePlayerEquipment(int from, Packet packet)
     {
         int dbid = Server.clients[from].player.dbid;
-        PlayerEquipment equipment = Server.clients[from].player.player_equipment;
+        PlayerEquipment equipment = Server.clients[from].player.playerInstance.GetComponent<PlayerEquipment>();
         Inventory inventory = Server.clients[from].player.inventory;
         string type = packet.ReadString();
 
@@ -747,8 +732,11 @@ public class ServerHandle : MonoBehaviour
         Resource resource = gameObject.GetComponent<Resource>();
         Player player = Server.clients[from].player;
         PlayerSkillLevel skill = player.FindSkill(resource.skill_type);
+        PlayerCharacter playerCharacter = player.playerInstance.GetComponent<PlayerCharacter>();
 
-        if (spawnManager.objects.ContainsKey(resourceID) && player.playerInstance.GetComponent<PlayerMovement>().gatheringEnabled)
+        if (spawnManager.objects.ContainsKey(resourceID) && 
+            playerCharacter.gatheringEnabled &&
+            !playerCharacter.currentResource.GetComponentInParent<Resource>().respawning)
         {
             int numberOfResource = 0;
             int experienceGained = 0;
@@ -790,7 +778,7 @@ public class ServerHandle : MonoBehaviour
     public static void CraftSelected(int from, Packet packet)
     {
         int recipeID = packet.ReadInt();
-        int makeAmount = packet.ReadInt();       
+        int makeAmount = packet.ReadInt();
 
         Item craftingItem = null;
         Recipe recipe = NetworkManager.FindRecipe(recipeID);
@@ -805,15 +793,15 @@ public class ServerHandle : MonoBehaviour
 
         PlayerSkillLevel level = Server.clients[from].player.FindSkillRequirement(recipe.skill.skill_level_id);
         if (makeAmount <= maxAmount && Server.clients[from].player.HasSkillRequirement(recipe.skill.skill_level_id)) {
-            crafting.Craft(makeAmount, level.modifier, recipe.time_to_craft);            
+            crafting.Craft(makeAmount, level.modifier, recipe.time_to_craft);
         }
     }
 
     public static void CancelCrafting(int from, Packet packet)
     {
-        foreach(Crafting craft in craftingList)
+        foreach (Crafting craft in craftingList)
         {
-            if(craft.from == from)
+            if (craft.from == from)
             {
                 craft.Stop();
             }
@@ -821,8 +809,8 @@ public class ServerHandle : MonoBehaviour
     }
 
     public static void RequestCrafting(int from, Packet packet) {
-        CraftingSpot craftingSpot = Server.clients[from].player.playerInstance.GetComponent<PlayerMovement>().craftingSpot;        
-        ServerSend.RequestCraftingResponse(from, craftingSpot);        
+        CraftingSpot craftingSpot = Server.clients[from].player.playerInstance.GetComponent<PlayerCharacter>().craftingSpot;
+        ServerSend.RequestCraftingResponse(from, craftingSpot);
     }
 
     public static void TraderInventoryRequest(int from, Packet packet)
@@ -850,14 +838,17 @@ public class ServerHandle : MonoBehaviour
         int itemID = packet.ReadInt();
         int amount = packet.ReadInt();
 
+        if (amount == 0)
+            return;
+
         Player player = Server.clients[from].player;
-        PlayerMovement playerCharacter = Server.clients[from].player.playerInstance.GetComponent<PlayerMovement>();
-        if (playerCharacter.trader!=null) {
+        PlayerCharacter playerCharacter = Server.clients[from].player.playerInstance.GetComponent<PlayerCharacter>();
+        if (playerCharacter.trader != null) {
             SerializableObjects.TraderItem traderItem = NetworkManager.FindTraderItem(player.dbid, playerCharacter.trader.id, itemID);
             SerializableObjects.Trader trader = NetworkManager.FindTrader(player.dbid, playerCharacter.trader.id);
             float totalPrice = traderItem.sell_price * amount;
 
-            if (traderItem != null && totalPrice < player.data.gold && amount<=traderItem.quantity && player.inventory.HasSpace())
+            if (traderItem != null && totalPrice < player.data.gold && amount <= traderItem.quantity && player.inventory.HasSpace())
             {
                 traderItem.quantity -= amount;
                 mysql.InventoryAdd(player, SerializableToItem(traderItem.item), amount);
@@ -867,9 +858,9 @@ public class ServerHandle : MonoBehaviour
 
                 ServerSend.Inventory(from, player.inventory);
                 ServerSend.PlayerData(from, player.data);
-                ServerSend.TraderInventory(from, trader);                
+                ServerSend.TraderInventory(from, trader);
             }
-        }             
+        }
     }
 
     public static void SellItem(int from, Packet packet)
@@ -877,14 +868,17 @@ public class ServerHandle : MonoBehaviour
         int itemID = packet.ReadInt();
         int amount = packet.ReadInt();
 
-        Player player = Server.clients[from].player;
-        PlayerMovement playerCharacter = Server.clients[from].player.playerInstance.GetComponent<PlayerMovement>();
-        SerializableObjects.Trader trader = NetworkManager.FindTrader(from, playerCharacter.trader.id);
-        SerializableObjects.TraderItem traderItem = NetworkManager.FindTraderItem(from, playerCharacter.trader.id, itemID);        
+        if (amount == 0)
+            return;
 
-        if (playerCharacter.trader!=null && 
-            player.inventory.HasQuantity(itemID, amount) && 
-            traderItem!=null) {
+        Player player = Server.clients[from].player;
+        PlayerCharacter playerCharacter = Server.clients[from].player.playerInstance.GetComponent<PlayerCharacter>();
+        SerializableObjects.Trader trader = NetworkManager.FindTrader(from, playerCharacter.trader.id);
+        SerializableObjects.TraderItem traderItem = NetworkManager.FindTraderItem(from, playerCharacter.trader.id, itemID);
+
+        if (playerCharacter.trader != null &&
+            player.inventory.HasQuantity(itemID, amount) &&
+            traderItem != null) {
             float totalPrice = traderItem.buy_price * amount;
 
             player.data.gold += totalPrice;
@@ -894,17 +888,492 @@ public class ServerHandle : MonoBehaviour
             ServerSend.Inventory(from, player.inventory);
             ServerSend.PlayerData(from, player.data);
             ServerSend.TraderInventory(from, trader);
-        }                       
+        }
         //ukloniti item iz inventory-ja        
     }
 
     public static void ReadTradeBrokerItems(int from, Packet packet) {
         int categoryId = packet.ReadInt();
         string name = packet.ReadString();
+        bool showMyItems = packet.ReadBool();
+        bool showSoldItems = packet.ReadBool();
 
-        List<TradeBrokerItem> items = mysql.ReadTradeBrokerItems(categoryId, name.Length==0?null:name);
+        Player player = Server.clients[from].player;
+
+        List<TradeBrokerItem> items = mysql.ReadTradeBrokerItems(player.dbid, categoryId, name.Length == 0 ? null : name, showMyItems, showSoldItems);
         ServerSend.TradeBrokerItems(from, items);
+        ServerSend.Inventory(from, Server.clients[from].player.inventory);
     }
+
+    public static void RegisterItemOnBroker(int from, Packet packet) {
+        SerializableObjects.Item item = packet.ReadItem();
+        int quantity = packet.ReadInt();
+        float price = packet.ReadFloat();
+        int category = packet.ReadInt();
+        string itemName = packet.ReadString();
+        bool showMyItems = packet.ReadBool();
+        bool showSoldItems = packet.ReadBool();
+
+        Player player = Server.clients[from].player;
+        PlayerCharacter playerCharacter = Server.clients[from].player.playerInstance.GetComponent<PlayerCharacter>();
+
+        //dodati u trade_broker_items
+        if (playerCharacter.tradeBrokerEnabled &&
+            item!=null &&
+            player.inventory.HasQuantity(item.item_id, quantity) &&
+            quantity>0 &&
+            price>0){                                     
+            
+            mysql.InventoryRemove(player, item.item_id, quantity);
+            mysql.AddTradeBrokerItem(player.dbid, item.item_id, quantity, price);
+
+            ServerSend.Inventory(from, player.inventory);
+            ServerSend.PlayerData(from, player.data);
+            ServerSend.TradeBrokerItems(from, mysql.ReadTradeBrokerItems(player.dbid, category, itemName, showMyItems, showSoldItems));
+        }
+    }
+
+    public static void RemoveItemFromBroker(int from, Packet packet) {
+        int id = packet.ReadInt();
+        int category = packet.ReadInt();
+        string itemName = packet.ReadString();
+        bool showMyItems = packet.ReadBool();
+        bool showSoldItems = packet.ReadBool();
+
+        Player player = Server.clients[from].player;
+        TradeBrokerItem item = mysql.ReadTradeBrokerItem(player.dbid, id);
+        if (item.IsMyItem) {
+            mysql.DropTradeBrokerItem(id);
+            mysql.InventoryAdd(player, SerializableToItem(item.item), item.quantity);
+
+            ServerSend.Inventory(from, player.inventory);
+            ServerSend.PlayerData(from, player.data);
+            ServerSend.TradeBrokerItems(from, mysql.ReadTradeBrokerItems(player.dbid, category, itemName, showMyItems, showSoldItems));
+        }    
+    }
+
+    public static void BuyItemFromBroker(int from, Packet packet)
+    {
+        int id = packet.ReadInt();
+        int quantity = packet.ReadInt();
+        int category = packet.ReadInt();
+        string itemName = packet.ReadString();
+        bool showMyItems = packet.ReadBool();
+        bool showSoldItems = packet.ReadBool();
+
+        Player player = Server.clients[from].player;
+        TradeBrokerItem item = mysql.ReadTradeBrokerItem(player.dbid, id);
+
+        if (item != null && !item.sold && player.data.gold>=item.price*quantity)
+        {
+            if (quantity > item.quantity)
+            {
+                Message msg = new Message();
+                msg.messageType = Message.MessageType.gameInfo;
+                msg.text = "Only " + item.quantity + "x " + item.item.name + " available!";
+                ServerSend.OnGameMessage(from, msg);
+                ServerSend.Inventory(from, player.inventory);
+                ServerSend.PlayerData(from, player.data);
+                ServerSend.TradeBrokerItems(from, mysql.ReadTradeBrokerItems(player.dbid, category, itemName, showMyItems, showSoldItems));
+                return;
+            }
+
+            mysql.UpdateTradeBrokerItem(id, item.quantity - quantity, item.quantity - quantity == 0);
+            TradeBrokerItem soldItem = mysql.ReadSoldTradeBrokerItem(player.dbid, item.id);
+
+            if (soldItem != null)
+            {
+                mysql.UpdateTradeBrokerItem(soldItem.id, soldItem.quantity + quantity, true);
+            }
+            else
+            {
+                mysql.AddTradeBrokerItem(item.seller_id, item.item.item_id, quantity, item.price, item.id, true);
+            }
+
+            player.data.gold -= item.price * quantity;
+            mysql.UpdatePlayerGold(player.dbid, player.data.gold);
+            mysql.InventoryAdd(player, SerializableToItem(item.item), quantity);
+
+            Player seller = Server.FindPlayerByDBid(item.seller_id);
+            if (seller != null)
+            {
+                Message message = new Message();
+                message.messageType = Message.MessageType.gameInfo;
+                message.text = "Your item " + item.item.name + " has been sold!";
+                ServerSend.OnGameMessage(Server.FindPlayerByDBid(item.seller_id).id, message);                
+            }
+            ServerSend.PlayerData(from, player.data);
+            ServerSend.Inventory(from, player.inventory);
+            ServerSend.TradeBrokerItems(from, mysql.ReadTradeBrokerItems(player.dbid, category, itemName, showMyItems, showSoldItems));
+        }
+        else if (item == null)
+        {
+            Message msg = new Message();
+            msg.messageType = Message.MessageType.gameInfo;
+            msg.text = "Item has been removed!";
+            ServerSend.OnGameMessage(from, msg);
+            ServerSend.TradeBrokerItems(from, mysql.ReadTradeBrokerItems(player.dbid, category, itemName, showMyItems, showSoldItems));
+        }
+        else if (item != null && item.sold) {
+            Message msg = new Message();
+            msg.messageType = Message.MessageType.gameInfo;
+            msg.text = "Item has been sold!";
+            ServerSend.OnGameMessage(from, msg);
+            ServerSend.TradeBrokerItems(from, mysql.ReadTradeBrokerItems(player.dbid, category, itemName, showMyItems, showSoldItems));
+        }
+    }
+
+    public static void CollectFromBroker(int from, Packet packet)
+    {
+        int id = packet.ReadInt();        
+        int category = packet.ReadInt();
+        string itemName = packet.ReadString();
+        bool showMyItems = packet.ReadBool();
+        bool showSoldItems = packet.ReadBool();
+
+        Player player = Server.clients[from].player;
+        TradeBrokerItem item = mysql.ReadTradeBrokerItem(player.dbid, id);
+
+        if (item != null && item.parent_id.HasValue) {
+            mysql.RemoveTradeBrokerItem(item.id);
+
+            player.data.gold += item.price * item.quantity;
+            mysql.UpdatePlayerGold(player.dbid, player.data.gold);
+
+            if (mysql.TradeBrokerAllItemsCollected(item.parent_id.Value)) {
+                mysql.RemoveTradeBrokerItem(item.parent_id.Value);
+            }
+        }
+
+        ServerSend.PlayerData(from, player.data);
+        ServerSend.Inventory(from, player.inventory);
+        ServerSend.TradeBrokerItems(from, mysql.ReadTradeBrokerItems(player.dbid, category, itemName, showMyItems, showSoldItems));
+    }
+
+    public static void TradeRequest(int from, Packet packet) {
+        string username = packet.ReadString();
+        Player sender = Server.clients[from].player;
+        Player player = Server.FindPlayerByUsername(username);
+
+        if (player != null)
+        {
+            string acceptLink = "trade_accept" + System.Guid.NewGuid().ToString();
+            string declineLink = "trade_decline" + System.Guid.NewGuid().ToString();
+
+            PlayerTrade trade = new PlayerTrade();
+            trade.player1 = sender.data;
+            trade.player2 = player.data;
+
+            NetworkManager.tradeLinks.Add(acceptLink, trade);
+            NetworkManager.tradeLinks.Add(declineLink, trade);
+
+            string accept = $"<link={acceptLink}><color=green><u>Accept</u></color></link>";
+            string decline = $"<link={declineLink}><color=#FF0006><u>Decline</u></color></link>";
+
+            Message msg = new Message();
+            msg.messageType = Message.MessageType.privateMessage;
+            msg.text = $"{accept} or {decline} trade request from {sender.data.username}";
+            ServerSend.ChatMessage(from, msg, player.id);
+        }
+    }
+
+    public static void AcceptTrade(int from, Packet packet)
+    {
+        string link = packet.ReadString();
+        if (NetworkManager.tradeLinks.ContainsKey(link))
+        {
+            PlayerTrade trade = NetworkManager.tradeLinks[link];
+            NetworkManager.tradeLinks.Remove(link);
+
+            PlayerTrade trade1 = new PlayerTrade();
+            trade1.player1 = trade.player1;
+            trade1.player2 = trade.player2;
+            trade1.items1 = new List<SerializableObjects.InventorySlot>();
+            trade1.items2 = new List<SerializableObjects.InventorySlot>();
+
+            PlayerTrade trade2 = new PlayerTrade();
+            trade2.player1 = trade.player2;
+            trade2.player2 = trade.player1;
+            trade2.items1 = new List<SerializableObjects.InventorySlot>();
+            trade2.items2 = new List<SerializableObjects.InventorySlot>();
+
+            int player1 = Server.FindPlayerByUsername(trade1.player1.username).id;
+            int player2 = Server.FindPlayerByUsername(trade2.player1.username).id;
+            NetworkManager.trades.Add(player1, trade1);
+            NetworkManager.trades.Add(player2, trade2);
+            ServerSend.PlayerTrade(trade1, Server.clients[player1].player.inventory);
+            ServerSend.PlayerTrade(trade2, Server.clients[player2].player.inventory);
+        }
+    }
+
+    public static void DeclineTrade(int from, Packet packet)
+    {
+        string link = packet.ReadString();
+        if (NetworkManager.tradeLinks.ContainsKey(link))
+        {
+            PlayerTrade trade = NetworkManager.tradeLinks[link];
+            NetworkManager.tradeLinks.Remove(link);
+            int otherPlayer = Server.GetOtherPlayer(trade, from);
+            
+            Message msg = new Message();
+            msg.messageType = Message.MessageType.gameInfo;
+            msg.text = $"Trade was declined!";
+            ServerSend.ChatMessage(from, msg, otherPlayer);            
+        }
+    }
+
+    public static void CancelPlayerTrade(int from, Packet packet) {
+        if (NetworkManager.trades.ContainsKey(from)) {
+            PlayerTrade trade = NetworkManager.trades[from];
+            int otherPlayer = Server.FindPlayerByUsername(trade.player2.username).id;
+
+            ServerSend.PlayerTradeCanceled(otherPlayer);        
+            NetworkManager.trades.Remove(from);
+            NetworkManager.trades.Remove(otherPlayer);
+        }
+    }
+
+    public static void PlayerTradeAddItem(int from, Packet packet)
+    {
+        if (NetworkManager.trades.ContainsKey(from)) {
+            SerializableObjects.Item item =  NetworkManager.ItemToSerializable(mysql.ReadItem(packet.ReadItem().item_id));
+            int quantity = packet.ReadInt();
+
+            PlayerTrade trade = NetworkManager.trades[from];
+            bool found = false;
+            foreach(SerializableObjects.InventorySlot slot in trade.items1)
+            {
+                if (slot.item.item_id == item.item_id && item.stackable)
+                {
+                    found = true;
+                    slot.quantity += quantity;
+                }
+            }
+            if(!found)            
+            {
+                SerializableObjects.InventorySlot slot = new SerializableObjects.InventorySlot();
+                slot.item = item;
+                slot.quantity = quantity;
+                trade.items1.Add(slot);
+            }
+            int otherPlayer = Server.FindPlayerByUsername(trade.player2.username).id;
+
+            PlayerTrade tradeOther = NetworkManager.trades[otherPlayer];
+            tradeOther.items2 = trade.items1;
+
+            ServerSend.PlayerTrade(tradeOther, Server.clients[otherPlayer].player.inventory);
+        }
+    }
+
+    public static void PlayerTradeRemoveItem(int from, Packet packet)
+    {
+        if (NetworkManager.trades.ContainsKey(from))
+        {
+            SerializableObjects.Item item = NetworkManager.ItemToSerializable(mysql.ReadItem(packet.ReadItem().item_id));
+            int quantity = packet.ReadInt();
+
+            PlayerTrade trade = NetworkManager.trades[from];
+            SerializableObjects.InventorySlot s=null;
+            foreach (SerializableObjects.InventorySlot slot in trade.items1)
+            {
+                if (slot.item.item_id == item.item_id)
+                {
+                    s = slot;
+                    if (item.stackable)
+                    {
+                        slot.quantity -= quantity;
+                    }
+                }
+            }
+
+            if (s != null) {
+                if (item.stackable && s.quantity == 0)
+                {
+                    trade.items1.Remove(s);
+                }
+                else if (!item.stackable) {
+                    trade.items1.Remove(s);
+                }
+            }
+
+            int otherPlayer = Server.FindPlayerByUsername(trade.player2.username).id;
+
+            PlayerTrade tradeOther = NetworkManager.trades[otherPlayer];
+            tradeOther.items2 = trade.items1;
+
+            ServerSend.PlayerTrade(tradeOther, Server.clients[otherPlayer].player.inventory);
+        }
+    }
+
+    public static void PlayerTradeGoldChanged(int from, Packet packet) {
+        if (NetworkManager.trades.ContainsKey(from))
+        {
+            int gold = packet.ReadInt();
+
+            PlayerTrade trade = NetworkManager.trades[from];
+            trade.gold1 = gold;            
+
+            int otherPlayer = Server.FindPlayerByUsername(trade.player2.username).id;
+
+            PlayerTrade tradeOther = NetworkManager.trades[otherPlayer];
+            tradeOther.gold2 = gold;
+
+            ServerSend.PlayerTrade(tradeOther, Server.clients[otherPlayer].player.inventory);
+        }
+    }
+
+    public static void PlayerTradeAccept(int from, Packet packet) {
+        if (NetworkManager.trades.ContainsKey(from))
+        {
+            PlayerTrade trade = NetworkManager.trades[from];
+            trade.accepted = true;
+            int otherPlayer = Server.FindPlayerByUsername(trade.player2.username).id;
+            PlayerTrade tradeOther = NetworkManager.trades[otherPlayer];
+
+            Message msg = new Message();
+            msg.messageType = Message.MessageType.gameInfo;
+            msg.text = $"Trade was accepted!";
+            ServerSend.ChatMessage(from, msg, otherPlayer);
+
+            if (trade.accepted && tradeOther.accepted) {
+                bool result1 = PlayerTradeCheck(trade);
+                bool result2 = PlayerTradeCheck(tradeOther);                
+
+                Player player1 = Server.FindPlayerByUsername(trade.player1.username);
+                Player player2 = Server.FindPlayerByUsername(tradeOther.player1.username);
+
+                if (result1 && result2 && player1.data.gold >= trade.gold1 && player2.data.gold >= tradeOther.gold1)
+                {
+                    if (trade.gold1 > 0) {
+                        player1.data.gold -= trade.gold1;
+                        mysql.UpdatePlayerGold(player1.dbid, player1.data.gold);
+                        player2.data.gold += trade.gold1;
+                        mysql.UpdatePlayerGold(player2.dbid, player2.data.gold);
+                    }
+
+                    if (tradeOther.gold1 > 0)
+                    {
+                        player2.data.gold -= tradeOther.gold1;
+                        mysql.UpdatePlayerGold(player2.dbid, player2.data.gold);
+                        player1.data.gold += tradeOther.gold1;
+                        mysql.UpdatePlayerGold(player1.dbid, player1.data.gold);
+                    }
+
+                    foreach (SerializableObjects.InventorySlot slot in trade.items1) {
+                        mysql.InventoryAdd(player2, SerializableToItem(slot.item), slot.quantity);
+                        mysql.InventoryRemove(player1, slot.item.item_id, slot.quantity);                        
+                    }
+
+                    foreach (SerializableObjects.InventorySlot slot in tradeOther.items1)
+                    {
+                        mysql.InventoryAdd(player1, SerializableToItem(slot.item), slot.quantity);
+                        mysql.InventoryRemove(player2, slot.item.item_id, slot.quantity);
+                    }
+
+                    ServerSend.Inventory(player1.id, player1.inventory);
+                    ServerSend.Inventory(player2.id, player2.inventory);
+                    ServerSend.PlayerData(player1.id, player1.data);
+                    ServerSend.PlayerData(player2.id, player2.data);
+                    ServerSend.PlayerTradeClose(player1.id);
+                    ServerSend.PlayerTradeClose(player2.id);
+                    NetworkManager.trades.Remove(player1.id);
+                    NetworkManager.trades.Remove(player2.id);
+                }
+                else {
+                    msg = new Message();
+                    msg.messageType = Message.MessageType.gameInfo;
+                    msg.text = $"Trade is invalid!";
+                    ServerSend.ChatMessage(0, msg, player1.id);
+                    ServerSend.ChatMessage(0, msg, player2.id);
+                }
+
+                //povećati i smanjiti gold jednom i drugom playeru, provjeriti da li player ima dovoljno gold              
+                //dodati u inventory od drugog player-a i izbrisati iz svog inventory-a               
+            }
+        }
+    }
+
+    public static void IsOnShip(int from, Packet packet) {
+        int playerId = packet.ReadInt();
+        Player player = Server.clients[playerId].player;
+        ServerSend.IsOnShip(from, playerId, player.data.is_on_ship);
+    }
+    struct PlayerDistance
+    {
+        public Player player;
+        public  float distance;
+    };
+
+    public static void ShowPlayerHP(int from, Packet packet) {
+        Player player = Server.clients[from].player;
+        GameObject playerObject = Server.clients[from].player.playerInstance;
+        List<PlayerDistance> players = new List<PlayerDistance>();
+        
+        foreach (Client client in Server.clients.Values)
+        {
+            if (client.player != null && client.player.id!=from)
+            {
+                float distance = Vector3.Distance(playerObject.transform.position, client.player.playerInstance.transform.position);
+                if (distance <= 10)
+                {
+                    players.Add(new PlayerDistance() { player = client.player, distance = distance });
+                }
+            }
+        }
+        
+        players.Sort((x, y) => x.distance.CompareTo(y.distance));
+
+        bool found = false;
+        foreach (PlayerDistance pd in players) {
+            if (!player.previousTargets.Contains(pd.player.id)) {
+                player.previousTargets.Add(pd.player.id);
+                ServerSend.TargetSelected(from, pd.player.id);
+                found = true;
+                break;
+            }
+        }
+
+        if (!found && players.Count > 0)
+        {
+            player.previousTargets.Clear();
+            player.previousTargets.Add(players[0].player.id);
+            ServerSend.TargetSelected(from, players[0].player.id);
+        }
+    }
+
+    public static bool PlayerTradeCheck(PlayerTrade trade) {
+        Inventory inventory = Server.FindPlayerByUsername(trade.player1.username).inventory;
+        
+        List<SerializableObjects.InventorySlot> slots = new List<SerializableObjects.InventorySlot>();
+        foreach (SerializableObjects.InventorySlot slot in trade.items1) {
+            SerializableObjects.InventorySlot s = slots.Where(x=>x.item.item_id==slot.item.item_id).ToList().FirstOrDefault();
+            if (s != null)
+            {
+                s.quantity += slot.quantity;
+            }
+            else {
+                slots.Add(new SerializableObjects.InventorySlot() { item = slot.item, quantity = slot.quantity });
+            }
+        }
+
+
+        foreach (SerializableObjects.InventorySlot slot in slots) {
+            if (InventoryQuantity(inventory, slot.item) < slot.quantity) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static int InventoryQuantity(Inventory inventory,SerializableObjects.Item item) {
+        int quantity = 0;
+        foreach (InventorySlot slot in inventory.items) {
+            if (slot.item!=null && slot.item.item_id == item.item_id) {
+                quantity += slot.quantity;
+            }
+        }
+        return quantity;
+    }    
 
     protected static Item SerializableToItem(SerializableObjects.Item item)
     {

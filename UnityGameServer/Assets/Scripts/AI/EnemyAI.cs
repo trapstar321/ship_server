@@ -60,7 +60,7 @@ public class EnemyAI : MonoBehaviour
     public float cannon_force;
     public float maxHealth = 100f;
 
-    private List<BaseStat> baseStats;
+    private List<ShipBaseStat> baseStats;
     private int level = 1;
 
     SphereCollider playerEnterCollider;
@@ -615,7 +615,7 @@ public class EnemyAI : MonoBehaviour
 
     protected void LoadBaseStats()
     {
-        foreach (BaseStat stat in baseStats)
+        foreach (ShipBaseStat stat in baseStats)
         {
             if (stat.level == level)
             {

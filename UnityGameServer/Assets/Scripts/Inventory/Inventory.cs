@@ -117,7 +117,7 @@ public class Inventory : MonoBehaviour
         Item item1 = slot1.item;
         Item item2 = slot2.item;
 
-        if (slot1.item?.item_id == slot2.item?.item_id)
+        if (slot1.item?.item_id == slot2.item?.item_id && slot1.item.stackable)
         {            
             slot2.quantity += slot1.quantity;
             slot1.ClearSlot();

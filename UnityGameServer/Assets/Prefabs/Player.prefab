@@ -1200,7 +1200,6 @@ GameObject:
   - component: {fileID: 9182795857462302420}
   - component: {fileID: 4115705221352315371}
   - component: {fileID: 4865596697947434946}
-  - component: {fileID: 2833706095024860718}
   - component: {fileID: 8410113847326854871}
   - component: {fileID: 8874757040368011348}
   - component: {fileID: 4229011512239649383}
@@ -1378,7 +1377,6 @@ MonoBehaviour:
   moveForce: 10
   inventory: {fileID: 0}
   ship_equipment: {fileID: 0}
-  player_equipment: {fileID: 0}
   stats: []
   exp: []
   data:
@@ -1394,6 +1392,7 @@ MonoBehaviour:
     Y_ROT_PLAYER: 0
     is_on_ship: 0
     username: 
+    gold: 0
   skills: []
   attack: 0
   health: 0
@@ -1422,23 +1421,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   space: 80
   items: []
---- !u!114 &2833706095024860718
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2112963891399863649}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0c43f53041cd2844194eb21cdc1f20de, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  helmet: {fileID: 0}
-  boots: {fileID: 0}
-  hands: {fileID: 0}
-  top: {fileID: 0}
-  legs: {fileID: 0}
 --- !u!114 &8410113847326854871
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1512,7 +1494,6 @@ MonoBehaviour:
   forward: 0
   left: 0
   right: 0
-  buffer: []
 --- !u!1 &2473978064244987364
 GameObject:
   m_ObjectHideFlags: 0

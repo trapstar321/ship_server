@@ -6,6 +6,7 @@ public class CharacterAnimationController : MonoBehaviour
 {
     public Animator anim;
     PlayerMovement charMovement;
+    PlayerCharacter player;
     public bool choping = false;
     public GameObject Axe;
 
@@ -20,7 +21,8 @@ public class CharacterAnimationController : MonoBehaviour
 
     private void Awake()
     {
-        charMovement = FindObjectOfType<PlayerMovement>();
+        charMovement = GetComponentInParent<PlayerMovement>();
+        player = GetComponentInParent<PlayerCharacter>();
     }
 
     bool w;
@@ -88,7 +90,7 @@ public class CharacterAnimationController : MonoBehaviour
             choping = false;
         }
 
-        if (leftMouseDown && charMovement.gatheringEnabled)
+        if (leftMouseDown && player.gatheringEnabled && !player.currentResource.GetComponentInParent<Resource>().respawning)
         {
             Axe.SetActive(true);
             choping = !choping;

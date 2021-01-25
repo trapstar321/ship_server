@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.21, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.22, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: ship
 -- ------------------------------------------------------
--- Server version	8.0.21
+-- Server version	8.0.22
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -16,39 +16,6 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `base_stats`
---
-
-DROP TABLE IF EXISTS `base_stats`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `base_stats` (
-  `ID` bigint NOT NULL AUTO_INCREMENT,
-  `LEVEL` int NOT NULL,
-  `ATTACK` int NOT NULL DEFAULT '0',
-  `HEALTH` int NOT NULL DEFAULT '0',
-  `DEFENCE` int NOT NULL DEFAULT '0',
-  `rotation` float DEFAULT NULL,
-  `SPEED` int NOT NULL DEFAULT '0',
-  `VISIBILITY` int NOT NULL DEFAULT '0',
-  `CANNON_RELOAD_SPEED` int NOT NULL DEFAULT '0',
-  `CRIT_CHANCE` int NOT NULL DEFAULT '0',
-  `CANNON_FORCE` int NOT NULL DEFAULT '0',
-  PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `base_stats`
---
-
-LOCK TABLES `base_stats` WRITE;
-/*!40000 ALTER TABLE `base_stats` DISABLE KEYS */;
-INSERT INTO `base_stats` VALUES (1,1,100,500,20,1,5,50,1,20,600);
-/*!40000 ALTER TABLE `base_stats` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `category`
 --
 
@@ -57,8 +24,8 @@ DROP TABLE IF EXISTS `category`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `category` (
   `ID` bigint NOT NULL AUTO_INCREMENT,
-  `NAME` varchar(1000) COLLATE utf8_unicode_ci NOT NULL,
-  `ICON` varchar(1000) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `NAME` varchar(1000) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `ICON` varchar(1000) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -114,7 +81,7 @@ CREATE TABLE `inventory` (
   KEY `SLOT_ID` (`SLOT_ID`),
   CONSTRAINT `inventory_ibfk_1` FOREIGN KEY (`PLAYER_ID`) REFERENCES `player` (`ID`),
   CONSTRAINT `inventory_ibfk_2` FOREIGN KEY (`SLOT_ID`) REFERENCES `inventory_slot` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=202 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=205 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -123,7 +90,7 @@ CREATE TABLE `inventory` (
 
 LOCK TABLES `inventory` WRITE;
 /*!40000 ALTER TABLE `inventory` DISABLE KEYS */;
-INSERT INTO `inventory` VALUES (141,1,143),(144,1,146),(145,1,147),(146,1,148),(147,1,149),(149,1,151),(150,1,152),(151,1,153),(152,1,154),(153,1,155),(154,1,156),(155,1,157),(156,1,158),(157,1,159),(158,1,160),(159,1,161),(160,1,162),(161,1,163),(162,1,164),(165,1,167),(166,1,168),(167,1,169),(168,1,170),(169,1,171),(170,1,172),(171,2,173),(175,2,177),(176,1,178),(177,1,179),(178,1,180),(179,1,181),(180,1,182),(181,1,183),(182,1,184),(183,1,185),(184,2,186),(185,2,187),(186,2,188),(187,2,189),(188,2,190),(189,2,191),(190,2,192),(191,2,193),(192,2,194),(193,3,195),(194,3,196),(195,3,197),(196,3,198),(197,3,199),(198,3,200),(199,3,201),(200,3,202),(201,3,203);
+INSERT INTO `inventory` VALUES (141,1,143),(144,1,146),(145,1,147),(146,1,148),(147,1,149),(149,1,151),(150,1,152),(151,1,153),(152,1,154),(153,1,155),(154,1,156),(155,1,157),(156,1,158),(157,1,159),(158,1,160),(159,1,161),(160,1,162),(161,1,163),(162,1,164),(165,1,167),(166,1,168),(167,1,169),(168,1,170),(169,1,171),(170,1,172),(171,2,173),(175,2,177),(176,1,178),(177,1,179),(178,1,180),(179,1,181),(180,1,182),(181,1,183),(182,1,184),(183,1,185),(184,2,186),(185,2,187),(186,2,188),(187,2,189),(188,2,190),(189,2,191),(190,2,192),(191,2,193),(192,2,194),(193,3,195),(194,3,196),(195,3,197),(196,3,198),(197,3,199),(198,3,200),(199,3,201),(200,3,202),(201,3,203),(202,1,204),(203,2,205),(204,2,206);
 /*!40000 ALTER TABLE `inventory` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -142,7 +109,7 @@ CREATE TABLE `inventory_slot` (
   PRIMARY KEY (`ID`),
   KEY `ITEM_ID` (`ITEM_ID`),
   CONSTRAINT `inventory_slot_ibfk_1` FOREIGN KEY (`ITEM_ID`) REFERENCES `player_item` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=204 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=207 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -151,7 +118,7 @@ CREATE TABLE `inventory_slot` (
 
 LOCK TABLES `inventory_slot` WRITE;
 /*!40000 ALTER TABLE `inventory_slot` DISABLE KEYS */;
-INSERT INTO `inventory_slot` VALUES (143,34,11,1080),(146,9,27,4),(147,53,41,69),(148,39,10,2),(149,54,8,367),(150,12,12,1),(151,NULL,21,0),(152,43,14,1),(153,16,2,1),(154,NULL,39,0),(155,58,28,395),(156,15,6,1),(157,37,12,1),(158,56,22,119),(159,52,9,200),(160,25,4,1),(161,17,5,1),(162,60,31,133),(163,11,3,1),(164,NULL,1,0),(167,NULL,18,0),(168,24,19,1),(169,42,7,2),(170,36,13,2),(171,40,15,1),(172,55,20,100),(173,45,1,1),(177,51,2,130),(178,NULL,24,1),(179,NULL,23,0),(180,NULL,25,0),(181,59,29,171),(182,57,30,596),(183,NULL,17,0),(184,61,32,128),(185,62,33,26),(186,63,3,140),(187,64,4,200),(188,65,5,443),(189,66,6,40),(190,67,7,120),(191,68,8,120),(192,69,9,90),(193,70,10,441),(194,71,11,59),(195,72,1,200),(196,73,2,100),(197,74,3,300),(198,75,4,40),(199,76,5,100),(200,77,6,100),(201,78,7,60),(202,79,8,100),(203,80,9,500);
+INSERT INTO `inventory_slot` VALUES (143,34,11,893),(146,9,27,3),(147,NULL,41,0),(148,39,9,1),(149,54,8,100),(150,12,12,1),(151,61,21,100),(152,43,15,1),(153,20,2,5),(154,NULL,39,0),(155,NULL,28,0),(156,15,6,1),(157,57,12,197),(158,85,22,1),(159,59,10,100),(160,25,4,1),(161,17,5,1),(162,60,31,163),(163,11,3,2),(164,19,1,1),(167,24,17,1),(168,53,19,24),(169,42,7,2),(170,36,13,2),(171,NULL,14,0),(172,52,20,115),(173,45,1,1),(177,51,2,159),(178,NULL,24,1),(179,NULL,29,0),(180,NULL,25,0),(181,NULL,30,0),(182,NULL,23,0),(183,58,18,291),(184,NULL,32,0),(185,62,33,26),(186,63,3,35),(187,64,4,200),(188,65,5,443),(189,66,6,55),(190,67,7,145),(191,68,8,248),(192,69,9,150),(193,70,10,461),(194,71,11,41),(195,80,1,1),(196,75,2,10),(197,NULL,3,0),(198,NULL,4,0),(199,NULL,5,0),(200,NULL,6,0),(201,NULL,7,0),(202,NULL,8,0),(203,NULL,9,0),(204,10,16,1),(205,NULL,12,0),(206,87,13,1);
 /*!40000 ALTER TABLE `inventory_slot` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -164,10 +131,10 @@ DROP TABLE IF EXISTS `item`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `item` (
   `ID` int NOT NULL AUTO_INCREMENT,
-  `NAME` varchar(1000) COLLATE utf8_unicode_ci NOT NULL,
-  `ICON_NAME` varchar(1000) COLLATE utf8_unicode_ci NOT NULL,
+  `NAME` varchar(1000) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `ICON_NAME` varchar(1000) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `IS_DEFAULT_ITEM` tinyint NOT NULL,
-  `item_type` varchar(1000) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `item_type` varchar(1000) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `ATTACK` int DEFAULT NULL,
   `HEALTH` int DEFAULT NULL,
   `DEFENCE` int DEFAULT NULL,
@@ -266,14 +233,14 @@ DROP TABLE IF EXISTS `player`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `player` (
   `ID` int NOT NULL AUTO_INCREMENT,
-  `USERNAME` varchar(1000) COLLATE utf8_unicode_ci NOT NULL,
+  `USERNAME` varchar(1000) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `LEVEL` int DEFAULT NULL,
   `EXPERIENCE` int DEFAULT NULL,
   `X_SHIP` float DEFAULT NULL,
   `Z_SHIP` float DEFAULT NULL,
   `Y_SHIP` float DEFAULT NULL,
   `Y_ROT_SHIP` float DEFAULT NULL,
-  `PASSWORD` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `PASSWORD` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `X_PLAYER` float DEFAULT NULL,
   `Y_PLAYER` float DEFAULT NULL,
   `Z_PLAYER` float DEFAULT NULL,
@@ -290,8 +257,38 @@ CREATE TABLE `player` (
 
 LOCK TABLES `player` WRITE;
 /*!40000 ALTER TABLE `player` DISABLE KEYS */;
-INSERT INTO `player` VALUES (1,'player1',1,0,36.8344,75.58,0.295679,193.434,'',33.979,1.05325,53.2196,0,356.983,4137),(2,'player2',1,0,36.6744,75.0568,0.280522,174.676,'',29.9898,0.895495,53.6378,0,357.429,3730),(3,'player3',1,0,30.605,70.9246,0,80.893,'',30.0424,0.864129,53.4444,0,351.816,4900);
+INSERT INTO `player` VALUES (1,'player1',1,0,29.0397,75.2759,0.295679,177.934,'',32.8203,1.00598,45.6293,0,299.383,48797),(2,'player2',1,0,36.6744,75.0568,0.280522,174.676,'',32.7991,0.982846,47.1167,0,227.205,50240),(3,'player3',1,0,30.605,70.9246,0,80.893,'',35.1355,1.08369,50.5748,0,165.494,50000);
 /*!40000 ALTER TABLE `player` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `player_base_stats`
+--
+
+DROP TABLE IF EXISTS `player_base_stats`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `player_base_stats` (
+  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `LEVEL` int NOT NULL,
+  `ATTACK` int NOT NULL DEFAULT '0',
+  `HEALTH` int NOT NULL DEFAULT '0',
+  `DEFENCE` int NOT NULL DEFAULT '0',
+  `SPEED` int NOT NULL DEFAULT '0',
+  `CRIT_CHANCE` int NOT NULL DEFAULT '0',
+  `ENERGY` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `player_base_stats`
+--
+
+LOCK TABLES `player_base_stats` WRITE;
+/*!40000 ALTER TABLE `player_base_stats` DISABLE KEYS */;
+INSERT INTO `player_base_stats` VALUES (2,1,100,1000,50,2,20,100);
+/*!40000 ALTER TABLE `player_base_stats` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -305,7 +302,7 @@ CREATE TABLE `player_equipment` (
   `ID` bigint NOT NULL AUTO_INCREMENT,
   `ITEM_ID` int DEFAULT NULL,
   `PLAYER_ID` int NOT NULL,
-  `ITEM_TYPE` varchar(1000) COLLATE utf8_unicode_ci NOT NULL,
+  `ITEM_TYPE` varchar(1000) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `ITEM_ID` (`ITEM_ID`),
   KEY `PLAYER_ID` (`PLAYER_ID`),
@@ -320,7 +317,7 @@ CREATE TABLE `player_equipment` (
 
 LOCK TABLES `player_equipment` WRITE;
 /*!40000 ALTER TABLE `player_equipment` DISABLE KEYS */;
-INSERT INTO `player_equipment` VALUES (1,NULL,1,'hands'),(2,46,2,'hands'),(3,NULL,1,'legs');
+INSERT INTO `player_equipment` VALUES (1,88,1,'hands'),(2,46,2,'hands'),(3,NULL,1,'legs');
 /*!40000 ALTER TABLE `player_equipment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -340,7 +337,7 @@ CREATE TABLE `player_item` (
   KEY `PLAYER_ID` (`PLAYER_ID`),
   CONSTRAINT `player_item_ibfk_1` FOREIGN KEY (`ITEM_ID`) REFERENCES `item` (`ID`),
   CONSTRAINT `player_item_ibfk_2` FOREIGN KEY (`PLAYER_ID`) REFERENCES `player` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -349,7 +346,7 @@ CREATE TABLE `player_item` (
 
 LOCK TABLES `player_item` WRITE;
 /*!40000 ALTER TABLE `player_item` DISABLE KEYS */;
-INSERT INTO `player_item` VALUES (5,1,1),(9,2,1),(10,3,1),(11,4,1),(12,5,1),(13,6,1),(14,7,1),(15,8,1),(16,9,1),(17,10,1),(18,11,1),(19,12,1),(20,13,1),(21,14,1),(22,20,1),(23,29,1),(24,15,1),(25,5,1),(26,1,1),(27,1,1),(28,1,1),(29,1,1),(30,1,1),(31,1,1),(32,1,1),(33,1,1),(34,1,1),(35,29,1),(36,21,1),(37,18,1),(38,21,1),(39,28,1),(40,25,1),(41,6,1),(42,29,1),(43,25,1),(44,28,1),(45,7,2),(46,29,2),(51,1,2),(52,30,1),(53,31,1),(54,35,1),(55,36,1),(56,37,1),(57,38,1),(58,39,1),(59,40,1),(60,41,1),(61,42,1),(62,43,1),(63,35,2),(64,40,2),(65,39,2),(66,31,2),(67,30,2),(68,42,2),(69,36,2),(70,38,2),(71,41,2),(72,35,3),(73,40,3),(74,39,3),(75,31,3),(76,30,3),(77,42,3),(78,36,3),(79,37,3),(80,38,3);
+INSERT INTO `player_item` VALUES (5,1,1),(9,2,1),(10,3,1),(11,4,1),(12,5,1),(13,6,1),(14,7,1),(15,8,1),(16,9,1),(17,10,1),(18,11,1),(19,12,1),(20,13,1),(21,14,1),(22,20,1),(23,29,1),(24,15,1),(25,5,1),(26,1,1),(27,1,1),(28,1,1),(29,1,1),(30,1,1),(31,1,1),(32,1,1),(33,1,1),(34,1,1),(35,29,1),(36,21,1),(37,18,1),(38,21,1),(39,28,1),(40,25,1),(41,6,1),(42,29,1),(43,25,1),(44,28,1),(45,7,2),(46,29,2),(51,1,2),(52,30,1),(53,31,1),(54,35,1),(55,36,1),(56,37,1),(57,38,1),(58,39,1),(59,40,1),(60,41,1),(61,42,1),(62,43,1),(63,35,2),(64,40,2),(65,39,2),(66,31,2),(67,30,2),(68,42,2),(69,36,2),(70,38,2),(71,41,2),(72,35,3),(73,40,3),(74,39,3),(75,31,3),(76,30,3),(77,42,3),(78,36,3),(79,37,3),(80,38,3),(81,15,2),(82,2,2),(85,15,1),(86,25,2),(87,18,2),(88,25,1);
 /*!40000 ALTER TABLE `player_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -379,7 +376,7 @@ CREATE TABLE `player_skill_level` (
 
 LOCK TABLES `player_skill_level` WRITE;
 /*!40000 ALTER TABLE `player_skill_level` DISABLE KEYS */;
-INSERT INTO `player_skill_level` VALUES (2,2,1,35),(3,3,1,0),(4,1,6,226),(5,2,6,0),(6,3,6,0),(83,1,3,6108),(84,1,11,0),(85,1,18,0),(86,1,25,0),(87,1,32,260),(88,1,39,0),(89,1,46,0),(91,2,11,0),(92,2,18,0),(93,2,25,0),(94,2,32,590),(95,2,39,0),(96,2,46,0),(98,3,11,0),(99,3,18,0),(100,3,25,0),(101,3,32,0),(102,3,39,0),(103,3,46,0);
+INSERT INTO `player_skill_level` VALUES (2,2,1,273),(3,3,1,0),(4,1,6,269),(5,2,6,0),(6,3,6,0),(83,1,3,7336),(84,1,11,0),(85,1,18,0),(86,1,25,0),(87,1,32,440),(88,1,39,0),(89,1,46,0),(91,2,11,0),(92,2,18,0),(93,2,25,0),(94,2,32,590),(95,2,39,0),(96,2,46,0),(98,3,11,0),(99,3,18,0),(100,3,25,0),(101,3,32,0),(102,3,39,0),(103,3,46,0);
 /*!40000 ALTER TABLE `player_skill_level` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -393,7 +390,7 @@ DROP TABLE IF EXISTS `recipe`;
 CREATE TABLE `recipe` (
   `ID` bigint NOT NULL AUTO_INCREMENT,
   `ITEM_ID` int NOT NULL,
-  `RECIPE_NAME` varchar(1000) COLLATE utf8_unicode_ci NOT NULL,
+  `RECIPE_NAME` varchar(1000) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `TIME_TO_CRAFT` float NOT NULL,
   `SKILL_ID` bigint DEFAULT NULL,
   PRIMARY KEY (`ID`),
@@ -535,6 +532,39 @@ INSERT INTO `resource_spawn` VALUES (1,1,15,32,0.9,46),(2,2,10,28,0.8,51),(3,3,1
 UNLOCK TABLES;
 
 --
+-- Table structure for table `ship_base_stats`
+--
+
+DROP TABLE IF EXISTS `ship_base_stats`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ship_base_stats` (
+  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `LEVEL` int NOT NULL,
+  `ATTACK` int NOT NULL DEFAULT '0',
+  `HEALTH` int NOT NULL DEFAULT '0',
+  `DEFENCE` int NOT NULL DEFAULT '0',
+  `rotation` float DEFAULT NULL,
+  `SPEED` int NOT NULL DEFAULT '0',
+  `VISIBILITY` int NOT NULL DEFAULT '0',
+  `CANNON_RELOAD_SPEED` int NOT NULL DEFAULT '0',
+  `CRIT_CHANCE` int NOT NULL DEFAULT '0',
+  `CANNON_FORCE` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ship_base_stats`
+--
+
+LOCK TABLES `ship_base_stats` WRITE;
+/*!40000 ALTER TABLE `ship_base_stats` DISABLE KEYS */;
+INSERT INTO `ship_base_stats` VALUES (1,1,100,500,20,1,5,50,1,20,600);
+/*!40000 ALTER TABLE `ship_base_stats` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `ship_equipment`
 --
 
@@ -545,7 +575,7 @@ CREATE TABLE `ship_equipment` (
   `ID` bigint NOT NULL AUTO_INCREMENT,
   `ITEM_ID` int DEFAULT NULL,
   `PLAYER_ID` int NOT NULL,
-  `ITEM_TYPE` varchar(1000) COLLATE utf8_unicode_ci NOT NULL,
+  `ITEM_TYPE` varchar(1000) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `ITEM_ID` (`ITEM_ID`),
   KEY `PLAYER_ID` (`PLAYER_ID`),
@@ -573,8 +603,8 @@ DROP TABLE IF EXISTS `skill`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `skill` (
   `ID` bigint NOT NULL AUTO_INCREMENT,
-  `SKILL_NAME` varchar(1000) COLLATE utf8_unicode_ci NOT NULL,
-  `ICON` varchar(1000) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `SKILL_NAME` varchar(1000) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `ICON` varchar(1000) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -681,13 +711,20 @@ DROP TABLE IF EXISTS `trade_broker_items`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trade_broker_items` (
   `ID` bigint NOT NULL AUTO_INCREMENT,
-  `PLAYER_ITEM_ID` int NOT NULL,
   `QUANTITY` int NOT NULL,
   `PRICE` float NOT NULL,
+  `PLAYER_ID` int DEFAULT NULL,
+  `ITEM_ID` int DEFAULT NULL,
+  `PARENT_ID` bigint DEFAULT NULL,
+  `SOLD` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`),
-  KEY `PLAYER_ITEM_ID` (`PLAYER_ITEM_ID`),
-  CONSTRAINT `trade_broker_items_ibfk_1` FOREIGN KEY (`PLAYER_ITEM_ID`) REFERENCES `player_item` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  KEY `PLAYER_ID` (`PLAYER_ID`),
+  KEY `ITEM_ID` (`ITEM_ID`),
+  KEY `PARENT_ID` (`PARENT_ID`),
+  CONSTRAINT `trade_broker_items_ibfk_2` FOREIGN KEY (`PLAYER_ID`) REFERENCES `player` (`ID`),
+  CONSTRAINT `trade_broker_items_ibfk_3` FOREIGN KEY (`ITEM_ID`) REFERENCES `item` (`ID`),
+  CONSTRAINT `trade_broker_items_ibfk_4` FOREIGN KEY (`PARENT_ID`) REFERENCES `trade_broker_items` (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -696,7 +733,7 @@ CREATE TABLE `trade_broker_items` (
 
 LOCK TABLES `trade_broker_items` WRITE;
 /*!40000 ALTER TABLE `trade_broker_items` DISABLE KEYS */;
-INSERT INTO `trade_broker_items` VALUES (2,5,10,1),(3,58,10,2),(4,10,1,20),(5,51,20,5),(6,63,25,6),(7,64,50,7),(8,72,50,4),(9,73,20,9),(10,74,30,2);
+INSERT INTO `trade_broker_items` VALUES (21,0,1000,2,30,NULL,1),(22,1,1000,2,30,21,1),(25,1,100000,2,2,NULL,0),(26,0,1,2,30,NULL,1),(27,3,1,2,30,26,1);
 /*!40000 ALTER TABLE `trade_broker_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -709,7 +746,7 @@ DROP TABLE IF EXISTS `trader`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trader` (
   `ID` bigint NOT NULL AUTO_INCREMENT,
-  `NAME` varchar(1000) COLLATE utf8_unicode_ci NOT NULL,
+  `NAME` varchar(1000) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `X` float NOT NULL,
   `Y` float NOT NULL,
   `Z` float NOT NULL,
@@ -771,4 +808,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-04 23:35:47
+-- Dump completed on 2021-01-25 21:44:02

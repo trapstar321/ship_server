@@ -34,9 +34,9 @@ public class Player : MonoBehaviour
 
     public Inventory inventory;
     public ShipEquipment ship_equipment;
-    public PlayerEquipment player_equipment;
+    //public PlayerEquipment player_equipment;
 
-    public List<BaseStat> stats;
+    public List<ShipBaseStat> stats;
     public List<Experience> exp;
     public PlayerData data;
     public List<PlayerSkillLevel> skills;
@@ -63,6 +63,8 @@ public class Player : MonoBehaviour
     public GameObject playerInstance;
     public GameObject dock;
     private Mysql mysql;
+    
+    public List<int> previousTargets = new List<int>();
 
     void Awake() {
         //mBody = GetComponent<Rigidbody>();        
@@ -70,7 +72,7 @@ public class Player : MonoBehaviour
         //Instantiate(inventory);
         inventory = GetComponent<Inventory>();
         ship_equipment = GetComponent<ShipEquipment>();
-        player_equipment = GetComponent<PlayerEquipment>();
+        //player_equipment = GetComponent<PlayerEquipment>();
 
         movement = GetComponent<BoatMovement>();
         playerEnterCollider = GetComponentInChildren<SphereCollider>();
@@ -102,7 +104,7 @@ public class Player : MonoBehaviour
     {
         Mysql mysql = FindObjectOfType<Mysql>();
 
-        List<BaseStat> stats = mysql.ReadBaseStatsTable();
+        List<ShipBaseStat> stats = mysql.ReadShipBaseStatsTable();
         List<Experience> exp = mysql.ReadExperienceTable();
         PlayerData data = mysql.ReadPlayerData(dbid);
         List<PlayerSkillLevel> skills = mysql.ReadPlayerSkills(dbid);
@@ -118,17 +120,20 @@ public class Player : MonoBehaviour
 
         LoadBaseStats();
 
-        if (!data.is_on_ship) {
-            playerInstance = Instantiate(playerPrefab, new Vector3(data.X_PLAYER, data.Y_PLAYER, data.Z_PLAYER), Quaternion.identity);
-            playerInstance.GetComponent<PlayerCharacter>().id = id;
-            playerInstance.transform.Find("PlayerSphere").GetComponent<SphereCollider>().radius = NetworkManager.visibilityRadius / 2;
-            playerInstance.transform.eulerAngles = new Vector3(0, data.Y_ROT_PLAYER, 0);            
-        }
-
-        ServerSend.OnGameStart(id, stats, exp, data);
+        //if (!data.is_on_ship) {
+        playerInstance = Instantiate(playerPrefab, new Vector3(data.X_PLAYER, data.Y_PLAYER, data.Z_PLAYER), Quaternion.identity);
+        PlayerCharacter playerCharacter = playerInstance.GetComponent<PlayerCharacter>();
+        playerCharacter.id = id;
+        playerCharacter.data = data;
+        playerInstance.transform.Find("PlayerSphere").GetComponent<SphereCollider>().radius = NetworkManager.visibilityRadius / 2;
+        playerInstance.transform.eulerAngles = new Vector3(0, data.Y_ROT_PLAYER, 0);
+        playerCharacter.Load();
+        //}
+        
+        ServerSend.OnGameStart(id, stats, playerCharacter.stats, exp, data);
 
         LoadInventory();
-        LoadPlayerEquipment();
+        //LoadPlayerEquipment();
         LoadShipEquipment();
 
         //send stats after all is loaded
@@ -270,27 +275,39 @@ public class Player : MonoBehaviour
         else if (other.name.Equals("Sphere"))
         {
             int otherPlayerId = other.GetComponentInParent<Player>().id;
-            ServerSend.Stats(otherPlayerId, id);
 
-            CannonController cannonController = other.GetComponentInParent<CannonController>();
-            Quaternion leftRotation = cannonController.L_Cannon_1.transform.localRotation;
-            Quaternion rightRotation = cannonController.R_Cannon_1.transform.localRotation;
-            ServerSend.CannonRotate(otherPlayerId, id, leftRotation, "Left");
-            ServerSend.CannonRotate(otherPlayerId, id, rightRotation, "Right");
+            if (otherPlayerId != id)
+            {
+                ServerSend.Stats(otherPlayerId, id);
 
-            bool isOnShip = Server.clients[otherPlayerId].player.data.is_on_ship;
-            if (isOnShip)
-                ServerSend.DestroyPlayerCharacter(id, otherPlayerId);
+                CannonController cannonController = other.GetComponentInParent<CannonController>();
+                Quaternion leftRotation = cannonController.L_Cannon_1.transform.localRotation;
+                Quaternion rightRotation = cannonController.R_Cannon_1.transform.localRotation;
+                ServerSend.CannonRotate(otherPlayerId, id, leftRotation, "Left");
+                ServerSend.CannonRotate(otherPlayerId, id, rightRotation, "Right");
+
+                bool isOnShip = Server.clients[otherPlayerId].player.data.is_on_ship;
+                if (isOnShip)
+                    ServerSend.DestroyPlayerCharacter(id, otherPlayerId);
+            }
         }
         else if (other.name.Equals("PlayerSphere"))
         {
             int otherPlayerId = other.GetComponentInParent<PlayerCharacter>().id;
-            GameObject playerCharacter = Server.clients[otherPlayerId].player.playerInstance;
 
             if (otherPlayerId != id)
             {
+                GameObject playerCharacter = Server.clients[otherPlayerId].player.playerInstance;
+                
                 Vector3 position = playerCharacter.transform.position;
+
+                /*bool isOnShip = Server.clients[otherPlayerId].player.data.is_on_ship;
+                if (!isOnShip)
+                {*/
                 ServerSend.InstantiatePlayerCharacter(id, otherPlayerId, position, playerCharacter.transform.eulerAngles.y);
+                //}                
+
+                ServerSend.Stats(otherPlayerId, id);
             }
         }
         else if (other.name.Equals("NPCSphere"))
@@ -324,7 +341,7 @@ public class Player : MonoBehaviour
     protected void LoadBaseStats() {
         int level = data.level;
 
-        foreach (BaseStat stat in stats) {
+        foreach (ShipBaseStat stat in stats) {
             if (stat.level == level)
             {
                 attack = stat.attack;
@@ -395,7 +412,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void LoadPlayerEquipment() {
+    /*public void LoadPlayerEquipment() {
         Mysql mysql = FindObjectOfType<Mysql>();
         Player player = Server.clients[id].player;
         List<Item> items = mysql.ReadPlayerEquipment(player.dbid);
@@ -405,7 +422,7 @@ public class Player : MonoBehaviour
         {
             equipment.Add(item);
         }
-    }
+    }*/
 
     public void Move(BoatMovement.MovementOrder newPos)
     {
@@ -482,16 +499,18 @@ public class Player : MonoBehaviour
 
             if (data.is_on_ship)
             {
-                playerInstance = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
+                /*playerInstance = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
                 playerInstance.transform.Find("PlayerSphere").GetComponent<SphereCollider>().radius = NetworkManager.visibilityRadius / 2;
-                playerInstance.GetComponent<PlayerCharacter>().id = id;
+                playerInstance.GetComponent<PlayerCharacter>().id = id;*/
+                playerInstance.SetActive(true);
                 data.is_on_ship = false;
                 ServerSend.LeaveShip(id, spawnPosition, 180f);
             }
-            else if (playerInstance.GetComponent<PlayerMovement>().isOnDock)
+            else if (playerInstance.GetComponent<PlayerCharacter>().isOnDock)
             {                
                 ServerSend.EnterShip(id, transform.position);
-                Destroy(playerInstance);
+                //Destroy(playerInstance);
+                playerInstance.SetActive(false);
                 data.is_on_ship = true;                
             }
             mysql.UpdatePlayerIsOnShip(dbid, data.is_on_ship);

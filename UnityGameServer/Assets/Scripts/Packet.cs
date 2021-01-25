@@ -68,7 +68,13 @@ public enum ServerPackets
     traderInventory,
     playerData,
     categories,
-    tradeBrokerItems
+    tradeBrokerItems,
+    playerTrade,
+    playerTradeCanceled,
+    playerTradeClose,
+    parameters,
+    isOnShip,
+    targetSelected
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -85,7 +91,6 @@ public enum ClientPackets
     dropItem,
     dragAndDrop,
     searchChest,
-    addShipEquipment,
     removeShipEquipment,
     getShipEquipment,
     removeItemFromInventory,
@@ -126,7 +131,21 @@ public enum ClientPackets
     buyItem,
     sellItem,
     tradeBrokerRequest,
-    readTradeBrokerItems
+    readTradeBrokerItems,
+    registerItemOnBroker,
+    removeItemFromBroker,
+    buyItemFromBroker,
+    collectFromBroker,
+    tradeRequest,
+    acceptTrade,
+    declineTrade,
+    cancelPlayerTrade,
+    playerTradeAddItem,
+    playerTradeRemoveItem,
+    playerTradeGoldChanged,
+    playerTradeAccept,
+    isOnShip,    
+    switchTarget
 }
 
 public class Packet: IDisposable
@@ -306,14 +325,28 @@ public class Packet: IDisposable
         buffer.AddRange(data); // Add the string itself
     }
 
-    public void Write(List<SerializableObjects.BaseStat> _value)
+    public void Write(List<SerializableObjects.ShipBaseStat> _value)
     {
         byte[] data = ObjectToByteArray(_value);
         Write(data.Length); // Add the length of the string to the packet
         buffer.AddRange(data); // Add the string itself
     }
 
-    public void Write(SerializableObjects.BaseStat _value)
+    public void Write(SerializableObjects.ShipBaseStat _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(List<SerializableObjects.PlayerBaseStat> _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(SerializableObjects.PlayerBaseStat _value)
     {
         byte[] data = ObjectToByteArray(_value);
         Write(data.Length); // Add the length of the string to the packet
@@ -405,6 +438,20 @@ public class Packet: IDisposable
     }
 
     public void Write(List<SerializableObjects.TradeBrokerItem> _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(SerializableObjects.PlayerTrade _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(SerializableObjects.Parameters _value)
     {
         byte[] data = ObjectToByteArray(_value);
         Write(data.Length); // Add the length of the string to the packet

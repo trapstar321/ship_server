@@ -498,11 +498,12 @@ public class ServerSend : MonoBehaviour
         }
     }
 
-    public static void OnGameStart(int _toClient, List<BaseStat> stats, List<Experience> exp, PlayerData data)
+    public static void OnGameStart(int _toClient, List<ShipBaseStat> shipStats, List<PlayerBaseStat> playerStats,List<Experience> exp, PlayerData data)
     {
         using (Packet _packet = new Packet((int)ServerPackets.onGameStart))
         {
-            _packet.Write(stats);
+            _packet.Write(shipStats);
+            _packet.Write(playerStats);
             _packet.Write(exp);
             _packet.Write(data);
 
@@ -573,22 +574,33 @@ public class ServerSend : MonoBehaviour
     public static void Stats(int from)
     {
         Player player = Server.clients[from].player;
+        PlayerCharacter playerCharacter = player.playerInstance.GetComponent<PlayerCharacter>();
         using (Packet _packet = new Packet((int)ServerPackets.stats))
         {
-            BaseStat stats = new BaseStat();
-            stats.attack = player.attack;
-            stats.health = player.health;
-            stats.defence = player.defence;
-            stats.rotation = player.rotation;
-            stats.speed = player.speed;
-            stats.visibility = player.visibility;
-            stats.cannon_reload_speed = player.cannon_reload_speed;
-            stats.crit_chance = player.crit_chance;
-            stats.cannon_force = player.cannon_force;
-            stats.max_health = player.maxHealth;
+            ShipBaseStat shipStats = new ShipBaseStat();
+            shipStats.attack = player.attack;
+            shipStats.health = player.health;
+            shipStats.defence = player.defence;
+            shipStats.rotation = player.rotation;
+            shipStats.speed = player.speed;
+            shipStats.visibility = player.visibility;
+            shipStats.cannon_reload_speed = player.cannon_reload_speed;
+            shipStats.crit_chance = player.crit_chance;
+            shipStats.cannon_force = player.cannon_force;
+            shipStats.max_health = player.maxHealth;
+
+            PlayerBaseStat playerStats = new PlayerBaseStat();
+            playerStats.attack = playerCharacter.attack;
+            playerStats.health = playerCharacter.health;
+            playerStats.defence = playerCharacter.defence;            
+            playerStats.speed = playerCharacter.speed;
+            playerStats.crit_chance = playerCharacter.crit_chance;
+            playerStats.energy = playerCharacter.energy;
+            playerStats.max_health = playerCharacter.maxHealth;
 
             _packet.Write(from);
-            _packet.Write(stats);
+            _packet.Write(shipStats);
+            _packet.Write(playerStats);
 
             SendTCPDataRadiusShip(_packet, player.transform.position, NetworkManager.visibilityRadius);
         }
@@ -602,21 +614,32 @@ public class ServerSend : MonoBehaviour
         using (Packet _packet = new Packet((int)ServerPackets.stats))
         {
             Player player = Server.clients[from].player;
+            PlayerCharacter playerCharacter = player.playerInstance.GetComponent<PlayerCharacter>();
 
-            BaseStat stats = new BaseStat();
-            stats.attack = player.attack;
-            stats.health = player.health;
-            stats.defence = player.defence;
-            stats.rotation = player.rotation;
-            stats.speed = player.speed;
-            stats.visibility = player.visibility;
-            stats.cannon_reload_speed = player.cannon_reload_speed;
-            stats.crit_chance = player.crit_chance;
-            stats.cannon_force = player.cannon_force;
-            stats.max_health = player.maxHealth;
+            ShipBaseStat shipStats = new ShipBaseStat();
+            shipStats.attack = player.attack;
+            shipStats.health = player.health;
+            shipStats.defence = player.defence;
+            shipStats.rotation = player.rotation;
+            shipStats.speed = player.speed;
+            shipStats.visibility = player.visibility;
+            shipStats.cannon_reload_speed = player.cannon_reload_speed;
+            shipStats.crit_chance = player.crit_chance;
+            shipStats.cannon_force = player.cannon_force;
+            shipStats.max_health = player.maxHealth;
+
+            PlayerBaseStat playerStats = new PlayerBaseStat();
+            playerStats.attack = playerCharacter.attack;
+            playerStats.health = playerCharacter.health;
+            playerStats.defence = playerCharacter.defence;
+            playerStats.speed = playerCharacter.speed;
+            playerStats.crit_chance = playerCharacter.crit_chance;
+            playerStats.energy = playerCharacter.energy;
+            playerStats.max_health = playerCharacter.maxHealth;
 
             _packet.Write(from);
-            _packet.Write(stats);
+            _packet.Write(shipStats);
+            _packet.Write(playerStats);
 
             SendTCPData(to, _packet);
         }
@@ -628,7 +651,7 @@ public class ServerSend : MonoBehaviour
         {
             EnemyAI npc = Server.npcs[from].GetComponent<EnemyAI>();
 
-            BaseStat stats = new BaseStat();
+            ShipBaseStat stats = new ShipBaseStat();
             stats.attack = npc.attack;
             stats.health = npc.health;
             stats.defence = npc.defence;
@@ -647,7 +670,7 @@ public class ServerSend : MonoBehaviour
         }
     }
 
-    public static void BaseStats(int to, List<BaseStat> stats, string type)
+    public static void BaseStats(int to, List<ShipBaseStat> stats, string type)
     {
         using (Packet _packet = new Packet((int)ServerPackets.baseStats))
         {
@@ -859,6 +882,7 @@ public class ServerSend : MonoBehaviour
             _packet.Write(from);
             _packet.Write(position);
             _packet.Write(Y_rotation);
+            _packet.Write(Server.clients[from].player.data);
             //SendTCPData(to, _packet);
             SendTCPDataRadiusPlayer(_packet, position, NetworkManager.visibilityRadius);
         }
@@ -936,6 +960,7 @@ public class ServerSend : MonoBehaviour
             _packet.Write(from);
             _packet.Write(position);
             _packet.Write(Y_rot);
+            _packet.Write(Server.clients[from].player.data);
             SendTCPData(to, _packet);
         }
     }
@@ -997,11 +1022,6 @@ public class ServerSend : MonoBehaviour
     {
         using (Packet _packet = new Packet((int)ServerPackets.traderInventory))
         {
-            foreach (TraderItem item in trader.inventory)
-            {
-                item.item = NetworkManager.ItemToSerializable(mysql.ReadItem(item.item_id));
-            }
-
             _packet.Write(trader);
             SendTCPData(to, _packet);
         }
@@ -1030,6 +1050,73 @@ public class ServerSend : MonoBehaviour
         using (Packet _packet = new Packet((int)ServerPackets.playerData))
         {
             _packet.Write(data);
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void PlayerTrade(PlayerTrade trade, Inventory inventory)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.playerTrade))
+        {
+            _packet.Write(trade);
+
+            List<SerializableObjects.InventorySlot> items = new List<SerializableObjects.InventorySlot>();
+
+            foreach (InventorySlot slot in inventory.items)
+            {
+                if(slot.item!=null)
+                    items.Add(SlotToSerializable(slot));
+            }
+            _packet.Write(items);
+
+            SendTCPData(Server.FindPlayerByUsername(trade.player1.username).id, _packet);            
+        }
+    }
+
+    public static void PlayerTradeCanceled(int to)
+    {
+        Message msg = new Message();
+        msg.messageType = Message.MessageType.gameInfo;
+        msg.text = "Trade canceled!";
+        ChatMessage(0, msg, to);
+
+        using (Packet _packet = new Packet((int)ServerPackets.playerTradeCanceled))
+        {
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void PlayerTradeClose(int to)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.playerTradeClose))
+        {
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void Parameters(int to, Parameters p) {
+        using (Packet _packet = new Packet((int)ServerPackets.parameters))
+        {
+            _packet.Write(p);
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void IsOnShip(int to, int playerId, bool isOnShip)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.isOnShip))
+        {
+            _packet.Write(playerId);
+            _packet.Write(isOnShip);
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void TargetSelected(int to, int playerId)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.targetSelected))
+        {
+            _packet.Write(playerId);            
             SendTCPData(to, _packet);
         }
     }

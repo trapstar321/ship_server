@@ -10,11 +10,11 @@ public class PlayerEquipment : MonoBehaviour
     public Item top;
     public Item legs;
 
-    private Player player;
+    private PlayerCharacter player;
 
     private void Awake()
     {
-        player = transform.gameObject.GetComponent<Player>();
+        player = transform.gameObject.GetComponent<PlayerCharacter>();
     }
 
     public void Add(Item item)

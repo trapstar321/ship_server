@@ -13,14 +13,7 @@ public class PlayerMovement : MonoBehaviour
 
     public Transform groundCheck;
     public float groundDistance = 0.4f;
-    public LayerMask groundMask;
-    public bool isOnDock=false;
-
-    public bool gatheringEnabled;
-    public bool tradingEnabled;
-    public bool tradeBrokerEnabled;
-    public CraftingSpot craftingSpot;
-    public Trader trader;
+    public LayerMask groundMask;    
 
     Vector3 velocity;
     public bool isGrounded;
@@ -72,53 +65,5 @@ public class PlayerMovement : MonoBehaviour
         }
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.tag.Equals("Resource"))
-        {
-            gatheringEnabled = true;
-        }
-        else if (other.tag.Equals("Dock"))
-        {
-            isOnDock = true;
-        }
-        else if (other.tag.Equals("CraftingSpot"))
-        {
-            craftingSpot = other.GetComponent<CraftingSpot>();
-        }
-        else if (other.tag == "Trader")
-        {
-            tradingEnabled = true;
-            trader = other.gameObject.GetComponent<Trader>();
-        }
-        else if (other.tag == "TradeBroker") {
-            tradeBrokerEnabled = true;
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.tag.Equals("Resource"))
-        {
-            gatheringEnabled = false;
-        }
-        else if (other.tag.Equals("Dock")) {
-            isOnDock = false;
-        }
-        else if (other.tag.Equals("CraftingSpot"))
-        {
-            craftingSpot = null;
-        }
-        else if (other.tag == "Trader")
-        {
-            tradingEnabled = false;
-            trader = null;
-        }
-        else if (other.tag == "TradeBroker")
-        {
-            tradeBrokerEnabled = false;
-        }
-    }
+    }    
 }
