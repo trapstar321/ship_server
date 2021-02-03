@@ -487,11 +487,16 @@ public class ServerSend : MonoBehaviour
                 _packet.Write(resource.respawning);
                 _packet.Write(resource.gatheredTime);
                 _packet.Write(resource.respawnTime);
+                _packet.Write((int)resource.skill_type);
             }
             else if (spawn.objectType == ObjectType.TRADER)
             {
                 Trader trader = spawn.gameObject.GetComponent<Trader>();
                 _packet.Write(trader.id);
+            }
+            else if (spawn.objectType == ObjectType.CRAFTING_SPOT) {
+                CraftingSpot craftingSpot = spawn.gameObject.GetComponent<CraftingSpot>();
+                _packet.Write((int)craftingSpot.skillType);
             }
 
             SendTCPData(_toClient, _packet);

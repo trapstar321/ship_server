@@ -41,6 +41,35 @@ INSERT INTO `category` VALUES (1,'Ingredient','Ingredient'),(2,'Weapon','Weapon'
 UNLOCK TABLES;
 
 --
+-- Table structure for table `crafting_spot_spawn`
+--
+
+DROP TABLE IF EXISTS `crafting_spot_spawn`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `crafting_spot_spawn` (
+  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `SKILL_TYPE` int NOT NULL,
+  `X` float NOT NULL,
+  `Y` float NOT NULL,
+  `Z` float NOT NULL,
+  `Y_ROT` float NOT NULL,
+  `GAME_OBJECT_TYPE` int NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `crafting_spot_spawn`
+--
+
+LOCK TABLES `crafting_spot_spawn` WRITE;
+/*!40000 ALTER TABLE `crafting_spot_spawn` DISABLE KEYS */;
+INSERT INTO `crafting_spot_spawn` VALUES (2,6,32,1,54,0,10);
+/*!40000 ALTER TABLE `crafting_spot_spawn` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `experience`
 --
 
@@ -118,7 +147,7 @@ CREATE TABLE `inventory_slot` (
 
 LOCK TABLES `inventory_slot` WRITE;
 /*!40000 ALTER TABLE `inventory_slot` DISABLE KEYS */;
-INSERT INTO `inventory_slot` VALUES (143,34,11,893),(146,9,27,3),(147,NULL,41,0),(148,39,9,1),(149,54,8,100),(150,12,12,1),(151,61,21,100),(152,43,15,1),(153,20,2,5),(154,NULL,39,0),(155,NULL,28,0),(156,15,6,1),(157,57,12,197),(158,85,22,1),(159,59,10,100),(160,25,4,1),(161,17,5,1),(162,60,31,163),(163,11,3,2),(164,19,1,1),(167,24,17,1),(168,53,19,24),(169,42,7,2),(170,36,13,2),(171,NULL,14,0),(172,52,20,115),(173,45,1,1),(177,51,2,159),(178,NULL,24,1),(179,NULL,29,0),(180,NULL,25,0),(181,NULL,30,0),(182,NULL,23,0),(183,58,18,291),(184,NULL,32,0),(185,62,33,26),(186,63,3,35),(187,64,4,200),(188,65,5,443),(189,66,6,55),(190,67,7,145),(191,68,8,248),(192,69,9,150),(193,70,10,461),(194,71,11,41),(195,80,1,1),(196,75,2,10),(197,NULL,3,0),(198,NULL,4,0),(199,NULL,5,0),(200,NULL,6,0),(201,NULL,7,0),(202,NULL,8,0),(203,NULL,9,0),(204,10,16,1),(205,NULL,12,0),(206,87,13,1);
+INSERT INTO `inventory_slot` VALUES (143,34,11,1292),(146,9,27,3),(147,NULL,41,0),(148,39,9,1),(149,54,8,100),(150,12,12,1),(151,61,21,48),(152,43,15,1),(153,20,2,5),(154,NULL,39,0),(155,NULL,28,0),(156,15,6,1),(157,57,12,131),(158,85,22,1),(159,59,10,100),(160,25,4,1),(161,17,5,1),(162,60,31,229),(163,11,3,2),(164,19,1,1),(167,24,17,1),(168,53,19,32),(169,42,7,2),(170,36,13,2),(171,NULL,14,0),(172,52,20,176),(173,45,1,1),(177,51,2,165),(178,NULL,24,1),(179,NULL,29,0),(180,NULL,25,0),(181,NULL,30,0),(182,NULL,23,0),(183,58,18,93),(184,NULL,33,0),(185,62,32,52),(186,63,3,35),(187,64,4,200),(188,65,5,443),(189,66,6,55),(190,67,7,145),(191,68,8,248),(192,69,9,150),(193,70,10,461),(194,71,11,41),(195,80,1,1),(196,75,2,10),(197,NULL,3,0),(198,NULL,4,0),(199,NULL,5,0),(200,NULL,6,0),(201,NULL,7,0),(202,NULL,8,0),(203,NULL,9,0),(204,10,16,1),(205,NULL,12,0),(206,87,13,1);
 /*!40000 ALTER TABLE `inventory_slot` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -257,7 +286,7 @@ CREATE TABLE `player` (
 
 LOCK TABLES `player` WRITE;
 /*!40000 ALTER TABLE `player` DISABLE KEYS */;
-INSERT INTO `player` VALUES (1,'player1',1,0,29.0397,75.2759,0.295679,177.934,'',32.8203,1.00598,45.6293,0,299.383,48797),(2,'player2',1,0,36.6744,75.0568,0.280522,174.676,'',32.7991,0.982846,47.1167,0,227.205,50240),(3,'player3',1,0,30.605,70.9246,0,80.893,'',35.1355,1.08369,50.5748,0,165.494,50000);
+INSERT INTO `player` VALUES (1,'player1',1,0,29.0397,75.2759,0.295679,177.934,'',30.2523,0.569341,42.7854,0,356.41,48797),(2,'player2',1,0,36.6744,75.0568,0.280522,174.676,'',35.1345,2.31537,46.0793,0,24.8093,50240),(3,'player3',1,0,30.605,70.9246,0,80.893,'',34.995,1.08623,44.3663,0,194.971,50000);
 /*!40000 ALTER TABLE `player` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -367,7 +396,7 @@ CREATE TABLE `player_skill_level` (
   KEY `SKILL_LEVEL_ID` (`SKILL_LEVEL_ID`),
   CONSTRAINT `player_skill_level_ibfk_1` FOREIGN KEY (`PLAYER_ID`) REFERENCES `player` (`ID`),
   CONSTRAINT `player_skill_level_ibfk_2` FOREIGN KEY (`SKILL_LEVEL_ID`) REFERENCES `skill_level` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=104 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -376,7 +405,7 @@ CREATE TABLE `player_skill_level` (
 
 LOCK TABLES `player_skill_level` WRITE;
 /*!40000 ALTER TABLE `player_skill_level` DISABLE KEYS */;
-INSERT INTO `player_skill_level` VALUES (2,2,1,273),(3,3,1,0),(4,1,6,269),(5,2,6,0),(6,3,6,0),(83,1,3,7336),(84,1,11,0),(85,1,18,0),(86,1,25,0),(87,1,32,440),(88,1,39,0),(89,1,46,0),(91,2,11,0),(92,2,18,0),(93,2,25,0),(94,2,32,590),(95,2,39,0),(96,2,46,0),(98,3,11,0),(99,3,18,0),(100,3,25,0),(101,3,32,0),(102,3,39,0),(103,3,46,0);
+INSERT INTO `player_skill_level` VALUES (2,2,1,301),(3,3,1,0),(4,1,6,507),(5,2,6,0),(6,3,6,0),(83,1,3,9338),(84,1,11,0),(85,1,18,0),(86,1,25,0),(88,1,39,0),(89,1,46,0),(91,2,11,0),(92,2,18,0),(93,2,25,0),(94,2,32,590),(95,2,39,0),(96,2,46,0),(98,3,11,0),(99,3,18,0),(100,3,25,0),(101,3,32,0),(102,3,39,0),(103,3,46,0),(104,1,33,1360);
 /*!40000 ALTER TABLE `player_skill_level` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -808,4 +837,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-25 21:44:02
+-- Dump completed on 2021-02-03 21:48:04

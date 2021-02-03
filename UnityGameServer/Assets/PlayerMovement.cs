@@ -6,7 +6,7 @@ public class PlayerMovement : MonoBehaviour
 {
     public CharacterController controller;
 
-    public float walkSpeed = 2f;
+    public float walkSpeed = 4f;
     public float runSpeed = 4f;
     public float gravity = -9.81f;
     public float jumpHeight = 3f;
@@ -48,11 +48,11 @@ public class PlayerMovement : MonoBehaviour
             Vector3 move = transform.right * x + transform.forward * z;*/
             Vector3 move = buffer[i].move;
 
-            if (w && !leftShift)
+            /*if (w && !leftShift)
             {
                 controller.Move(move * walkSpeed * Time.deltaTime);
-            }
-            else if (w && leftShift)
+            }*/
+            if (w)
             {
                 controller.Move(move * runSpeed * Time.deltaTime);
             }

@@ -791,8 +791,8 @@ public class ServerHandle : MonoBehaviour
         craftingList.Add(crafting);
         int maxAmount = crafting.GetMaxCraftAmount();
 
-        PlayerSkillLevel level = Server.clients[from].player.FindSkillRequirement(recipe.skill.skill_level_id);
-        if (makeAmount <= maxAmount && Server.clients[from].player.HasSkillRequirement(recipe.skill.skill_level_id)) {
+        PlayerSkillLevel level = Server.clients[from].player.FindSkillRequirement(recipe.skill_id, recipe.skill.level);
+        if (makeAmount <= maxAmount && Server.clients[from].player.HasSkillRequirement(recipe.skill_id, recipe.skill.level)) {
             crafting.Craft(makeAmount, level.modifier, recipe.time_to_craft);
         }
     }

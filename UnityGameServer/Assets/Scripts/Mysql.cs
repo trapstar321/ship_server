@@ -1455,6 +1455,32 @@ public class Mysql : MonoBehaviour
         return spawns;
     }
 
+    public List<CraftingSpotSpawn> ReadCraftingSpots()
+    {
+        string sql = @"select* from crafting_spot_spawn";
+
+        var cmd = new MySqlCommand(sql, con);
+
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        List<CraftingSpotSpawn> spawns = new List<CraftingSpotSpawn>();
+        while (rdr.Read())
+        {
+            CraftingSpotSpawn craftingSpot = new CraftingSpotSpawn();
+            craftingSpot.skillType = (SkillType)rdr.GetInt32("SKILL_TYPE");
+            craftingSpot.x = rdr.GetFloat("X");
+            craftingSpot.y = rdr.GetFloat("Y");
+            craftingSpot.z = rdr.GetFloat("Z");
+            craftingSpot.Y_rot = rdr.GetFloat("Y_ROT");
+            craftingSpot.gameObjectType = rdr.GetInt32("GAME_OBJECT_TYPE");
+
+            spawns.Add(craftingSpot);
+        }
+        rdr.Close();
+
+        return spawns;
+    }
+
     public List<SkillLevel> ReadSkillLevel()
     {
         string sql = @"select a.id, skill_id, lvl, modifier, exp_start, exp_end, skill_name, icon

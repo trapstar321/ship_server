@@ -539,18 +539,18 @@ public class Player : MonoBehaviour
         }
     }
 
-    public PlayerSkillLevel FindSkillRequirement(int skillId) {
+    public PlayerSkillLevel FindSkillRequirement(int skillId, int lvl) {
         foreach (PlayerSkillLevel level in skills)
         {
-            if (level.id == skillId)
+            if (level.skill_id == skillId && level.level>=lvl)
                 return level;
         }
         return null;
     }
 
-    public bool HasSkillRequirement(int skillId) {
+    public bool HasSkillRequirement(int skillId, int lvl) {
         foreach (PlayerSkillLevel level in skills) {
-            if (level.id == skillId)
+            if (level.skill_id == skillId && level.level>=lvl)
                 return true;
         }
         return false;

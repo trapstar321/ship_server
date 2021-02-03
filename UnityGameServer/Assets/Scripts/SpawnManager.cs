@@ -17,7 +17,8 @@ public class SpawnManager : MonoBehaviour
         silverRock,
         tinRock,
         traderGeneric,
-        tradeBroker
+        tradeBroker,
+        cookingSpot
     }
 
     public class Spawn {
@@ -50,6 +51,7 @@ public class SpawnManager : MonoBehaviour
         prefabs.Add(GameObjectType.tinRock, Resources.Load("Prefabs/TinRock", typeof(GameObject)) as GameObject);
         prefabs.Add(GameObjectType.traderGeneric, Resources.Load("Prefabs/TraderGeneric", typeof(GameObject)) as GameObject);
         prefabs.Add(GameObjectType.tradeBroker, Resources.Load("Prefabs/TradeBroker", typeof(GameObject)) as GameObject);
+        prefabs.Add(GameObjectType.cookingSpot, Resources.Load("Prefabs/CookingSpot", typeof(GameObject)) as GameObject);
     }
 
     // Start is called before the first frame update
@@ -58,6 +60,7 @@ public class SpawnManager : MonoBehaviour
         List<ResourceSpawn> resourceSpawns = mysql.ReadResourceSpawns();
         List<SerializableObjects.Trader> traders = mysql.ReadTraders();
         List<TradeBroker> brokers = mysql.ReadTradeBrokers();
+        List<CraftingSpotSpawn> craftingSpots = mysql.ReadCraftingSpots();
 
         //create Chest prefab
         int id = NextId();
@@ -99,6 +102,17 @@ public class SpawnManager : MonoBehaviour
             GameObject go = Instantiate(prefabs[(GameObjectType)broker.game_object_type], new Vector3(broker.x, broker.y, broker.z), Quaternion.identity);
             go.transform.eulerAngles = new Vector3(0, broker.y_rot, 0);
             objects.Add(id, new Spawn() { id = id, type = (GameObjectType)broker.game_object_type, gameObject = go, objectType = ObjectType.TRADE_BROKER });            
+        }
+
+        foreach (CraftingSpotSpawn craftingSpot in craftingSpots)
+        {
+            id = NextId();
+            GameObject go = Instantiate(prefabs[(GameObjectType)craftingSpot.gameObjectType], new Vector3(craftingSpot.x, craftingSpot.y, craftingSpot.z), Quaternion.identity);
+            go.transform.eulerAngles = new Vector3(0, craftingSpot.Y_rot, 0);
+            objects.Add(id, new Spawn() { id = id, type = (GameObjectType)craftingSpot.gameObjectType, gameObject = go, objectType = ObjectType.CRAFTING_SPOT });
+
+            CraftingSpot craftingSpotScript = go.GetComponent<CraftingSpot>();
+            craftingSpotScript.skillType = craftingSpot.skillType;
         }
 
         /*id = NextId();
