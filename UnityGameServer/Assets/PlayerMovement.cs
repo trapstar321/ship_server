@@ -18,6 +18,8 @@ public class PlayerMovement : MonoBehaviour
     Vector3 velocity;
     public bool isGrounded;
 
+    public bool jump;
+
     public struct PlayerInputs {
         public bool w;
         public bool leftShift;
@@ -27,42 +29,58 @@ public class PlayerMovement : MonoBehaviour
     }
 
     public List<PlayerInputs> buffer = new List<PlayerInputs>();
+    private CharacterAnimationController animationController;
+
+    private void Awake()
+    {
+        animationController = GetComponentInChildren<CharacterAnimationController>();
+    }
 
     void FixedUpdate()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-        for (int i = buffer.Count - 1; i >= 0; i--)
-        {
-            bool w = buffer[i].w;
-            bool leftShift = buffer[i].leftShift;
-            bool jump = buffer[i].jump;            
 
-            if (isGrounded && velocity.y < 0)
-            {
-                velocity.y = -2f;
-            }
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f;
+        }
+
+        /*for (int i = buffer.Count - 1; i >= 0; i--)
+        {
+            w = buffer[i].w;
+            leftShift = buffer[i].leftShift;
+            jump = buffer[i].jump;
+            Vector3 move = buffer[i].move;            
 
             /*float x = Input.GetAxis("Horizontal");
             float z = Input.GetAxis("Vertical");
 
-            Vector3 move = transform.right * x + transform.forward * z;*/
-            Vector3 move = buffer[i].move;
+            move = transform.right * x + transform.forward * z;*/
 
-            /*if (w && !leftShift)
-            {
-                controller.Move(move * walkSpeed * Time.deltaTime);
-            }*/
-            if (w)
-            {
-                controller.Move(move * runSpeed * Time.deltaTime);
-            }
-
-            if (jump && isGrounded)
-            {
-                velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-            }
-            buffer.RemoveAt(i);
+        /*if (w && !leftShift)
+        {
+            controller.Move(move * walkSpeed * Time.deltaTime);
         }
+        else if (w && leftShift)
+        {
+            controller.Move(move * runSpeed * Time.deltaTime);
+        }*/
+
+        /*if (jump && isGrounded)
+        {
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        }            
+
+        buffer.RemoveAt(i);
+    }*/
+
+        if (jump && isGrounded)
+        {            
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            animationController.Jump();
+            jump = false;
+        }
+
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
     }    

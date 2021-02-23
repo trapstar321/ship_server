@@ -15,6 +15,7 @@ TagManager:
   - CraftingSpot
   - Trader
   - TradeBroker
+  - Weapon
   layers:
   - Default
   - TransparentFX
@@ -28,8 +29,8 @@ TagManager:
   - Layer1
   - Layer2
   - Terrain
-  - 
-  - 
+  - Player
+  - Weapon
   - 
   - 
   - 

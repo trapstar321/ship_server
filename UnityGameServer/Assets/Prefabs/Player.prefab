@@ -1403,10 +1403,11 @@ MonoBehaviour:
   cannon_reload_speed: 0
   crit_chance: 0
   cannon_force: 0
-  playerPrefab: {fileID: 8727742351903939727, guid: 37250563701349c499a37dfbc1c64f5f,
+  playerPrefab: {fileID: 758610521937163471, guid: b706c48ada72db34bb6d820a1e5c8f58,
     type: 3}
   playerInstance: {fileID: 0}
   dock: {fileID: 0}
+  previousTargets: 
 --- !u!114 &4865596697947434946
 MonoBehaviour:
   m_ObjectHideFlags: 0

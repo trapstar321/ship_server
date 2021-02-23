@@ -700,8 +700,14 @@ public class ServerHandle : MonoBehaviour
             bool leftShift = packet.ReadBool();
             bool jump = packet.ReadBool();
             bool leftMouseDown = packet.ReadBool();
+            float speed = packet.ReadFloat();
+            float horizontal = packet.ReadFloat();
+            string attackName = packet.ReadString();
+            string rollDirection = packet.ReadString();
 
-            CharacterAnimationController.AnimationInputs input = new CharacterAnimationController.AnimationInputs() { w = w, leftShift = leftShift, jump = jump, leftMouseDown = leftMouseDown };
+            CharacterAnimationController.AnimationInputs input = new CharacterAnimationController.AnimationInputs() { 
+                w = w, leftShift = leftShift, jump = jump, leftMouseDown = leftMouseDown, 
+                speed=speed, horizontal = horizontal, attackName = attackName, rollDirection = rollDirection };
             animationController.buffer.Add(input);
 
             ServerSend.AnimationInputs(from, input, position);
@@ -766,9 +772,9 @@ public class ServerHandle : MonoBehaviour
                 {
                     ServerSend.DestroyResource(resourceID);
                     //trebamo proći kroz sve kliente koji su gatherali taj resource i stopirati i njihovu animaciju
-                    GameObject simpleCharacter = player.playerInstance.transform.Find("simpleCharacter_v2").gameObject;
+                    GameObject simpleCharacter = player.playerInstance.transform.Find("Pirate_01").gameObject;
                     CharacterAnimationController animationController = simpleCharacter.GetComponent<CharacterAnimationController>();
-                    animationController.choping = false;
+                    animationController.gathering = false;
                     resource.Gathered();
                 }
             }
@@ -1295,6 +1301,7 @@ public class ServerHandle : MonoBehaviour
 
     public static void IsOnShip(int from, Packet packet) {
         int playerId = packet.ReadInt();
+        Debug.Log("IsOnShip player=" + playerId);
         Player player = Server.clients[playerId].player;
         ServerSend.IsOnShip(from, playerId, player.data.is_on_ship);
     }
@@ -1363,6 +1370,26 @@ public class ServerHandle : MonoBehaviour
             }
         }
         return true;
+    }
+
+    public static void PlayerCharacterPosition(int from, Packet packet) {        
+        Player player = Server.clients[from].player;
+
+        if (player.playerInstance != null)
+        {
+            player.playerInstance.transform.position = packet.ReadVector3();
+            player.playerInstance.transform.rotation = packet.ReadQuaternion();
+
+            ServerSend.PlayerCharacterPosition(from, player.playerInstance.transform.position, player.playerInstance.transform.rotation);
+        }        
+    }
+
+    public static void Jump(int from, Packet packet) {        
+        ServerSend.Jump(from);
+        Player player = Server.clients[from].player;
+
+        PlayerMovement playerMovement = player.playerInstance.GetComponent<PlayerMovement>();
+        playerMovement.jump = true;
     }
 
     public static int InventoryQuantity(Inventory inventory,SerializableObjects.Item item) {

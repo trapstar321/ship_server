@@ -74,7 +74,11 @@ public enum ServerPackets
     playerTradeClose,
     parameters,
     isOnShip,
-    targetSelected
+    targetSelected,
+    playerCharacterPosition,
+    jump,
+    startCrafting,
+    stopCrafting
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -145,7 +149,11 @@ public enum ClientPackets
     playerTradeGoldChanged,
     playerTradeAccept,
     isOnShip,    
-    switchTarget
+    switchTarget,
+    playerCharacterPosition,
+    jump,
+    startCrafting,
+    stopCrafting
 }
 
 public class Packet: IDisposable

@@ -71,44 +71,9 @@ public class ServerSend : MonoBehaviour
                 Server.clients[i].tcp.SendData(_packet);
             }
         }
-    }
+    }  
 
-    private void SendTCPDataRadius(Packet _packet, Vector3 position, float sendRadius)
-    {
-        _packet.WriteLength();
-
-        for (int i = 1; i <= Server.MaxPlayers; i++)
-        {
-            if (Server.clients[i].player != null)
-            {
-                float distance = Vector3.Distance(position, Server.clients[i].player.transform.position);
-                if (Math.Abs(Vector3.Distance(position, Server.clients[i].player.transform.position)) < sendRadius)
-                {
-                    StartCoroutine(MakeLag(i, _packet, lag));
-                    //Server.clients[i].tcp.SendData(_packet);
-                }
-            }
-        }
-    }
-
-    private static void SendTCPDataRadiusShip(Packet _packet, Vector3 position, float sendRadius)
-    {
-        _packet.WriteLength();
-
-        for (int i = 1; i <= Server.MaxPlayers; i++)
-        {
-            if (Server.clients[i].player != null)
-            {
-                float distance = Vector3.Distance(position, Server.clients[i].player.transform.position);
-                if (Math.Abs(Vector3.Distance(position, Server.clients[i].player.transform.position)) < sendRadius)
-                {
-                    Server.clients[i].tcp.SendData(_packet);
-                }
-            }
-        }
-    }
-
-    private static void SendTCPDataRadiusPlayer(Packet _packet, Vector3 position, float sendRadius)
+    private static void SendTCPDataRadius(Packet _packet, Vector3 position, float sendRadius)
     {
         _packet.WriteLength();
 
@@ -117,13 +82,13 @@ public class ServerSend : MonoBehaviour
             if (Server.clients[i].player != null)
             {
                 Vector3 targetPosition;
-                if (Server.clients[i].player.playerInstance != null)
-                {
-                    targetPosition = Server.clients[i].player.playerInstance.transform.position;
-                }
-                else
+                if (Server.clients[i].player.data.is_on_ship)
                 {
                     targetPosition = Server.clients[i].player.transform.position;
+                }
+                else 
+                {
+                    targetPosition = Server.clients[i].player.playerInstance.transform.position;
                 }
 
                 float distance = Vector3.Distance(position, targetPosition);
@@ -131,34 +96,6 @@ public class ServerSend : MonoBehaviour
                 {
                     Server.clients[i].tcp.SendData(_packet);
                 }
-            }
-        }
-    }
-
-    private static void SendTCPDataRadiusPlayer(int except, Packet _packet, Vector3 position, float sendRadius)
-    {
-        _packet.WriteLength();
-
-        for (int i = 1; i <= Server.MaxPlayers; i++)
-        {
-            if (Server.clients[i].player != null && Server.clients[i].player.id != except)
-            {
-                Vector3 targetPosition;
-                if (Server.clients[i].player.playerInstance != null)
-                {
-                    targetPosition = Server.clients[i].player.playerInstance.transform.position;
-                }
-                else
-                {
-                    targetPosition = Server.clients[i].player.transform.position;
-                }
-
-                float distance = Vector3.Distance(position, targetPosition);
-                if (Math.Abs(distance) < sendRadius)
-                {
-                    Server.clients[i].tcp.SendData(_packet);
-                }
-
             }
         }
     }
@@ -535,7 +472,7 @@ public class ServerSend : MonoBehaviour
             _packet.Write(position);
             _packet.Write(angle);
 
-            SendTCPDataRadiusShip(_packet, pos, NetworkManager.visibilityRadius);
+            SendTCPDataRadius(_packet, pos, NetworkManager.visibilityRadius);
         }
     }
 
@@ -547,8 +484,8 @@ public class ServerSend : MonoBehaviour
             _packet.Write(type);
             _packet.Write(damage);
 
-            SendTCPDataRadiusShip(_packet, pos, NetworkManager.visibilityRadius);
-        }
+            SendTCPDataRadius(_packet, pos, NetworkManager.visibilityRadius);            
+        }        
     }
 
     public static void CannonRotate(int from, string direction, string side)
@@ -607,7 +544,7 @@ public class ServerSend : MonoBehaviour
             _packet.Write(shipStats);
             _packet.Write(playerStats);
 
-            SendTCPDataRadiusShip(_packet, player.transform.position, NetworkManager.visibilityRadius);
+            SendTCPDataRadius(_packet, player.transform.position, NetworkManager.visibilityRadius);
         }
 
         if (player.group != null)
@@ -889,7 +826,7 @@ public class ServerSend : MonoBehaviour
             _packet.Write(Y_rotation);
             _packet.Write(Server.clients[from].player.data);
             //SendTCPData(to, _packet);
-            SendTCPDataRadiusPlayer(_packet, position, NetworkManager.visibilityRadius);
+            SendTCPDataRadius(_packet, position, NetworkManager.visibilityRadius);
         }
     }
 
@@ -899,7 +836,7 @@ public class ServerSend : MonoBehaviour
         {
             _packet.Write(from);
             //SendTCPData(to, _packet);
-            SendTCPDataRadiusPlayer(_packet, position, NetworkManager.visibilityRadius);
+            SendTCPDataRadius(_packet, position, NetworkManager.visibilityRadius);
         }
     }
 
@@ -922,7 +859,7 @@ public class ServerSend : MonoBehaviour
             _packet.Write(input.jump);
             _packet.Write(input.leftMouseDown);
             _packet.Write(input.move);
-            SendTCPDataRadiusPlayer(from, _packet, position, NetworkManager.visibilityRadius);
+            SendTCPDataRadius(from, _packet, position, NetworkManager.visibilityRadius);
         }
     }
 
@@ -935,7 +872,11 @@ public class ServerSend : MonoBehaviour
             _packet.Write(input.leftShift);
             _packet.Write(input.jump);
             _packet.Write(input.leftMouseDown);
-            SendTCPDataRadiusPlayer(from, _packet, position, NetworkManager.visibilityRadius);
+            _packet.Write(input.speed);
+            _packet.Write(input.horizontal);
+            _packet.Write(input.attackName);
+            _packet.Write(input.rollDirection);
+            SendTCPDataRadius(from, _packet, position, NetworkManager.visibilityRadius);
         }
     }
 
@@ -945,7 +886,7 @@ public class ServerSend : MonoBehaviour
         {
             _packet.Write(from);
             _packet.Write(x);
-            SendTCPDataRadiusPlayer(from, _packet, position, NetworkManager.visibilityRadius);
+            SendTCPDataRadius(from, _packet, position, NetworkManager.visibilityRadius);
         }
     }
 
@@ -1123,6 +1064,44 @@ public class ServerSend : MonoBehaviour
         {
             _packet.Write(playerId);            
             SendTCPData(to, _packet);
+        }
+    }
+
+    public static void PlayerCharacterPosition(int from, Vector3 position, Quaternion rotation)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.playerCharacterPosition))
+        {
+            _packet.Write(from);
+            _packet.Write(position);
+            _packet.Write(rotation);            
+            SendTCPDataRadius(from, _packet, position, NetworkManager.visibilityRadius);
+        }
+    }
+
+    public static void Jump(int from)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.jump))
+        {
+            _packet.Write(from);
+            SendTCPDataRadius(from, _packet, Server.clients[from].player.playerInstance.transform.position, NetworkManager.visibilityRadius);
+        }
+    }
+
+    public static void StartCrafting(int from)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.startCrafting))
+        {
+            _packet.Write(from);
+            SendTCPDataRadius(from, _packet, Server.clients[from].player.playerInstance.transform.position, NetworkManager.visibilityRadius);
+        }
+    }
+
+    public static void StopCrafting(int from)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.stopCrafting))
+        {
+            _packet.Write(from);
+            SendTCPDataRadius(from, _packet, Server.clients[from].player.playerInstance.transform.position, NetworkManager.visibilityRadius);
         }
     }
 }

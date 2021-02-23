@@ -128,6 +128,10 @@ public class Player : MonoBehaviour
         playerInstance.transform.Find("PlayerSphere").GetComponent<SphereCollider>().radius = NetworkManager.visibilityRadius / 2;
         playerInstance.transform.eulerAngles = new Vector3(0, data.Y_ROT_PLAYER, 0);
         playerCharacter.Load();
+
+        if (data.is_on_ship)
+            playerInstance.SetActive(false);
+
         //}
         
         ServerSend.OnGameStart(id, stats, playerCharacter.stats, exp, data);
@@ -504,7 +508,7 @@ public class Player : MonoBehaviour
                 playerInstance.GetComponent<PlayerCharacter>().id = id;*/
                 playerInstance.SetActive(true);
                 data.is_on_ship = false;
-                ServerSend.LeaveShip(id, spawnPosition, 180f);
+                ServerSend.LeaveShip(id, playerInstance.transform.position, playerInstance.transform.eulerAngles.y);
             }
             else if (playerInstance.GetComponent<PlayerCharacter>().isOnDock)
             {                
@@ -514,6 +518,7 @@ public class Player : MonoBehaviour
                 data.is_on_ship = true;                
             }
             mysql.UpdatePlayerIsOnShip(dbid, data.is_on_ship);
+            ServerSend.PlayerData(id, data);
         }
     }
 

@@ -8,6 +8,8 @@ public class PlayerCharacter : MonoBehaviour
     public int id;
     public PlayerEquipment equipment;
     public PlayerData data;
+    public Weapon currentWeapon;
+    public bool weaponEnabled;
     // Start is called before the first frame update
 
     public float maxHealth = 100f;
@@ -25,16 +27,17 @@ public class PlayerCharacter : MonoBehaviour
     public bool isOnDock = false;
 
     public bool gatheringEnabled;
+    public bool craftingEnabled;
     public GameObject currentResource;
     public bool tradingEnabled;
     public bool tradeBrokerEnabled;
     public CraftingSpot craftingSpot;
-    public Trader trader;
+    public Trader trader;    
 
     private void Awake()
     {
         equipment = GetComponent<PlayerEquipment>();
-        mysql = FindObjectOfType<Mysql>();
+        mysql = FindObjectOfType<Mysql>();        
     }
 
     public void Load()
@@ -92,10 +95,12 @@ public class PlayerCharacter : MonoBehaviour
         {
             int otherPlayerId = other.GetComponentInParent<Player>().id;
 
-            if (otherPlayerId != id) {
+            if (otherPlayerId != id)
+            {
                 bool isOnShip = Server.clients[otherPlayerId].player.data.is_on_ship;
 
-                if (isOnShip) {
+                if (isOnShip)
+                {
                     ServerSend.DestroyPlayerCharacter(id, otherPlayerId);
                 }
                 ServerSend.Stats(otherPlayerId, id);
@@ -121,6 +126,7 @@ public class PlayerCharacter : MonoBehaviour
         }
         else if (other.tag.Equals("CraftingSpot"))
         {
+            craftingEnabled = true;
             craftingSpot = other.GetComponent<CraftingSpot>();
         }
         else if (other.tag == "Trader")
@@ -131,6 +137,18 @@ public class PlayerCharacter : MonoBehaviour
         else if (other.tag == "TradeBroker")
         {
             tradeBrokerEnabled = true;
+        }
+        else if (other.tag == "Weapon") {
+            PlayerCharacter otherPlayer = other.GetComponent<Weapon>().player.GetComponent<PlayerCharacter>();
+            if (otherPlayer.id != id) {
+                CharacterAnimationController animationController = otherPlayer.GetComponentInChildren<CharacterAnimationController>();
+                if (animationController.currentAttack != null && !animationController.currentAttack.done)
+                {
+                    Debug.Log("Attack "+animationController.currentAttack.attackName);
+                    animationController.currentAttack.done = true;
+                    OnPlayerAttack(otherPlayer, animationController.currentAttack);
+                }
+            }
         }
     }
 
@@ -147,6 +165,7 @@ public class PlayerCharacter : MonoBehaviour
         }
         else if (other.tag.Equals("CraftingSpot"))
         {
+            craftingEnabled = false;
             craftingSpot = null;
         }
         else if (other.tag == "Trader")
@@ -157,6 +176,22 @@ public class PlayerCharacter : MonoBehaviour
         else if (other.tag == "TradeBroker")
         {
             tradeBrokerEnabled = false;
+        }        
+    }
+
+    private void OnPlayerAttack(PlayerCharacter player, PlayerAttack attack) {
+        float damage = 0f;
+        float randValue = UnityEngine.Random.value;
+        if (randValue < player.crit_chance / 100)
+        {
+            damage = (player.attack * 2 - defence)*attack.multiplier;
+            health -= damage;
         }
+        else
+        {
+            damage = (player.attack - defence)*attack.multiplier;
+            health -= damage;
+        }        
+        ServerSend.TakeDamage(id, transform.position, damage, "character");
     }
 }

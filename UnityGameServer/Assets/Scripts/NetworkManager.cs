@@ -30,6 +30,11 @@ public class NetworkManager : MonoBehaviour
     public static Dictionary<int, List<SerializableObjects.Trader>> traders = new Dictionary<int, List<SerializableObjects.Trader>>();
     public static Dictionary<string, PlayerTrade> tradeLinks = new Dictionary<string, PlayerTrade>();
     public static Dictionary<int, PlayerTrade> trades = new Dictionary<int, PlayerTrade>();
+    public static Dictionary<string, PlayerAttack> playerAttacks = new Dictionary<string, PlayerAttack>() {
+        { "DSA_Top", new PlayerAttack(){ multiplier=2f, attackName="DSA_Top"} },
+        { "DSA_Long", new PlayerAttack(){ multiplier=1.5f, attackName="DSA_Long"} },
+        { "Stab", new PlayerAttack(){ multiplier=1f, attackName="Stab"} }
+    };
 
     public class PacketData {
         public int type;
@@ -333,6 +338,18 @@ public class NetworkManager : MonoBehaviour
                         break;
                     case (int)ClientPackets.switchTarget:
                         ServerHandle.ShowPlayerHP(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.playerCharacterPosition:
+                        ServerHandle.PlayerCharacterPosition(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.jump:
+                        ServerHandle.Jump(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.startCrafting:
+                        ServerSend.StartCrafting(client.id);
+                        break;
+                    case (int)ClientPackets.stopCrafting:
+                        ServerSend.StopCrafting(client.id);
                         break;
                 }
             }
