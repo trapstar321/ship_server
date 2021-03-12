@@ -167,10 +167,12 @@ public class EnemyAI : MonoBehaviour
 
     private float TakeDamage(Player player)
     {
+        bool crit = false;
         float damage = 0f;
         float randValue = UnityEngine.Random.value;
         if (randValue < player.crit_chance / 100)
         {
+            crit = true;
             damage = player.attack * 2 - defence;
             health -= damage;
         }
@@ -181,7 +183,7 @@ public class EnemyAI : MonoBehaviour
             health -= damage;
         }
         SetHealth(health);
-        ServerSend.TakeDamage(id, transform.position, damage, "npc");
+        ServerSend.TakeDamage(id, transform.position, damage, "npc", crit);
         return damage;
     }
 

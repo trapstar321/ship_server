@@ -16,12 +16,14 @@ public class NetworkManager : MonoBehaviour
     public GameObject playerPrefab;
     public GameObject enemyPrefab;
     public GameObject projectilePrefab;
-    public static float visibilityRadius = 50;
+    public static float visibilityRadius = 10;
 
     float lastPositionUpdateTime = -1;
     float positionUpdateDifference = 5;
 
     Mysql mysql;
+    public GameObject respawnPointCharacter;
+    public GameObject respawnPointShip;
 
     public static Dictionary<int, Group> groups = new Dictionary<int, Group>();
     public static Dictionary<string, int> invitationLinks = new Dictionary<string, int>();
@@ -179,25 +181,19 @@ public class NetworkManager : MonoBehaviour
                         break;
                     case (int)ClientPackets.searchChest:
                         ServerHandle.SearchChest(client.id, packet.packet);
-                        break;
-                    case (int)ClientPackets.removeShipEquipment:
-                        ServerHandle.RemoveShipEquipment(client.id, packet.packet);
-                        break;
+                        break;                    
                     case (int)ClientPackets.getShipEquipment:
                         ServerHandle.GetShipEquipment(client.id, packet.packet);
                         break;
                     case (int)ClientPackets.replaceShipEquipment:
                         ServerHandle.ReplaceShipEquipment(client.id, packet.packet);
                         break;
-                    case (int)ClientPackets.addItemToInventory:
-                        ServerHandle.AddItemToInventory(client.id, packet.packet);
+                    case (int)ClientPackets.unequipItem:
+                        ServerHandle.UnequipItem(client.id, packet.packet);
                         break;
                     case (int)ClientPackets.removeItemFromInventory:
                         ServerHandle.RemoveItemFromInventory(client.id, packet.packet);
-                        break;
-                    case (int)ClientPackets.removePlayerEquipment:
-                        ServerHandle.RemovePlayerEquipment(client.id, packet.packet);
-                        break;
+                        break;                    
                     case (int)ClientPackets.getPlayerEquipment:
                         ServerHandle.GetPlayerEquipment(client.id, packet.packet);
                         break;
@@ -337,7 +333,7 @@ public class NetworkManager : MonoBehaviour
                         ServerHandle.IsOnShip(client.id, packet.packet);
                         break;
                     case (int)ClientPackets.switchTarget:
-                        ServerHandle.ShowPlayerHP(client.id, packet.packet);
+                        ServerHandle.SwitchTarget(client.id, packet.packet);
                         break;
                     case (int)ClientPackets.playerCharacterPosition:
                         ServerHandle.PlayerCharacterPosition(client.id, packet.packet);
@@ -350,6 +346,9 @@ public class NetworkManager : MonoBehaviour
                         break;
                     case (int)ClientPackets.stopCrafting:
                         ServerSend.StopCrafting(client.id);
+                        break;
+                    case (int)ClientPackets.shipPosition:
+                        ServerHandle.ShipPosition(client.id, packet.packet);
                         break;
                 }
             }
@@ -463,6 +462,28 @@ public class NetworkManager : MonoBehaviour
     public static SerializableObjects.Item ItemToSerializable(Item item)
     {
         return new SerializableObjects.Item()
+        {
+            id = item.id,
+            item_id = item.item_id,
+            iconName = item.iconName,
+            isDefaultItem = item.isDefaultItem,
+            name = item.name,
+            item_type = item.item_type,
+            attack = item.attack,
+            health = item.health,
+            defence = item.defence,
+            speed = item.speed,
+            visibility = item.visibility,
+            rotation = item.rotation,
+            cannon_reload_speed = item.cannon_reload_speed,
+            crit_chance = item.crit_chance,
+            cannon_force = item.cannon_force,
+            stackable = item.stackable
+        };
+    }
+    public static Item SerializableToItem(SerializableObjects.Item item)
+    {
+        return new Item()
         {
             id = item.id,
             item_id = item.item_id,

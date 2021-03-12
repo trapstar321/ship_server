@@ -17,7 +17,7 @@ public class Inventory : MonoBehaviour
     public delegate void OnItemChanged();
     public OnItemChanged onItemChangedCallback;
 
-    public int space = 80;
+    public static int space = 80;
 
     public List<InventorySlot> items = new List<InventorySlot>();
 
@@ -42,8 +42,9 @@ public class Inventory : MonoBehaviour
             }
 
             foreach (InventorySlot slot in items) {
-                if (!found && item.stackable){                    
-                    if(slot.item==null) {
+                if (!found && item.stackable){
+                    if (slot.item == null && HasSpace())
+                    {
                         slot.item = item;
                         slot.quantity = quantity;
                         s = slot;
@@ -51,7 +52,7 @@ public class Inventory : MonoBehaviour
                     }
                 }
                 else if(!item.stackable){
-                    if (slot.item == null) {
+                    if (slot.item == null && HasSpace()) {
                         slot.item = item;
                         slot.quantity = quantity;
                         s = slot;

@@ -111,30 +111,14 @@ public class Crafting: MonoBehaviour
                     yield break;
                 }
 
-                int id = 0;
-                if (craftingItem.stackable)
-                {
-                    id = mysql.GetPlayerItemId(player.dbid, craftingItem);
-                    if (id == 0)
-                    {
-                        id = mysql.AddPlayerItem(player.dbid, craftingItem);
-                    }
-                }
-                else
-                {
-                    id = mysql.AddPlayerItem(player.dbid, craftingItem);
-                }
-
-                InventorySlot slot = player.inventory.Add(craftingItem);
-                slot.item.id = id;
-                mysql.AddItemToInventory(player.dbid, slot);
+                mysql.InventoryAdd(player, craftingItem, 1);
 
                 foreach (RecipeItemRequirement itemRequirement in itemsNeeded)
                 {
                     int item_id = itemRequirement.item_id;
                     int quantity = itemRequirement.quantity;
 
-                    slot = FindSlot(item_id);
+                    InventorySlot slot = FindSlot(item_id);
                     inventory.RemoveAmount(slot.slotID, quantity);
 
                     if (slot.item == null)
@@ -152,7 +136,7 @@ public class Crafting: MonoBehaviour
 
                 i--;
                 ServerSend.Inventory(from, Server.clients[from].player.inventory);
-                
+                ServerSend.ExperienceGained(from, recipe.experience);
             }
         }
 

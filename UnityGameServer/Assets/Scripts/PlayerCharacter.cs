@@ -44,6 +44,19 @@ public class PlayerCharacter : MonoBehaviour
     {
         this.stats = mysql.ReadPlayerBaseStatsTable();
         LoadBaseStats();
+        LoadPlayerEquipment();
+    }
+
+    public void LoadPlayerEquipment()
+    {
+        Mysql mysql = FindObjectOfType<Mysql>();
+        Player player = Server.clients[id].player;
+        List<Item> items = mysql.ReadPlayerEquipment(player.dbid);        
+
+        foreach (Item item in items)
+        {
+            equipment.Add(item);
+        }
     }
 
     protected void LoadBaseStats()
@@ -99,10 +112,11 @@ public class PlayerCharacter : MonoBehaviour
             {
                 bool isOnShip = Server.clients[otherPlayerId].player.data.is_on_ship;
 
-                if (isOnShip)
+                /*if (isOnShip)
                 {
                     ServerSend.DestroyPlayerCharacter(id, otherPlayerId);
-                }
+                }*/
+                ServerSend.ActivateShip(id, otherPlayerId);
                 ServerSend.Stats(otherPlayerId, id);
             }
         }
@@ -112,6 +126,7 @@ public class PlayerCharacter : MonoBehaviour
 
             if (otherPlayerId != id)
             {
+                ServerSend.ActivatePlayerCharacter(id, otherPlayerId);
                 ServerSend.Stats(otherPlayerId, id);
             }
         }
@@ -176,14 +191,37 @@ public class PlayerCharacter : MonoBehaviour
         else if (other.tag == "TradeBroker")
         {
             tradeBrokerEnabled = false;
-        }        
+        }
+        else if (other.name.Equals("PlayerSphere"))
+        {
+            int otherPlayerId = other.GetComponentInParent<PlayerCharacter>().id;
+
+            if (otherPlayerId != id)
+            {
+                ServerSend.DeactivatePlayerCharacter(id, otherPlayerId);                
+            }
+        }
+        else if (other.name.Equals("Sphere"))
+        {
+            int otherPlayerId = other.GetComponentInParent<Player>().id;
+
+            if (otherPlayerId != id)
+            {                
+                ServerSend.DeactivateShip(id, otherPlayerId);
+            }
+        }
     }
 
     private void OnPlayerAttack(PlayerCharacter player, PlayerAttack attack) {
+        if (data.dead)
+            return;
+
+        bool crit = false;
         float damage = 0f;
         float randValue = UnityEngine.Random.value;
         if (randValue < player.crit_chance / 100)
         {
+            crit = true;
             damage = (player.attack * 2 - defence)*attack.multiplier;
             health -= damage;
         }
@@ -191,7 +229,49 @@ public class PlayerCharacter : MonoBehaviour
         {
             damage = (player.attack - defence)*attack.multiplier;
             health -= damage;
-        }        
-        ServerSend.TakeDamage(id, transform.position, damage, "character");
+        }
+
+        if (health <= 0) {
+            health = 0;
+            Die();
+        }
+
+        ServerSend.TakeDamage(id, transform.position, damage, "character", crit);
+    }
+
+    public void Die() {
+        Debug.Log("Die");
+        data.dead = true;
+        mysql.DiePlayerCharacter(Server.clients[id].player.dbid);
+        //gameObject.SetActive(false);        
+        ServerSend.DiePlayerCharacter(id, data);
+    }
+
+    public void Respawn() {
+        data.dead = false;
+        gameObject.transform.position = NetworkManager.instance.respawnPointCharacter.transform.position;
+        mysql.RespawnPlayerCharacter(Server.clients[id].player.dbid);
+        health = maxHealth;        
+        ServerSend.RespawnPlayerCharacter(id, data);
+        ServerSend.Stats(id);
+    }
+
+    public float respawnUpdateTime;
+    public float respawnTime = 10;
+
+    public void Update()
+    {
+        if (data.dead)
+        {
+            if (Time.time - respawnUpdateTime < respawnTime)
+                return;
+
+            respawnUpdateTime = Time.time;
+            Debug.Log("Respawn");
+            Respawn();
+        }
+        else {
+            respawnUpdateTime = Time.time;
+        }
     }
 }

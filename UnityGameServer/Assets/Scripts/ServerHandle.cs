@@ -31,7 +31,7 @@ public class ServerHandle : MonoBehaviour
             Debug.Log($"Player (ID: {_fromClient}) has assumed the wrong client ID ({_clientIdCheck})!");
         }*/
         ServerSend.Welcome(_fromClient);
-        ServerSend.Parameters(_fromClient, new Parameters() { visibilityRadius = NetworkManager.visibilityRadius });
+        ServerSend.Parameters(_fromClient, new Parameters() { visibilityRadius = NetworkManager.visibilityRadius, inventorySize=Inventory.space });
         PlayerData data = mysql.ReadPlayerData(dbid);
         Server.clients[_fromClient].SendIntoGame(data, "username", dbid);
         //ServerSend.WavesMesh(_fromClient, NetworkManager.wavesScript.GenerateMesh());
@@ -146,16 +146,54 @@ public class ServerHandle : MonoBehaviour
 
     public static void DropItem(int from, Packet packet)
     {
-        Inventory inventory = Server.clients[from].player.inventory;
+        Player player = Server.clients[from].player;
+        Inventory inventory = player.inventory;
         SerializableObjects.InventorySlot slot = packet.ReadInventorySlot();
+        int quantity = packet.ReadInt();
 
-        inventory.Remove(slot.slotID);
+        if (slot.slot_type.Length > 0)
+        {
+            if (slot.slot_type.Equals("player_equipment"))
+            {
+                Item item = NetworkManager.SerializableToItem(slot.item);
+                PlayerEquipment pequipment = Server.clients[from].player.playerInstance.GetComponent<PlayerCharacter>().equipment;
+                mysql.RemovePlayerEquipment(player.dbid, item);
+                pequipment.Remove(item);
+            }
+            else if (slot.slot_type.Equals("ship_equipment")) {
+                Item item = NetworkManager.SerializableToItem(slot.item);
+                ShipEquipment sequipment = Server.clients[from].player.ship_equipment;
+                mysql.RemoveShipEquipment(player.dbid, item);
+                sequipment.Remove(item);
+            }
+        }
+        else
+        { 
+            InventorySlot s = inventory.FindSlot(slot.slotID);
 
-        InventorySlot s = SlotFromSerializable(slot);
-        mysql.DropItem(Server.clients[from].player.dbid, s);
+            if (!s.item.stackable || (s.item.stackable && s.quantity == quantity))
+            {
+                inventory.Remove(slot.slotID);
+                mysql.DropItem(Server.clients[from].player.dbid, s);
+
+                quantity = 1;
+                int id = 0;
+                Item tempItem = mysql.GetTempStorageItem(player.dbid, out id, out quantity);
+                if (tempItem != null)
+                {
+                    mysql.RemoveTemporaryStorage(id);
+                    mysql.InventoryAdd(player, tempItem, quantity);
+                }
+                ServerSend.Inventory(from, inventory);
+            }
+            else {
+                inventory.RemoveAmount(s.slotID, quantity);
+                mysql.UpdateItemQuantity(player.dbid, s);
+            }
+        }
     }
 
-    public static void AddItemToInventory(int from, Packet packet)
+    public static void UnequipItem(int from, Packet packet)
     {
         int dbid = Server.clients[from].player.dbid;
         Inventory inventory = Server.clients[from].player.inventory;
@@ -163,6 +201,7 @@ public class ServerHandle : MonoBehaviour
         PlayerEquipment pequipment = Server.clients[from].player.playerInstance.GetComponent<PlayerCharacter>().equipment;
 
         string eq = packet.ReadString();
+        string type = packet.ReadString();        
         SerializableObjects.Item item = packet.ReadItem();
 
         Item it = null;
@@ -173,7 +212,29 @@ public class ServerHandle : MonoBehaviour
             it = pequipment.GetItem(item.item_type);
 
         InventorySlot sl = inventory.Add(it);
-        mysql.AddItemToInventory(dbid, sl);
+        if (sl != null) { 
+            mysql.AddItemToInventory(dbid, sl);
+
+            if (eq.Equals("ship_equipment"))
+                it = sequipment.GetItem(type);
+            else if (eq.Equals("player_equipment"))
+                it = pequipment.GetItem(type);
+
+            if (it != null)
+            {
+                if (eq.Equals("ship_equipment"))
+                {
+                    sequipment.Remove(it);
+                    mysql.RemoveShipEquipment(dbid, it);
+                }
+                else if (eq.Equals("player_equipment")) {
+                    pequipment.Remove(it);
+                    mysql.RemovePlayerEquipment(dbid, it);
+                }
+            }            
+        }
+
+        ServerSend.InventoryItemCount(from);
     }
 
     public static void RemoveItemFromInventory(int from, Packet packet)
@@ -187,7 +248,7 @@ public class ServerHandle : MonoBehaviour
 
     public static void ReplaceShipEquipment(int from, Packet packet)
     {
-        int dbid = Server.clients[from].player.dbid;
+        Player player = Server.clients[from].player;
         Inventory inventory = Server.clients[from].player.inventory;
         ShipEquipment equipment = Server.clients[from].player.ship_equipment;
 
@@ -197,21 +258,32 @@ public class ServerHandle : MonoBehaviour
         Item new_ = slot.item;
         Item old = equipment.GetItem(new_.item_type);
 
-        mysql.RemoveInventoryItem(dbid, slot.slotID);
-        mysql.AddShipEquipment(dbid, new_);
+        mysql.RemoveInventoryItem(player.dbid, slot.slotID);
+        mysql.AddShipEquipment(player.dbid, new_);
 
         inventory.Remove(slot.slotID);
         if (old != null)
         {
             slot = inventory.Add(old);
-            mysql.AddItemToInventory(dbid, slot);
+            mysql.AddItemToInventory(player.dbid, slot);
+        }else {
+            int quantity = 1;
+            int id = 0;
+            Item tempItem = mysql.GetTempStorageItem(player.dbid, out id, out quantity);
+            if (tempItem != null)
+            {
+                mysql.RemoveTemporaryStorage(id);
+                slot = mysql.InventoryAdd(player, tempItem, quantity);
+                ServerSend.AddToInventory(player.id, slot);
+            }
         }
         equipment.Add(new_);
+        ServerSend.InventoryItemCount(from);
     }
 
     public static void ReplacePlayerEquipment(int from, Packet packet)
     {
-        int dbid = Server.clients[from].player.dbid;
+        Player player = Server.clients[from].player;
         Inventory inventory = Server.clients[from].player.inventory;
         PlayerEquipment equipment = Server.clients[from].player.playerInstance.GetComponent<PlayerCharacter>().equipment;
 
@@ -221,16 +293,28 @@ public class ServerHandle : MonoBehaviour
         Item new_ = slot.item;
         Item old = equipment.GetItem(new_.item_type);
 
-        mysql.RemoveInventoryItem(dbid, slot.slotID);
-        mysql.AddPlayerEquipment(dbid, new_);
+        mysql.RemoveInventoryItem(player.dbid, slot.slotID);
+        mysql.AddPlayerEquipment(player.dbid, new_);
 
         inventory.Remove(slot.slotID);
         if (old != null)
         {
             slot = inventory.Add(old);
-            mysql.AddItemToInventory(dbid, slot);
+            mysql.AddItemToInventory(player.dbid, slot);
+        }
+        else {
+            int quantity = 1;
+            int id = 0;
+            Item tempItem = mysql.GetTempStorageItem(player.dbid, out id, out quantity);
+            if (tempItem != null)
+            {
+                mysql.RemoveTemporaryStorage(id);
+                slot = mysql.InventoryAdd(player, tempItem, quantity);                
+                ServerSend.AddToInventory(player.id, slot);
+            }
         }
         equipment.Add(new_);
+        ServerSend.InventoryItemCount(from);
     }
 
     public static void DragAndDrop(int from, Packet packet)
@@ -261,39 +345,7 @@ public class ServerHandle : MonoBehaviour
             mysql.DragAndDrop_Move(dbid, slot_1, slot_2);
 
         inventory.DragAndDrop(slot_1, slot_2);
-    }
-
-    public static void RemoveShipEquipment(int from, Packet packet)
-    {
-        int dbid = Server.clients[from].player.dbid;
-        ShipEquipment equipment = Server.clients[from].player.ship_equipment;
-        Inventory inventory = Server.clients[from].player.inventory;
-        string type = packet.ReadString();
-
-        Item item = equipment.GetItem(type);
-
-        if (item != null)
-        {
-            equipment.Remove(item);
-            mysql.RemoveShipEquipment(dbid, item);
-        }
-    }
-
-    public static void RemovePlayerEquipment(int from, Packet packet)
-    {
-        int dbid = Server.clients[from].player.dbid;
-        PlayerEquipment equipment = Server.clients[from].player.playerInstance.GetComponent<PlayerEquipment>();
-        Inventory inventory = Server.clients[from].player.inventory;
-        string type = packet.ReadString();
-
-        Item item = equipment.GetItem(type);
-
-        if (item != null)
-        {
-            equipment.Remove(item);
-            mysql.RemovePlayerEquipment(dbid, item);
-        }
-    }
+    }    
 
     protected static Item ItemFromSerializable(SerializableObjects.Item it)
     {
@@ -372,33 +424,8 @@ public class ServerHandle : MonoBehaviour
             foreach (ItemDrop drop in player.lootCache)
             {
                 if (ItemInList(drop))
-                {
-                    int id = 0;
-                    //player_item tabela
-                    //add player item 
-                    //if resource provjeriti da li postoji, ako postoji ne dodati
-                    if (drop.item.stackable)
-                    {
-                        id = mysql.GetPlayerItemId(dbid, drop.item);
-                        if (id == 0)
-                        {
-                            id = mysql.AddPlayerItem(dbid, drop.item);
-                        }
-                    }
-                    else
-                    {
-                        id = mysql.AddPlayerItem(dbid, drop.item);
-                    }
-
-                    //inventory na serveru
-                    //dodati u sljedeći prazan slot
-                    //ako je resource i postoji item povećati quantity                        
-                    InventorySlot slot = player.inventory.Add(drop.item, drop.quantity);
-                    slot.item.id = id;
-
-                    //dodati inventory slot u bazu ako ne postoji
-                    //ako postoji update-ati
-                    mysql.AddItemToInventory(dbid, slot);
+                {                    
+                    mysql.InventoryAdd(player, drop.item, drop.quantity);
                 }
             }
         }
@@ -751,22 +778,17 @@ public class ServerHandle : MonoBehaviour
             player.ExperienceGained(resource.skill_type, experienceGained, player);
             player.skills = mysql.ReadPlayerSkills(player.dbid);
 
+            ServerSend.ExperienceGained(from, experienceGained);
+
             if (numberOfResource > 0)
             {
-                int id = mysql.GetPlayerItemId(player.dbid, resource.item);
-                if (id == 0)
+                InventorySlot slot = mysql.InventoryAdd(player, resource.item, numberOfResource);
+                /*if (slot != null)
                 {
-                    id = mysql.AddPlayerItem(player.dbid, resource.item);
-                }
+                    ServerSend.AddToInventory(from, slot);
+                }*/
 
-                InventorySlot slot = player.inventory.Add(resource.item, numberOfResource);
-                slot.item.id = id;
-
-                //dodati inventory slot u bazu ako ne postoji
-                //ako postoji update-ati
-                mysql.AddItemToInventory(player.dbid, slot);
-
-                ServerSend.AddToInventory(from, slot);
+                ServerSend.Inventory(from, player.inventory);
 
                 if (resource.Empty())
                 {
@@ -854,10 +876,10 @@ public class ServerHandle : MonoBehaviour
             SerializableObjects.Trader trader = NetworkManager.FindTrader(player.dbid, playerCharacter.trader.id);
             float totalPrice = traderItem.sell_price * amount;
 
-            if (traderItem != null && totalPrice < player.data.gold && amount <= traderItem.quantity && player.inventory.HasSpace())
+            if (traderItem != null && totalPrice < player.data.gold && amount <= traderItem.quantity)
             {
                 traderItem.quantity -= amount;
-                mysql.InventoryAdd(player, SerializableToItem(traderItem.item), amount);
+                mysql.InventoryAdd(player, NetworkManager.SerializableToItem(traderItem.item), amount);
 
                 player.data.gold -= totalPrice;
                 mysql.UpdatePlayerGold(player.dbid, player.data.gold);
@@ -950,7 +972,7 @@ public class ServerHandle : MonoBehaviour
         TradeBrokerItem item = mysql.ReadTradeBrokerItem(player.dbid, id);
         if (item.IsMyItem) {
             mysql.DropTradeBrokerItem(id);
-            mysql.InventoryAdd(player, SerializableToItem(item.item), item.quantity);
+            mysql.InventoryAdd(player, NetworkManager.SerializableToItem(item.item), item.quantity);
 
             ServerSend.Inventory(from, player.inventory);
             ServerSend.PlayerData(from, player.data);
@@ -998,7 +1020,7 @@ public class ServerHandle : MonoBehaviour
 
             player.data.gold -= item.price * quantity;
             mysql.UpdatePlayerGold(player.dbid, player.data.gold);
-            mysql.InventoryAdd(player, SerializableToItem(item.item), quantity);
+            mysql.InventoryAdd(player, NetworkManager.SerializableToItem(item.item), quantity);
 
             Player seller = Server.FindPlayerByDBid(item.seller_id);
             if (seller != null)
@@ -1266,13 +1288,13 @@ public class ServerHandle : MonoBehaviour
                     }
 
                     foreach (SerializableObjects.InventorySlot slot in trade.items1) {
-                        mysql.InventoryAdd(player2, SerializableToItem(slot.item), slot.quantity);
+                        mysql.InventoryAdd(player2, NetworkManager.SerializableToItem(slot.item), slot.quantity);
                         mysql.InventoryRemove(player1, slot.item.item_id, slot.quantity);                        
                     }
 
                     foreach (SerializableObjects.InventorySlot slot in tradeOther.items1)
                     {
-                        mysql.InventoryAdd(player1, SerializableToItem(slot.item), slot.quantity);
+                        mysql.InventoryAdd(player1, NetworkManager.SerializableToItem(slot.item), slot.quantity);
                         mysql.InventoryRemove(player2, slot.item.item_id, slot.quantity);
                     }
 
@@ -1311,7 +1333,7 @@ public class ServerHandle : MonoBehaviour
         public  float distance;
     };
 
-    public static void ShowPlayerHP(int from, Packet packet) {
+    public static void SwitchTarget(int from, Packet packet) {
         Player player = Server.clients[from].player;
         GameObject playerObject = Server.clients[from].player.playerInstance;
         List<PlayerDistance> players = new List<PlayerDistance>();
@@ -1384,6 +1406,16 @@ public class ServerHandle : MonoBehaviour
         }        
     }
 
+    public static void ShipPosition(int from, Packet packet)
+    {
+        Player player = Server.clients[from].player;
+        
+        player.transform.position = packet.ReadVector3();
+        player.transform.rotation = packet.ReadQuaternion();
+
+        ServerSend.ShipPosition(from, player.transform.position, player.transform.rotation);        
+    }
+
     public static void Jump(int from, Packet packet) {        
         ServerSend.Jump(from);
         Player player = Server.clients[from].player;
@@ -1400,28 +1432,5 @@ public class ServerHandle : MonoBehaviour
             }
         }
         return quantity;
-    }    
-
-    protected static Item SerializableToItem(SerializableObjects.Item item)
-    {
-        return new Item()
-        {
-            id = item.id,
-            item_id = item.item_id,
-            iconName = item.iconName,
-            isDefaultItem = item.isDefaultItem,
-            name = item.name,
-            item_type = item.item_type,
-            attack = item.attack,
-            health = item.health,
-            defence = item.defence,
-            speed = item.speed,
-            visibility = item.visibility,
-            rotation = item.rotation,
-            cannon_reload_speed = item.cannon_reload_speed,
-            crit_chance = item.crit_chance,
-            cannon_force = item.cannon_force,
-            stackable = item.stackable
-        };
-    }
+    }  
 }

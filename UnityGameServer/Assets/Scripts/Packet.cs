@@ -78,7 +78,18 @@ public enum ServerPackets
     playerCharacterPosition,
     jump,
     startCrafting,
-    stopCrafting
+    stopCrafting,
+    shipPosition,
+    inventoryItemCount,
+    experienceGained,
+    activatePlayerCharacter,
+    deactivatePlayerCharacter,
+    activateShip,
+    deactivateShip,
+    diePlayerCharacter,
+    respawnPlayerCharacter,
+    dieShip,
+    respawnShip
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -94,15 +105,13 @@ public enum ClientPackets
     getInventory,
     dropItem,
     dragAndDrop,
-    searchChest,
-    removeShipEquipment,
+    searchChest,    
     getShipEquipment,
     removeItemFromInventory,
     replaceShipEquipment,
-    addItemToInventory,
+    unequipItem,
     getPlayerEquipment,
-    replacePlayerEquipment,
-    removePlayerEquipment,
+    replacePlayerEquipment,    
     onGameStart,
     shoot,
     cannonRotate,
@@ -153,7 +162,8 @@ public enum ClientPackets
     playerCharacterPosition,
     jump,
     startCrafting,
-    stopCrafting
+    stopCrafting,
+    shipPosition
 }
 
 public class Packet: IDisposable

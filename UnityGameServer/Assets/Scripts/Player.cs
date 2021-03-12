@@ -126,8 +126,7 @@ public class Player : MonoBehaviour
         playerCharacter.id = id;
         playerCharacter.data = data;
         playerInstance.transform.Find("PlayerSphere").GetComponent<SphereCollider>().radius = NetworkManager.visibilityRadius / 2;
-        playerInstance.transform.eulerAngles = new Vector3(0, data.Y_ROT_PLAYER, 0);
-        playerCharacter.Load();
+        playerInstance.transform.eulerAngles = new Vector3(0, data.Y_ROT_PLAYER, 0);        
 
         if (data.is_on_ship)
             playerInstance.SetActive(false);
@@ -135,6 +134,7 @@ public class Player : MonoBehaviour
         //}
         
         ServerSend.OnGameStart(id, stats, playerCharacter.stats, exp, data);
+        playerCharacter.Load();
 
         LoadInventory();
         //LoadPlayerEquipment();
@@ -146,7 +146,19 @@ public class Player : MonoBehaviour
 
     public void Update()
     {
-        
+        if (data.sunk)
+        {
+            if (Time.time - respawnUpdateTime < respawnTime)
+                return;
+
+            respawnUpdateTime = Time.time;
+            Debug.Log("Respawn");
+            Respawn();
+        }
+        else
+        {
+            respawnUpdateTime = Time.time;
+        }
     }
 
     /// <summary>Processes player input and moves the player.</summary>
@@ -221,10 +233,12 @@ public class Player : MonoBehaviour
 
     private void TakeDamage(Player player)
     {
+        bool crit = false;
         float damage = 0f;
         float randValue = UnityEngine.Random.value;
         if (randValue < player.crit_chance / 100)
         {
+            crit = true;
             damage = player.attack * 2 - defence;
             health -= damage;
         }
@@ -234,17 +248,26 @@ public class Player : MonoBehaviour
             damage = player.attack - defence;
             health -= damage;
         }
-        ServerSend.TakeDamage(id, transform.position, damage, "player");
+
+        if (health <= 0)
+        {
+            health = 0;
+            Die();
+        }
+
+        ServerSend.TakeDamage(id, transform.position, damage, "ship", crit);
         if(group!=null)
             ServerSend.GroupMembers(group.groupId);
     }
 
     private void TakeDamage(EnemyAI npc)
     {
+        bool crit = false;
         float damage = 0f;
         float randValue = UnityEngine.Random.value;
         if (randValue < npc.crit_chance / 100)
         {
+            crit = true;
             damage = npc.attack * 2 - defence;
             health -= damage;
         }
@@ -254,7 +277,7 @@ public class Player : MonoBehaviour
             damage = npc.attack - defence;
             health -= damage;
         }
-        ServerSend.TakeDamage(id, transform.position, damage, "player");
+        ServerSend.TakeDamage(id, transform.position, damage, "ship", crit);
         if (group != null)
             ServerSend.GroupMembers(group.groupId);
     }
@@ -290,9 +313,11 @@ public class Player : MonoBehaviour
                 ServerSend.CannonRotate(otherPlayerId, id, leftRotation, "Left");
                 ServerSend.CannonRotate(otherPlayerId, id, rightRotation, "Right");
 
-                bool isOnShip = Server.clients[otherPlayerId].player.data.is_on_ship;
+                if(data.is_on_ship)
+                    ServerSend.ActivateShip(id, otherPlayerId);
+                /*bool isOnShip = Server.clients[otherPlayerId].player.data.is_on_ship;
                 if (isOnShip)
-                    ServerSend.DestroyPlayerCharacter(id, otherPlayerId);
+                    ServerSend.DestroyPlayerCharacter(id, otherPlayerId);*/
             }
         }
         else if (other.name.Equals("PlayerSphere"))
@@ -301,16 +326,17 @@ public class Player : MonoBehaviour
 
             if (otherPlayerId != id)
             {
-                GameObject playerCharacter = Server.clients[otherPlayerId].player.playerInstance;
+                /*GameObject playerCharacter = Server.clients[otherPlayerId].player.playerInstance;
                 
-                Vector3 position = playerCharacter.transform.position;
+                Vector3 position = playerCharacter.transform.position;*/
 
                 /*bool isOnShip = Server.clients[otherPlayerId].player.data.is_on_ship;
                 if (!isOnShip)
                 {*/
-                ServerSend.InstantiatePlayerCharacter(id, otherPlayerId, position, playerCharacter.transform.eulerAngles.y);
-                //}                
-
+                //ServerSend.InstantiatePlayerCharacter(id, otherPlayerId, position, playerCharacter.transform.eulerAngles.y);
+                //}*/                
+                if(data.is_on_ship)
+                    ServerSend.ActivatePlayerCharacter(id, otherPlayerId);
                 ServerSend.Stats(otherPlayerId, id);
             }
         }
@@ -331,6 +357,25 @@ public class Player : MonoBehaviour
         if (other.tag.Equals("Dock"))
         {
             isOnDock = false;
+        }
+        else if (other.name.Equals("PlayerSphere"))
+        {
+            int otherPlayerId = other.GetComponentInParent<PlayerCharacter>().id;
+
+            if (otherPlayerId != id)
+            {
+                if (data.is_on_ship)
+                    ServerSend.DeactivatePlayerCharacter(id, otherPlayerId);
+            }
+        }
+        else if (other.name.Equals("Sphere")) {
+            int otherPlayerId = other.GetComponentInParent<Player>().id;
+
+            if (otherPlayerId != id)
+            {          
+                if(data.is_on_ship)
+                    ServerSend.DeactivateShip(id, otherPlayerId);
+            }
         }
     }
 
@@ -507,6 +552,7 @@ public class Player : MonoBehaviour
                 playerInstance.transform.Find("PlayerSphere").GetComponent<SphereCollider>().radius = NetworkManager.visibilityRadius / 2;
                 playerInstance.GetComponent<PlayerCharacter>().id = id;*/
                 playerInstance.SetActive(true);
+                playerInstance.transform.position = spawnPosition;
                 data.is_on_ship = false;
                 ServerSend.LeaveShip(id, playerInstance.transform.position, playerInstance.transform.eulerAngles.y);
             }
@@ -560,4 +606,26 @@ public class Player : MonoBehaviour
         }
         return false;
     }
+
+    public void Die()
+    {
+        Debug.Log("Die");
+        data.sunk = true;
+        mysql.SinkShip(Server.clients[id].player.dbid);
+        //gameObject.SetActive(false);        
+        ServerSend.DieShip(id, data);
+    }
+
+    public void Respawn()
+    {
+        data.sunk = false;
+        gameObject.transform.position = NetworkManager.instance.respawnPointShip.transform.position;
+        mysql.RespawnShip(Server.clients[id].player.dbid);
+        health = maxHealth;
+        ServerSend.RespawnShip(id, data);
+        ServerSend.Stats(id);
+    }
+
+    public float respawnUpdateTime;
+    public float respawnTime = 10;    
 }

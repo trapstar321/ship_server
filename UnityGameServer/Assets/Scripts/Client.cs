@@ -235,12 +235,16 @@ public class Client: MonoBehaviour
         player.transform.eulerAngles = new Vector3(0, data.Y_ROT_SHIP, 0);
         player.Initialize(id, dbid);
 
-        // Send the new player to all players (including himself)
+        ServerSend.SpawnShip(id, player);
+        player.Load();
+
+        // Send the new player to all players
         foreach (Client _client in Server.clients.Values)
         {
             if (_client.player != null)
             {
-                ServerSend.SpawnShip(_client.id, player);
+                if(_client.player.id!=id)
+                    ServerSend.SpawnShip(_client.id, player);
             }
         }
 
@@ -254,22 +258,22 @@ public class Client: MonoBehaviour
                     ServerSend.SpawnShip(id, _client.player);                    
                 }
             }
-        }
+        }        
 
-        player.Load();
-
-        // Send the new player to all players except himself
-        if (!player.data.is_on_ship)
+        // Send the new player to all players except himself        
+        foreach(Client _client in Server.clients.Values)
         {
-            foreach(Client _client in Server.clients.Values)
+            if (_client.player != null)
             {
-                if (_client.player != null)
+                if (_client.player.id != id)
                 {
-                    if(_client.player.id!=id)
-                        ServerSend.SpawnPlayer(_client.id, player);
+                    //ServerSend.SpawnPlayer(_client.id, player);                        
+                    ServerSend.InstantiatePlayerCharacter(_client.id, id, 
+                        player.playerInstance.transform.position,
+                        player.playerInstance.transform.eulerAngles.y);
                 }
             }
-        }
+        }        
 
         // Send all players to the new player
         foreach (Client _client in Server.clients.Values)
@@ -278,8 +282,11 @@ public class Client: MonoBehaviour
             {
                 if (_client.id != id)
                 {
-                    if(!_client.player.data.is_on_ship)
-                        ServerSend.SpawnPlayer(id, _client.player);
+                    /*if(!_client.player.data.is_on_ship)
+                        ServerSend.SpawnPlayer(id, _client.player);*/
+                    ServerSend.InstantiatePlayerCharacter(id, _client.player.id,
+                            _client.player.playerInstance.transform.position,
+                            _client.player.playerInstance.transform.eulerAngles.y);
                 }
             }
         }

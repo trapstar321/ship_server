@@ -1062,7 +1062,7 @@ public class Mysql : MonoBehaviour
 
     public PlayerData ReadPlayerData(int id) {
         string sql = @"select LEVEL,EXPERIENCE, USERNAME, X_SHIP, Y_SHIP, Z_SHIP, Y_ROT_SHIP,
-                        X_PLAYER, Y_PLAYER, Z_PLAYER, Y_ROT_PLAYER, IS_ON_SHIP, GOLD
+                        X_PLAYER, Y_PLAYER, Z_PLAYER, Y_ROT_PLAYER, IS_ON_SHIP, GOLD, DEAD, SUNK
                        from player where id=@id";
 
         var cmd = new MySqlCommand(sql, con);
@@ -1111,6 +1111,9 @@ public class Mysql : MonoBehaviour
             if (!rdr.IsDBNull(11))
                 is_on_ship = rdr.GetBoolean("IS_ON_SHIP");
 
+            bool dead = rdr.GetBoolean("DEAD");
+            bool sunk = rdr.GetBoolean("SUNK");
+
             string username = rdr.GetString("USERNAME");
             float gold = rdr.GetFloat("GOLD");
 
@@ -1131,6 +1134,8 @@ public class Mysql : MonoBehaviour
 
             data.username = username;
             data.gold = gold;
+            data.dead = dead;
+            data.sunk = sunk;
         }
         rdr.Close();
         return data;
@@ -2145,7 +2150,7 @@ public class Mysql : MonoBehaviour
         return result;
     }
 
-    public void InventoryAdd(Player player, Item item, int amount)
+    public InventorySlot InventoryAdd(Player player, Item item, int amount)
     {
         int id = 0;
         if (item.stackable)
@@ -2162,8 +2167,15 @@ public class Mysql : MonoBehaviour
         }
 
         InventorySlot slot = player.inventory.Add(item, amount);
-        slot.item.id = id;
-        AddItemToInventory(player.dbid, slot);
+        if (slot == null)
+        {
+            AddTemporaryStorage(player.dbid, item, amount);            
+        }
+        else {
+            slot.item.id = id;
+            AddItemToInventory(player.dbid, slot);
+        }
+        return slot;
     }
 
     public void InventoryRemove(Player player, int item_id, int quantity) {
@@ -2190,5 +2202,184 @@ public class Mysql : MonoBehaviour
             }
         }
         return null;
+    }
+
+    public void GetTemporaryStorage(int playerItemId, out int id, out int quantity) {
+        id = 0;
+        quantity = 0;
+        string sql = @"select id, quantity from temporary_storage where item_id=@id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.Parameters.AddWithValue("@id", playerItemId);
+
+        MySqlDataReader rdr = cmd.ExecuteReader();
+        
+        while (rdr.Read())
+        {            
+            id = rdr.GetInt32("ID");
+            quantity = rdr.GetInt32("QUANTITY");
+        }
+
+        rdr.Close();        
+    }
+
+    public void AddTemporaryStorage(int playerId, Item item, int quantity)
+    {
+        int playerItemId;
+        if (item.stackable)
+        {
+            playerItemId = GetPlayerItemId(playerId, item);
+            if (playerItemId == 0)
+            {
+                playerItemId = AddPlayerItem(playerId, item);
+            }
+        }
+        else
+        {
+            playerItemId = AddPlayerItem(playerId, item);
+        }
+
+        int id, store_quantity;
+        GetTemporaryStorage(playerItemId, out id, out store_quantity);
+
+        if (id == 0)
+        {
+            string sql = @"insert into temporary_storage(item_id, quantity)
+                       select @item_id, @quantity";
+
+            var cmd = new MySqlCommand(sql, con);
+            cmd.CommandText = sql;
+
+            cmd.Parameters.AddWithValue("@item_id", playerItemId);
+            cmd.Parameters.AddWithValue("@quantity", quantity);
+
+            cmd.ExecuteNonQuery();
+        }
+        else {
+            string sql = @"update temporary_storage set quantity=@quantity where id=@id";                       
+
+            var cmd = new MySqlCommand(sql, con);
+            cmd.CommandText = sql;
+
+            cmd.Parameters.AddWithValue("@quantity", store_quantity+quantity);
+            cmd.Parameters.AddWithValue("@id", id);
+
+            cmd.ExecuteNonQuery();
+        }
+    }
+
+    public void RemoveTemporaryStorage(int id)
+    {
+        string sql = @"delete from temporary_storage where id=@id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.Parameters.AddWithValue("@id", id);
+
+        cmd.ExecuteNonQuery();
+    }
+
+    public int TotalItems(int playerId) {
+        string sql = @"select count(*)+(select count(*) from temporary_storage as a
+                        inner join player_item as b
+                        on a.item_id=b.id
+                        where b.player_id=@id) as count
+                        from inventory as a
+                        inner join inventory_slot as b
+                        on a.slot_id=b.id
+                        where a.player_id=@id and b.item_id is not null";        
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.Parameters.AddWithValue("@id", playerId);
+
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        int count = 0;
+        while (rdr.Read())
+        {
+            count = rdr.GetInt32("count");            
+        }
+        rdr.Close();
+        return count;
+    }
+
+    public Item GetTempStorageItem(int playerId, out int id, out int quantity)
+    {
+        string sql = @"select a.id, c.id as item_id, a.quantity
+                        from temporary_storage as a
+                        inner join player_item as b
+                        on a.item_id=b.id
+                        inner join item as c
+                        on b.item_id=c.id
+                        where b.player_id=@id
+                        limit 1";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.Parameters.AddWithValue("@id", playerId);
+
+        MySqlDataReader rdr = cmd.ExecuteReader();
+
+        int item_id = 0;
+        Item item = null;
+        quantity = 1;
+        id = 0;
+        while (rdr.Read())
+        {
+            id = rdr.GetInt32("id");
+            item_id = rdr.GetInt32("item_id");
+            quantity = rdr.GetInt32("quantity");            
+        }
+        rdr.Close();
+
+        if (item_id != 0) {
+            item = ReadItem(item_id);
+        }
+
+        return item;
+    }
+
+    public void DiePlayerCharacter(int dbid)
+    {
+        string sql = @"update player set dead = true where id=@id";                       
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.Parameters.AddWithValue("@id", dbid);        
+        cmd.ExecuteNonQuery();
+    }
+
+    public void RespawnPlayerCharacter(int dbid)
+    {
+        string sql = @"update player set dead = false where id=@id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.Parameters.AddWithValue("@id", dbid);
+        cmd.ExecuteNonQuery();
+    }
+
+    public void SinkShip(int dbid)
+    {
+        string sql = @"update player set sunk = true where id=@id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.Parameters.AddWithValue("@id", dbid);
+        cmd.ExecuteNonQuery();
+    }
+
+    public void RespawnShip(int dbid)
+    {
+        string sql = @"update player set sunk = false where id=@id";
+
+        var cmd = new MySqlCommand(sql, con);
+        cmd.CommandText = sql;
+
+        cmd.Parameters.AddWithValue("@id", dbid);
+        cmd.ExecuteNonQuery();
     }
 }
