@@ -110,7 +110,7 @@ CREATE TABLE `inventory` (
   KEY `SLOT_ID` (`SLOT_ID`),
   CONSTRAINT `inventory_ibfk_1` FOREIGN KEY (`PLAYER_ID`) REFERENCES `player` (`ID`),
   CONSTRAINT `inventory_ibfk_2` FOREIGN KEY (`SLOT_ID`) REFERENCES `inventory_slot` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=205 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=334 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -119,7 +119,7 @@ CREATE TABLE `inventory` (
 
 LOCK TABLES `inventory` WRITE;
 /*!40000 ALTER TABLE `inventory` DISABLE KEYS */;
-INSERT INTO `inventory` VALUES (141,1,143),(144,1,146),(145,1,147),(146,1,148),(147,1,149),(149,1,151),(150,1,152),(151,1,153),(152,1,154),(153,1,155),(154,1,156),(155,1,157),(156,1,158),(157,1,159),(158,1,160),(159,1,161),(160,1,162),(161,1,163),(162,1,164),(165,1,167),(166,1,168),(167,1,169),(168,1,170),(169,1,171),(170,1,172),(171,2,173),(175,2,177),(176,1,178),(177,1,179),(178,1,180),(179,1,181),(180,1,182),(181,1,183),(182,1,184),(183,1,185),(184,2,186),(185,2,187),(186,2,188),(187,2,189),(188,2,190),(189,2,191),(190,2,192),(191,2,193),(192,2,194),(193,3,195),(194,3,196),(195,3,197),(196,3,198),(197,3,199),(198,3,200),(199,3,201),(200,3,202),(201,3,203),(202,1,204),(203,2,205),(204,2,206);
+INSERT INTO `inventory` VALUES (171,2,173),(175,2,177),(184,2,186),(185,2,187),(186,2,188),(187,2,189),(188,2,190),(189,2,191),(190,2,192),(191,2,193),(192,2,194),(193,3,195),(194,3,196),(195,3,197),(196,3,198),(197,3,199),(198,3,200),(199,3,201),(200,3,202),(201,3,203),(203,2,205),(204,2,206),(205,1,207),(206,1,208),(207,1,209),(208,1,210),(209,1,211),(210,1,212),(211,1,213),(212,1,214),(213,1,215),(214,1,216),(215,1,217),(216,1,218),(217,1,219),(218,1,220),(219,1,221),(220,1,222),(221,1,223),(222,1,224),(223,1,225),(224,1,226),(225,1,227),(226,1,228),(227,1,229),(228,1,230),(229,1,231),(230,1,232),(231,1,233),(232,1,234),(233,1,235),(234,1,236),(235,1,237),(236,1,238),(237,1,239),(238,1,240),(239,1,241),(240,1,242),(241,1,243),(242,1,244),(243,1,245),(244,1,246),(245,1,247),(246,1,248),(247,1,249),(248,1,250),(249,1,251),(250,1,252),(251,1,253),(252,1,254),(253,1,255),(254,1,256),(255,1,257),(256,1,258),(257,1,259),(258,1,260),(259,1,261),(260,1,262),(261,1,263),(262,1,264),(263,1,265),(264,1,266),(265,1,267),(266,1,268),(267,1,269),(268,1,270),(269,1,271),(270,1,272),(271,1,273),(272,1,274),(273,1,275),(274,1,276),(275,1,277),(276,1,278),(277,1,279),(278,1,280),(279,1,281),(280,1,282),(281,1,283),(282,1,284),(283,1,285),(284,1,286),(332,2,287),(333,2,288);
 /*!40000 ALTER TABLE `inventory` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -138,7 +138,7 @@ CREATE TABLE `inventory_slot` (
   PRIMARY KEY (`ID`),
   KEY `ITEM_ID` (`ITEM_ID`),
   CONSTRAINT `inventory_slot_ibfk_1` FOREIGN KEY (`ITEM_ID`) REFERENCES `player_item` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=207 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=289 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -147,7 +147,7 @@ CREATE TABLE `inventory_slot` (
 
 LOCK TABLES `inventory_slot` WRITE;
 /*!40000 ALTER TABLE `inventory_slot` DISABLE KEYS */;
-INSERT INTO `inventory_slot` VALUES (143,34,11,1292),(146,9,27,3),(147,NULL,41,0),(148,39,9,1),(149,54,8,100),(150,12,12,1),(151,61,21,48),(152,43,15,1),(153,20,2,5),(154,NULL,39,0),(155,NULL,28,0),(156,15,6,1),(157,57,12,131),(158,85,22,1),(159,59,10,100),(160,25,4,1),(161,17,5,1),(162,60,31,229),(163,11,3,2),(164,19,1,1),(167,24,17,1),(168,53,19,32),(169,42,7,2),(170,36,13,2),(171,NULL,14,0),(172,52,20,176),(173,45,1,1),(177,51,2,165),(178,NULL,24,1),(179,NULL,29,0),(180,NULL,25,0),(181,NULL,30,0),(182,NULL,23,0),(183,58,18,93),(184,NULL,33,0),(185,62,32,52),(186,63,3,35),(187,64,4,200),(188,65,5,443),(189,66,6,55),(190,67,7,145),(191,68,8,248),(192,69,9,150),(193,70,10,461),(194,71,11,41),(195,80,1,1),(196,75,2,10),(197,NULL,3,0),(198,NULL,4,0),(199,NULL,5,0),(200,NULL,6,0),(201,NULL,7,0),(202,NULL,8,0),(203,NULL,9,0),(204,10,16,1),(205,NULL,12,0),(206,87,13,1);
+INSERT INTO `inventory_slot` VALUES (143,34,11,1554),(146,9,26,3),(147,NULL,41,0),(148,18,9,1),(149,54,8,100),(150,12,12,1),(151,61,21,48),(152,41,15,1),(153,20,3,5),(154,NULL,39,0),(155,14,27,1),(156,15,6,1),(157,57,22,129),(158,NULL,13,0),(159,59,10,100),(160,25,4,1),(161,17,5,1),(162,60,31,231),(163,11,2,2),(164,19,1,1),(167,NULL,17,0),(168,53,19,32),(169,16,7,1),(170,85,12,1),(171,NULL,14,0),(172,52,20,192),(173,NULL,1,0),(177,51,2,232),(178,NULL,24,0),(179,17,28,1),(180,10,25,1),(181,NULL,30,0),(182,15,29,1),(183,58,18,87),(184,NULL,38,0),(185,62,23,52),(186,NULL,3,0),(187,64,4,200),(188,65,5,398),(189,66,6,55),(190,67,7,145),(191,68,8,248),(192,69,9,150),(193,70,10,446),(194,71,11,62),(195,80,1,1),(196,75,2,10),(197,NULL,3,0),(198,NULL,4,0),(199,NULL,5,0),(200,NULL,6,0),(201,NULL,7,0),(202,NULL,8,0),(203,NULL,9,0),(204,10,16,1),(205,106,12,1),(206,87,13,1),(207,59,63,20),(208,36,79,1),(209,NULL,78,0),(210,36,77,1),(211,36,76,1),(212,36,75,1),(213,36,74,1),(214,36,73,1),(215,56,11,30),(216,61,69,1),(217,36,70,1),(218,36,72,1),(219,36,68,1),(220,36,67,1),(221,36,66,1),(222,36,65,1),(223,36,64,1),(224,NULL,80,0),(225,36,53,1),(226,36,61,1),(227,57,60,102),(228,54,16,10),(229,36,58,1),(230,36,57,1),(231,36,56,1),(232,36,55,1),(233,36,54,1),(234,36,62,1),(235,36,52,1),(236,36,59,1),(237,36,50,1),(238,36,49,1),(239,36,48,1),(240,36,47,1),(241,36,46,1),(242,36,45,1),(243,36,44,1),(244,36,43,1),(245,36,42,1),(246,36,41,1),(247,36,40,1),(248,36,39,1),(249,36,38,1),(250,36,37,1),(251,36,36,1),(252,36,35,1),(253,36,34,1),(254,36,33,1),(255,36,32,1),(256,36,31,1),(257,36,30,1),(258,36,15,1),(259,36,28,1),(260,36,27,1),(261,36,26,1),(262,36,25,1),(263,36,24,1),(264,36,23,1),(265,36,22,1),(266,36,21,1),(267,36,20,1),(268,36,19,1),(269,36,18,1),(270,36,71,1),(271,36,17,1),(272,36,51,1),(273,36,14,1),(274,NULL,13,0),(275,NULL,12,0),(276,36,29,1),(277,NULL,10,0),(278,NULL,9,0),(279,NULL,8,0),(280,NULL,7,0),(281,NULL,6,0),(282,60,5,3),(283,58,4,91),(284,52,3,17),(285,53,2,105),(286,99,1,252),(287,NULL,30,0),(288,NULL,14,0);
 /*!40000 ALTER TABLE `inventory_slot` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -187,7 +187,7 @@ CREATE TABLE `item` (
 
 LOCK TABLES `item` WRITE;
 /*!40000 ALTER TABLE `item` DISABLE KEYS */;
-INSERT INTO `item` VALUES (1,'Wood log','wood.png',0,'resource',0,0,0,0,0,0,0,0,0,200,50,NULL,1),(2,'Wood plank','WoodPlank.png',0,'general',0,0,0,0,0,0,0,0,0,10,20,5,1),(3,'Gold crows nest','crows_nest_gold.png',0,'crows_nest',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(4,'Bow sprite','bow_sprite.png',0,'bow_sprite',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(5,'Jib sail','jib_sail.png',0,'jib_sail',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(6,'Fore sail','fore_sail.png',0,'fore_sail',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(7,'Rudder','rudder.png',0,'rudder',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(8,'Keel','keel.png',0,'keel',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(9,'Hull','hull.png',0,'hull',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(10,'Main mast','main_mast.png',0,'main_mast',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(11,'Rigging','rigging.png',0,'rigging',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(12,'Captains cabin','captains_cabin.png',0,'captains_cabin',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(13,'Main sail','main_sail.png',0,'main_sail',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(14,'Crows nest','crows_nest.png',0,'crows_nest',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(15,'Legs','legs.png',0,'legs',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(16,'Helmet','helmet.png',0,'helmet',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(17,'Top','top.png',0,'top',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(18,'Hands','hands.png',0,'hands',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(19,'Boots','boots.png',0,'boots',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(20,'Wooden Sword','Wooden Sword',0,'hands',10,0,0,0,0,0,0,2,0,10,NULL,NULL,0),(21,'Iron Sword','Iron Sword',0,'hands',15,0,0,0,0,0,0,2,0,40,NULL,NULL,0),(22,'Steel Sword','Steel Sword',0,'hands',20,0,0,0,0,0,0,3,0,30,NULL,NULL,0),(23,'Edged Sword','Edged Sword',0,'hands',25,0,0,0,0,0,0,5,0,30,NULL,NULL,0),(24,'Pirate Sword','Pirate Sword',0,'hands',30,0,0,0,0,0,0,7,0,15,NULL,NULL,0),(25,'Small Dagger','Small Dagger',0,'hands',10,0,0,0,0,0,0,10,0,35,NULL,NULL,0),(26,'Axe','Axe',0,'hands',30,0,0,0,0,0,0,2,0,25,NULL,NULL,0),(27,'Battleaxe','Battleaxe',0,'hands',35,0,0,0,0,0,0,4,0,20,NULL,NULL,0),(28,'Iron Mace','Iron Mace',0,'hands',30,0,0,0,0,0,0,2,0,30,NULL,NULL,0),(29,'Mace','Mace',0,'hands',15,0,0,0,0,0,0,2,0,45,NULL,NULL,0),(30,'Iron ore','Iron Ore',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1),(31,'Gold ore','Gold Ore',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1),(35,'Coal','Coal',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1),(36,'Silver ore','Silver Ore',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1),(37,'Tin ore','Tin Ore',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1),(38,'Water','Water',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1),(39,'Flour','Flour',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1),(40,'Egg','Egg',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1),(41,'Bread','Bread',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,10,1),(42,'Milk','Milk',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1),(43,'Cheese','Cheese',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,10,1);
+INSERT INTO `item` VALUES (1,'Wood log','wood.png',0,'resource',0,0,0,0,0,0,0,0,0,200,50,NULL,1),(2,'Wood plank','WoodPlank.png',0,'general',0,0,0,0,0,0,0,0,0,10,20,5,1),(3,'Gold crows nest','crows_nest_gold.png',0,'crows_nest',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(4,'Bow sprite','bow_sprite.png',0,'bow_sprite',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(5,'Jib sail','jib_sail.png',0,'jib_sail',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(6,'Fore sail','fore_sail.png',0,'fore_sail',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(7,'Rudder','rudder.png',0,'rudder',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(8,'Keel','keel.png',0,'keel',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(9,'Hull','hull.png',0,'hull',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(10,'Main mast','main_mast.png',0,'main_mast',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(11,'Rigging','rigging.png',0,'rigging',0,0,0,0,1,0,0,0,0,10,NULL,NULL,0),(12,'Captains cabin','captains_cabin.png',0,'captains_cabin',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(13,'Main sail','main_sail.png',0,'main_sail',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(14,'Crows nest','crows_nest.png',0,'crows_nest',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(15,'Legs','legs.png',0,'legs',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(16,'Helmet','helmet.png',0,'helmet',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(17,'Top','top.png',0,'top',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(18,'Hands','hands.png',0,'hands',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(19,'Boots','boots.png',0,'boots',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0),(20,'Wooden Sword','Wooden Sword',0,'hands',10,0,0,0,0,0,0,2,0,10,NULL,NULL,0),(21,'Iron Sword','Iron Sword',0,'hands',15,0,0,0,0,0,0,2,0,40,NULL,NULL,0),(22,'Steel Sword','Steel Sword',0,'hands',20,0,0,0,0,0,0,3,0,30,NULL,NULL,0),(23,'Edged Sword','Edged Sword',0,'hands',25,0,0,0,0,0,0,5,0,30,NULL,NULL,0),(24,'Pirate Sword','Pirate Sword',0,'hands',30,0,0,0,0,0,0,7,0,15,NULL,NULL,0),(25,'Small Dagger','Small Dagger',0,'hands',10,0,0,0,0,0,0,10,0,35,NULL,NULL,0),(26,'Axe','Axe',0,'hands',30,0,0,0,0,0,0,2,0,25,NULL,NULL,0),(27,'Battleaxe','Battleaxe',0,'hands',35,0,0,0,0,0,0,4,0,20,NULL,NULL,0),(28,'Iron Mace','Iron Mace',0,'hands',30,0,0,0,0,0,0,2,0,30,NULL,NULL,0),(29,'Mace','Mace',0,'hands',15,0,0,0,0,0,0,2,0,45,NULL,NULL,0),(30,'Iron ore','Iron Ore',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1),(31,'Gold ore','Gold Ore',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1),(35,'Coal','Coal',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1),(36,'Silver ore','Silver Ore',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1),(37,'Tin ore','Tin Ore',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1),(38,'Water','Water',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1),(39,'Flour','Flour',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1),(40,'Egg','Egg',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1),(41,'Bread','Bread',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,10,1),(42,'Milk','Milk',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1),(43,'Cheese','Cheese',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,10,1);
 /*!40000 ALTER TABLE `item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -276,6 +276,8 @@ CREATE TABLE `player` (
   `IS_ON_SHIP` tinyint(1) DEFAULT NULL,
   `Y_ROT_PLAYER` float DEFAULT NULL,
   `GOLD` float DEFAULT '0',
+  `DEAD` tinyint(1) DEFAULT (false),
+  `SUNK` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -286,7 +288,7 @@ CREATE TABLE `player` (
 
 LOCK TABLES `player` WRITE;
 /*!40000 ALTER TABLE `player` DISABLE KEYS */;
-INSERT INTO `player` VALUES (1,'player1',1,0,29.0397,75.2759,0.295679,177.934,'',30.2523,0.569341,42.7854,0,356.41,48797),(2,'player2',1,0,36.6744,75.0568,0.280522,174.676,'',35.1345,2.31537,46.0793,0,24.8093,50240),(3,'player3',1,0,30.605,70.9246,0,80.893,'',34.995,1.08623,44.3663,0,194.971,50000);
+INSERT INTO `player` VALUES (1,'player1',1,0,42.9712,77.2385,0.292568,171.831,'',33.5495,0.109557,76.4574,1,66.583,44477,0,0),(2,'player2',1,0,39.71,76.93,0,170.055,'',34.4494,0.109557,76.3033,1,102.574,42520,0,0),(3,'player3',1,0,37.3762,74.6079,0.334302,331.059,'',34.0984,0.169143,66.8292,0,353,50000,0,0);
 /*!40000 ALTER TABLE `player` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -316,7 +318,7 @@ CREATE TABLE `player_base_stats` (
 
 LOCK TABLES `player_base_stats` WRITE;
 /*!40000 ALTER TABLE `player_base_stats` DISABLE KEYS */;
-INSERT INTO `player_base_stats` VALUES (2,1,100,1000,50,2,20,100);
+INSERT INTO `player_base_stats` VALUES (2,1,100,200,50,4,20,100);
 /*!40000 ALTER TABLE `player_base_stats` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -337,7 +339,7 @@ CREATE TABLE `player_equipment` (
   KEY `PLAYER_ID` (`PLAYER_ID`),
   CONSTRAINT `player_equipment_ibfk_1` FOREIGN KEY (`ITEM_ID`) REFERENCES `player_item` (`ID`),
   CONSTRAINT `player_equipment_ibfk_2` FOREIGN KEY (`PLAYER_ID`) REFERENCES `player` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -346,7 +348,7 @@ CREATE TABLE `player_equipment` (
 
 LOCK TABLES `player_equipment` WRITE;
 /*!40000 ALTER TABLE `player_equipment` DISABLE KEYS */;
-INSERT INTO `player_equipment` VALUES (1,88,1,'hands'),(2,46,2,'hands'),(3,NULL,1,'legs');
+INSERT INTO `player_equipment` VALUES (1,NULL,1,'hands'),(2,105,2,'hands'),(3,NULL,1,'legs'),(4,63,2,'resource');
 /*!40000 ALTER TABLE `player_equipment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -366,7 +368,7 @@ CREATE TABLE `player_item` (
   KEY `PLAYER_ID` (`PLAYER_ID`),
   CONSTRAINT `player_item_ibfk_1` FOREIGN KEY (`ITEM_ID`) REFERENCES `item` (`ID`),
   CONSTRAINT `player_item_ibfk_2` FOREIGN KEY (`PLAYER_ID`) REFERENCES `player` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=108 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -375,7 +377,7 @@ CREATE TABLE `player_item` (
 
 LOCK TABLES `player_item` WRITE;
 /*!40000 ALTER TABLE `player_item` DISABLE KEYS */;
-INSERT INTO `player_item` VALUES (5,1,1),(9,2,1),(10,3,1),(11,4,1),(12,5,1),(13,6,1),(14,7,1),(15,8,1),(16,9,1),(17,10,1),(18,11,1),(19,12,1),(20,13,1),(21,14,1),(22,20,1),(23,29,1),(24,15,1),(25,5,1),(26,1,1),(27,1,1),(28,1,1),(29,1,1),(30,1,1),(31,1,1),(32,1,1),(33,1,1),(34,1,1),(35,29,1),(36,21,1),(37,18,1),(38,21,1),(39,28,1),(40,25,1),(41,6,1),(42,29,1),(43,25,1),(44,28,1),(45,7,2),(46,29,2),(51,1,2),(52,30,1),(53,31,1),(54,35,1),(55,36,1),(56,37,1),(57,38,1),(58,39,1),(59,40,1),(60,41,1),(61,42,1),(62,43,1),(63,35,2),(64,40,2),(65,39,2),(66,31,2),(67,30,2),(68,42,2),(69,36,2),(70,38,2),(71,41,2),(72,35,3),(73,40,3),(74,39,3),(75,31,3),(76,30,3),(77,42,3),(78,36,3),(79,37,3),(80,38,3),(81,15,2),(82,2,2),(85,15,1),(86,25,2),(87,18,2),(88,25,1);
+INSERT INTO `player_item` VALUES (5,1,1),(9,2,1),(10,3,1),(11,4,1),(12,5,1),(13,6,1),(14,7,1),(15,8,1),(16,9,1),(17,10,1),(18,11,1),(19,12,1),(20,13,1),(21,14,1),(22,20,1),(23,29,1),(24,15,1),(25,5,1),(26,1,1),(27,1,1),(28,1,1),(29,1,1),(30,1,1),(31,1,1),(32,1,1),(33,1,1),(34,1,1),(35,29,1),(36,21,1),(37,18,1),(38,21,1),(39,28,1),(40,25,1),(41,6,1),(42,29,1),(43,25,1),(44,28,1),(45,7,2),(46,29,2),(51,1,2),(52,30,1),(53,31,1),(54,35,1),(55,36,1),(56,37,1),(57,38,1),(58,39,1),(59,40,1),(60,41,1),(61,42,1),(62,43,1),(63,35,2),(64,40,2),(65,39,2),(66,31,2),(67,30,2),(68,42,2),(69,36,2),(70,38,2),(71,41,2),(72,35,3),(73,40,3),(74,39,3),(75,31,3),(76,30,3),(77,42,3),(78,36,3),(79,37,3),(80,38,3),(81,15,2),(82,2,2),(85,15,1),(86,25,2),(87,18,2),(88,25,1),(89,21,1),(90,1,1),(91,1,1),(92,1,1),(93,1,1),(94,1,1),(95,1,1),(96,1,1),(97,1,1),(98,1,1),(99,1,1),(100,29,1),(101,29,1),(102,29,2),(103,29,1),(104,29,1),(105,21,2),(106,21,2),(107,21,2);
 /*!40000 ALTER TABLE `player_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -396,7 +398,7 @@ CREATE TABLE `player_skill_level` (
   KEY `SKILL_LEVEL_ID` (`SKILL_LEVEL_ID`),
   CONSTRAINT `player_skill_level_ibfk_1` FOREIGN KEY (`PLAYER_ID`) REFERENCES `player` (`ID`),
   CONSTRAINT `player_skill_level_ibfk_2` FOREIGN KEY (`SKILL_LEVEL_ID`) REFERENCES `skill_level` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=107 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -405,7 +407,7 @@ CREATE TABLE `player_skill_level` (
 
 LOCK TABLES `player_skill_level` WRITE;
 /*!40000 ALTER TABLE `player_skill_level` DISABLE KEYS */;
-INSERT INTO `player_skill_level` VALUES (2,2,1,301),(3,3,1,0),(4,1,6,507),(5,2,6,0),(6,3,6,0),(83,1,3,9338),(84,1,11,0),(85,1,18,0),(86,1,25,0),(88,1,39,0),(89,1,46,0),(91,2,11,0),(92,2,18,0),(93,2,25,0),(94,2,32,590),(95,2,39,0),(96,2,46,0),(98,3,11,0),(99,3,18,0),(100,3,25,0),(101,3,32,0),(102,3,39,0),(103,3,46,0),(104,1,33,1360);
+INSERT INTO `player_skill_level` VALUES (2,2,1,634),(3,3,1,0),(5,2,6,2),(6,3,6,0),(84,1,11,0),(85,1,18,0),(86,1,25,0),(88,1,39,0),(89,1,46,0),(91,2,11,0),(92,2,18,0),(93,2,25,0),(94,2,32,740),(95,2,39,0),(96,2,46,0),(98,3,11,0),(99,3,18,0),(100,3,25,0),(101,3,32,0),(102,3,39,0),(103,3,46,0),(104,1,33,1430),(105,1,4,12449),(106,1,7,2075);
 /*!40000 ALTER TABLE `player_skill_level` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -610,7 +612,7 @@ CREATE TABLE `ship_equipment` (
   KEY `PLAYER_ID` (`PLAYER_ID`),
   CONSTRAINT `ship_equipment_ibfk_1` FOREIGN KEY (`ITEM_ID`) REFERENCES `player_item` (`ID`),
   CONSTRAINT `ship_equipment_ibfk_2` FOREIGN KEY (`PLAYER_ID`) REFERENCES `player` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -619,7 +621,7 @@ CREATE TABLE `ship_equipment` (
 
 LOCK TABLES `ship_equipment` WRITE;
 /*!40000 ALTER TABLE `ship_equipment` DISABLE KEYS */;
-INSERT INTO `ship_equipment` VALUES (1,10,1,'crows_nest'),(2,NULL,1,'bow_sprite'),(3,15,1,'keel'),(4,14,1,'rudder'),(5,41,1,'fore_sail'),(6,17,1,'main_mast'),(7,18,1,'rigging'),(8,19,1,'captains_cabin'),(9,20,1,'main_sail'),(10,12,1,'jib_sail'),(11,16,1,'hull'),(12,NULL,2,'rudder');
+INSERT INTO `ship_equipment` VALUES (1,NULL,1,'crows_nest'),(2,NULL,1,'bow_sprite'),(3,NULL,1,'keel'),(4,NULL,1,'rudder'),(5,NULL,1,'fore_sail'),(6,NULL,1,'main_mast'),(7,NULL,1,'rigging'),(8,19,1,'captains_cabin'),(9,20,1,'main_sail'),(10,12,1,'jib_sail'),(11,NULL,1,'hull'),(12,NULL,2,'rudder'),(13,53,1,'resource');
 /*!40000 ALTER TABLE `ship_equipment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -687,11 +689,12 @@ DROP TABLE IF EXISTS `temporary_storage`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `temporary_storage` (
   `ID` int NOT NULL AUTO_INCREMENT,
-  `ITEM_ID` int NOT NULL,
+  `ITEM_ID` int DEFAULT NULL,
+  `QUANTITY` int DEFAULT NULL,
   PRIMARY KEY (`ID`),
   KEY `ITEM_ID` (`ITEM_ID`),
   CONSTRAINT `temporary_storage_ibfk_1` FOREIGN KEY (`ITEM_ID`) REFERENCES `player_item` (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -753,7 +756,7 @@ CREATE TABLE `trade_broker_items` (
   CONSTRAINT `trade_broker_items_ibfk_2` FOREIGN KEY (`PLAYER_ID`) REFERENCES `player` (`ID`),
   CONSTRAINT `trade_broker_items_ibfk_3` FOREIGN KEY (`ITEM_ID`) REFERENCES `item` (`ID`),
   CONSTRAINT `trade_broker_items_ibfk_4` FOREIGN KEY (`PARENT_ID`) REFERENCES `trade_broker_items` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -762,7 +765,7 @@ CREATE TABLE `trade_broker_items` (
 
 LOCK TABLES `trade_broker_items` WRITE;
 /*!40000 ALTER TABLE `trade_broker_items` DISABLE KEYS */;
-INSERT INTO `trade_broker_items` VALUES (21,0,1000,2,30,NULL,1),(22,1,1000,2,30,21,1),(25,1,100000,2,2,NULL,0),(26,0,1,2,30,NULL,1),(27,3,1,2,30,26,1);
+INSERT INTO `trade_broker_items` VALUES (21,0,1000,2,30,NULL,1),(22,1,1000,2,30,21,1),(25,1,100000,2,2,NULL,0),(26,0,1,2,30,NULL,1),(27,3,1,2,30,26,1),(28,0,100,2,29,NULL,1),(29,1,100,2,29,28,1),(30,0,100,2,29,NULL,1),(31,1,100,2,29,30,1),(32,0,2500,1,21,NULL,1),(33,0,2500,1,21,NULL,1),(34,0,2500,1,21,NULL,1),(35,1,2500,1,21,32,1),(36,1,2500,1,21,34,1),(37,1,2500,1,21,33,1),(38,20,1,1,31,NULL,0),(39,2,50,1,43,NULL,0),(40,1,50,1,21,NULL,0),(41,1,2500,1,21,NULL,0);
 /*!40000 ALTER TABLE `trade_broker_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -837,4 +840,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-03 21:48:04
+-- Dump completed on 2021-03-12 22:25:15
