@@ -394,13 +394,13 @@ public class ServerHandle : MonoBehaviour
 
     public static void Shoot(int from, Packet packet)
     {
-        CannonShot shootScript = Server.clients[from].player.GetComponent<CannonShot>();
+        CannonShot shootScript = Server.clients[from].player.cannonShot;
         shootScript.Shoot(packet.ReadString());
     }
 
     public static void CannonRotate(int from, Packet packet)
     {
-        CannonController cannonRotate = Server.clients[from].player.GetComponent<CannonController>();
+        CannonController cannonRotate = Server.clients[from].player.cannonController;
         cannonRotate.CannonRotate(packet.ReadString(), packet.ReadString());
     }
 
@@ -1397,7 +1397,7 @@ public class ServerHandle : MonoBehaviour
     public static void PlayerCharacterPosition(int from, Packet packet) {        
         Player player = Server.clients[from].player;
 
-        if (player.playerInstance != null)
+        if (player.playerInstance != null && !player.playerCharacter.data.dead)
         {
             player.playerInstance.transform.position = packet.ReadVector3();
             player.playerInstance.transform.rotation = packet.ReadQuaternion();
@@ -1409,11 +1409,14 @@ public class ServerHandle : MonoBehaviour
     public static void ShipPosition(int from, Packet packet)
     {
         Player player = Server.clients[from].player;
-        
-        player.transform.position = packet.ReadVector3();
-        player.transform.rotation = packet.ReadQuaternion();
 
-        ServerSend.ShipPosition(from, player.transform.position, player.transform.rotation);        
+        if (!player.data.sunk)
+        {
+            player.transform.position = packet.ReadVector3();
+            player.transform.rotation = packet.ReadQuaternion();
+
+            ServerSend.ShipPosition(from, player.transform.position, player.transform.rotation);
+        }
     }
 
     public static void Jump(int from, Packet packet) {        

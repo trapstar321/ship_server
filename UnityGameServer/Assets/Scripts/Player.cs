@@ -65,6 +65,9 @@ public class Player : MonoBehaviour
     private Mysql mysql;
     
     public List<int> previousTargets = new List<int>();
+    public PlayerCharacter playerCharacter;
+    public CannonShot cannonShot;
+    public CannonController cannonController;
 
     void Awake() {
         //mBody = GetComponent<Rigidbody>();        
@@ -78,6 +81,8 @@ public class Player : MonoBehaviour
         playerEnterCollider = GetComponentInChildren<SphereCollider>();
         playerEnterCollider.radius = NetworkManager.visibilityRadius / 2;
         mysql = FindObjectOfType<Mysql>();
+        cannonShot = GetComponent<CannonShot>();
+        cannonController = GetComponent<CannonController>();
     }
 
     private void Start()
@@ -122,7 +127,7 @@ public class Player : MonoBehaviour
 
         //if (!data.is_on_ship) {
         playerInstance = Instantiate(playerPrefab, new Vector3(data.X_PLAYER, data.Y_PLAYER, data.Z_PLAYER), Quaternion.identity);
-        PlayerCharacter playerCharacter = playerInstance.GetComponent<PlayerCharacter>();
+        playerCharacter = playerInstance.GetComponent<PlayerCharacter>();
         playerCharacter.id = id;
         playerCharacter.data = data;
         playerInstance.transform.Find("PlayerSphere").GetComponent<SphereCollider>().radius = NetworkManager.visibilityRadius / 2;
@@ -233,6 +238,9 @@ public class Player : MonoBehaviour
 
     private void TakeDamage(Player player)
     {
+        if (data.sunk)
+            return;
+
         bool crit = false;
         float damage = 0f;
         float randValue = UnityEngine.Random.value;
@@ -262,6 +270,9 @@ public class Player : MonoBehaviour
 
     private void TakeDamage(EnemyAI npc)
     {
+        if (data.sunk)
+            return;
+
         bool crit = false;
         float damage = 0f;
         float randValue = UnityEngine.Random.value;

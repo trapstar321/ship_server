@@ -23,6 +23,9 @@ public class CannonShot : MonoBehaviour
     }
 
     public void Shoot(string position) {
+        if (player.data.sunk)
+            return;
+
         if (Time.time - LastShotTime < player.cannon_reload_speed && LastShotTime != -1)
             return;
 

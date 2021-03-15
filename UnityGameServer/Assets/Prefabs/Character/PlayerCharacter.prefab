@@ -145,6 +145,8 @@ MonoBehaviour:
     is_on_ship: 0
     username: 
     gold: 0
+    dead: 0
+    sunk: 0
   currentWeapon: {fileID: 0}
   weaponEnabled: 0
   maxHealth: 100
@@ -163,6 +165,8 @@ MonoBehaviour:
   tradeBrokerEnabled: 0
   craftingSpot: {fileID: 0}
   trader: {fileID: 0}
+  respawnUpdateTime: 0
+  respawnTime: 10
 --- !u!114 &3065972343804387326
 MonoBehaviour:
   m_ObjectHideFlags: 0
