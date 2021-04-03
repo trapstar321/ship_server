@@ -5,7 +5,7 @@ using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
 public class CharacterAnimationController : MonoBehaviour
-{
+{    
     public Animator anim;
     PlayerMovement movement;
     PlayerCharacter playerCharacter;
@@ -71,29 +71,40 @@ public class CharacterAnimationController : MonoBehaviour
     float horizontal;
     string attackName = "";
     string rollDirection = "";
-
-    public void Update()
+    
+    void FixedUpdate()
     {
-        /*for (int i = buffer.Count - 1; i >= 0; i--)
+        //TODO: ovo poništi jump, popraviti
+        if (buffer.Count == 0)
         {
-            w = buffer[i].w;
-            leftShift = buffer[i].leftShift;
-            jump = buffer[i].jump;
-            leftMouseDown = buffer[i].leftMouseDown;
-            speed = buffer[i].speed;
-            horizontal = buffer[i].horizontal;
+            w = false;
+            leftShift = false;
+            //jump = false;
+            //leftMouseDown = false;
+            speed = 0;
+            horizontal = 0;
+        }
+        else
+        {
+            w = buffer[0].w;
+            leftShift = buffer[0].leftShift;
+            jump = buffer[0].jump;
+            leftMouseDown = buffer[0].leftMouseDown;
+            speed = buffer[0].speed;
+            horizontal = buffer[0].horizontal;
+            attackName = buffer[0].attackName;
+            rollDirection = buffer[0].rollDirection;            
 
-            buffer.RemoveAt(i);
-        }*/
+            buffer.RemoveAt(0);
+        }
 
-        /*speed = Input.GetAxis("Vertical");
-        horizontal = Input.GetAxis("Horizontal");*/
-
-        if (playerCharacter.weaponEnabled && !inState) {
+        if (playerCharacter.weaponEnabled && !inState)
+        {
             DisableWeapon();
         }
 
-        if (rolling && !inState) {            
+        if (rolling && !inState)
+        {
             controller.enabled = true;
             rolling = false;
         }
@@ -136,7 +147,7 @@ public class CharacterAnimationController : MonoBehaviour
                 else if (rollDirection.Equals("Left"))//Input.GetKeyDown(KeyCode.Alpha5))
                 {
                     /*IEnumerator rollCoroutine = Translate(Vector3.left, rollTime, 2f, 0f);
-                    StartCoroutine(rollCoroutine);*/                    
+                    StartCoroutine(rollCoroutine);*/
                     anim.SetTrigger("RollLeft");
                     rolling = true;
                     controller.enabled = false;
@@ -145,8 +156,17 @@ public class CharacterAnimationController : MonoBehaviour
                 else if (rollDirection.Equals("Right"))//Input.GetKeyDown(KeyCode.Alpha6))
                 {
                     /*IEnumerator rollCoroutine = Translate(Vector3.right, rollTime, 2f, 0f);
-                    StartCoroutine(rollCoroutine);*/                    
+                    StartCoroutine(rollCoroutine);*/
                     anim.SetTrigger("RollRight");
+                    rolling = true;
+                    controller.enabled = false;
+                    rollDirection = "";
+                }
+                else if (rollDirection.Equals("Forward"))//Input.GetKeyDown(KeyCode.Alpha6))
+                {
+                    /*IEnumerator rollCoroutine = Translate(Vector3.right, rollTime, 2f, 0f);
+                    StartCoroutine(rollCoroutine);*/
+                    anim.SetTrigger("RollForward");
                     rolling = true;
                     controller.enabled = false;
                     rollDirection = "";
@@ -154,64 +174,13 @@ public class CharacterAnimationController : MonoBehaviour
             }
 
             if (jump && movement.isGrounded)
-            {                
+            {
                 anim.SetTrigger("Jump");
                 anim.SetBool(GatherTypeToAnimation(gatheringType), false);
                 anim.SetBool(CraftingTypeToAnimation(craftingType), false);
                 HideTool();
                 jump = false;
             }
-        }
-
-        /*if (leftMouseDown && playerCharacter.gatheringEnabled)
-        {
-            Resource resource = playerCharacter.currentResource.GetComponentInParent<Resource>();
-
-            if (!resource.respawning)
-            {
-                gathering = !gathering;
-                gatheringType = resource.skill_type;
-                anim.SetBool(GatherTypeToAnimation(gatheringType), gathering);
-                SwitchTool(gatheringType);
-                leftMouseDown = false;
-            }
-        }
-
-        if (!gathering)
-        {
-            anim.SetBool(GatherTypeToAnimation(gatheringType), false);
-        }
-
-        if (!crafting)
-        {
-            anim.SetBool(CraftingTypeToAnimation(craftingType), false);
-        }*/
-    }
-
-    void FixedUpdate()
-    {
-        //TODO: ovo poništi jump, popraviti
-        if (buffer.Count == 0)
-        {
-            w = false;
-            leftShift = false;
-            //jump = false;
-            //leftMouseDown = false;
-            speed = 0;
-            horizontal = 0;
-        }
-        else
-        {
-            w = buffer[0].w;
-            leftShift = buffer[0].leftShift;
-            jump = buffer[0].jump;
-            leftMouseDown = buffer[0].leftMouseDown;
-            speed = buffer[0].speed;
-            horizontal = buffer[0].horizontal;
-            attackName = buffer[0].attackName;
-            rollDirection = buffer[0].rollDirection;
-
-            buffer.RemoveAt(0);
         }
 
         /*anim.SetFloat("Speed", speed, 0.1f, Time.deltaTime);
@@ -331,6 +300,6 @@ public class CharacterAnimationController : MonoBehaviour
             if (Time.time - start > time)
                 yield break;
             yield return new WaitForSeconds(0.002f);
-        }
+        }        
     }
 }

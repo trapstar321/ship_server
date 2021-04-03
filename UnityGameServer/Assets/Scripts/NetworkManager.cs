@@ -82,6 +82,7 @@ public class NetworkManager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
+        Debug.Log("OnApplicationQuit");
         Server.Stop();
     }
 

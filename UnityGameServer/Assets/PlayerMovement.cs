@@ -1,10 +1,14 @@
-﻿using System.Collections;
+﻿using SerializableObjects;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
+using Vector3 = UnityEngine.Vector3;
+using Quaternion = UnityEngine.Quaternion;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public CharacterController controller;
+    private CharacterController controller;
 
     public float walkSpeed = 4f;
     public float runSpeed = 4f;
@@ -13,14 +17,19 @@ public class PlayerMovement : MonoBehaviour
 
     public Transform groundCheck;
     public float groundDistance = 0.4f;
-    public LayerMask groundMask;    
+    public LayerMask groundMask;
 
     Vector3 velocity;
     public bool isGrounded;
 
     public bool jump;
+    public Player player;
+    public Player sender;
+    private NavMeshAgent agent;
+    private NavMeshPath path;
 
-    public struct PlayerInputs {
+    public struct PlayerInputs
+    {
         public bool w;
         public bool leftShift;
         public bool jump;
@@ -30,10 +39,18 @@ public class PlayerMovement : MonoBehaviour
 
     public List<PlayerInputs> buffer = new List<PlayerInputs>();
     private CharacterAnimationController animationController;
+    public float turnSpeed = 4f;
+
+    float elapsed;
 
     private void Awake()
     {
         animationController = GetComponentInChildren<CharacterAnimationController>();
+        controller = GetComponent<CharacterController>();
+        agent = GetComponent<NavMeshAgent>();
+
+        elapsed = 0.0f;
+        path = new NavMeshPath();
     }
 
     void FixedUpdate()
@@ -75,7 +92,7 @@ public class PlayerMovement : MonoBehaviour
     }*/
 
         if (jump && isGrounded)
-        {            
+        {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
             animationController.Jump();
             jump = false;
@@ -83,5 +100,74 @@ public class PlayerMovement : MonoBehaviour
 
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
-    }    
+    }
+
+    NavMeshPathStatus pathStatus = NavMeshPathStatus.PathInvalid;
+    private void Update()
+    {
+
+        if (player != null)
+        {
+            Debug.Log(player.playerInstance.transform.position);
+            elapsed += Time.deltaTime;
+            if (elapsed > 1.0f)
+            {
+                elapsed -= 1.0f;
+                bool ok = NavMesh.CalculatePath(sender.playerInstance.transform.position, player.playerInstance.transform.position, NavMesh.AllAreas, path);
+                pathStatus = path.status;
+
+                if (pathStatus == NavMeshPathStatus.PathComplete)
+                {
+                    agent.enabled = true;
+                    agent.SetDestination(player.playerInstance.transform.position);
+                    ServerSend.DeactivatePlayerMovement(sender.playerCharacter.id, sender.playerInstance.transform.position);
+                }
+                else
+                {
+                    pathStatus = NavMeshPathStatus.PathInvalid;
+                    ServerSend.ActivatePlayerMovement(sender.playerCharacter.id, sender.playerInstance.transform.position);
+                    player = null;
+                    sender = null;
+                    agent.enabled = false;
+                }
+            }
+
+            if (pathStatus == NavMeshPathStatus.PathComplete)
+            {
+                if (Vector3.Distance(transform.position, player.playerInstance.transform.position) > 1)
+                {
+                    ServerSend.PlayerCharacterPosition(sender.id, sender.playerInstance.transform.position, sender.playerInstance.transform.rotation, false);
+                }
+
+                if (Vector3.Distance(transform.position, player.playerInstance.transform.position) < 1)
+                {
+                    pathStatus = NavMeshPathStatus.PathInvalid;
+                    ServerSend.SendTradeRequest(player, sender);
+                    ServerSend.ActivatePlayerMovement(sender.playerCharacter.id, sender.playerInstance.transform.position);
+                    player = null;
+                    sender = null;
+                    agent.enabled = false;
+                }
+            }
+        }
+    }
+
+    public void SetDestination(Player sender, Player player)
+    {
+        this.sender = sender;
+        this.player = player;
+        pathStatus = NavMeshPathStatus.PathInvalid;
+    }
+
+    public void DisableAgent()
+    {
+        if (sender != null)
+        {
+            pathStatus = NavMeshPathStatus.PathInvalid;
+            ServerSend.ActivatePlayerMovement(sender.playerCharacter.id, sender.playerInstance.transform.position);
+            player = null;
+            sender = null;
+            agent.enabled = false;
+        }
+    }
 }

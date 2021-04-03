@@ -689,6 +689,10 @@ public class ServerHandle : MonoBehaviour
     {
         Player player = Server.clients[from].player;
         player.LeaveEnterShip();
+        
+        if (player.group != null) {
+            ServerSend.GroupMembers(player.group.groupId);
+        }            
     }
 
     public static void PlayerInputs(int from, Packet packet)
@@ -720,8 +724,11 @@ public class ServerHandle : MonoBehaviour
         {
             Vector3 position = player.playerInstance.transform.position;
 
-            PlayerMovement movement = player.playerInstance.GetComponent<PlayerMovement>();
-            CharacterAnimationController animationController = player.playerInstance.GetComponentInChildren<CharacterAnimationController>();
+            PlayerMovement movement = player.playerMovement;
+            CharacterAnimationController animationController = player.playerCharacter.animationController;
+
+            Player sender1 = movement.sender;
+            Player player1 = movement.player;
 
             bool w = packet.ReadBool();
             bool leftShift = packet.ReadBool();
@@ -730,12 +737,14 @@ public class ServerHandle : MonoBehaviour
             float speed = packet.ReadFloat();
             float horizontal = packet.ReadFloat();
             string attackName = packet.ReadString();
-            string rollDirection = packet.ReadString();
+            string rollDirection = packet.ReadString();            
 
             CharacterAnimationController.AnimationInputs input = new CharacterAnimationController.AnimationInputs() { 
                 w = w, leftShift = leftShift, jump = jump, leftMouseDown = leftMouseDown, 
                 speed=speed, horizontal = horizontal, attackName = attackName, rollDirection = rollDirection };
             animationController.buffer.Add(input);
+
+            movement.DisableAgent();
 
             ServerSend.AnimationInputs(from, input, position);
         }
@@ -1083,26 +1092,7 @@ public class ServerHandle : MonoBehaviour
         Player sender = Server.clients[from].player;
         Player player = Server.FindPlayerByUsername(username);
 
-        if (player != null)
-        {
-            string acceptLink = "trade_accept" + System.Guid.NewGuid().ToString();
-            string declineLink = "trade_decline" + System.Guid.NewGuid().ToString();
-
-            PlayerTrade trade = new PlayerTrade();
-            trade.player1 = sender.data;
-            trade.player2 = player.data;
-
-            NetworkManager.tradeLinks.Add(acceptLink, trade);
-            NetworkManager.tradeLinks.Add(declineLink, trade);
-
-            string accept = $"<link={acceptLink}><color=green><u>Accept</u></color></link>";
-            string decline = $"<link={declineLink}><color=#FF0006><u>Decline</u></color></link>";
-
-            Message msg = new Message();
-            msg.messageType = Message.MessageType.privateMessage;
-            msg.text = $"{accept} or {decline} trade request from {sender.data.username}";
-            ServerSend.ChatMessage(from, msg, player.id);
-        }
+        Server.clients[from].player.playerMovement.SetDestination(sender, player);        
     }
 
     public static void AcceptTrade(int from, Packet packet)
@@ -1400,9 +1390,8 @@ public class ServerHandle : MonoBehaviour
         if (player.playerInstance != null && !player.playerCharacter.data.dead)
         {
             player.playerInstance.transform.position = packet.ReadVector3();
-            player.playerInstance.transform.rotation = packet.ReadQuaternion();
-
-            ServerSend.PlayerCharacterPosition(from, player.playerInstance.transform.position, player.playerInstance.transform.rotation);
+            player.playerInstance.transform.rotation = packet.ReadQuaternion();            
+            ServerSend.PlayerCharacterPosition(from, player.playerInstance.transform.position, player.playerInstance.transform.rotation, true);
         }        
     }
 

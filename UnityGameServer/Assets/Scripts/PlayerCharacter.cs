@@ -24,6 +24,7 @@ public class PlayerCharacter : MonoBehaviour
 
     private Mysql mysql;
 
+    public GameObject dock;
     public bool isOnDock = false;
 
     public bool gatheringEnabled;
@@ -32,12 +33,14 @@ public class PlayerCharacter : MonoBehaviour
     public bool tradingEnabled;
     public bool tradeBrokerEnabled;
     public CraftingSpot craftingSpot;
-    public Trader trader;    
+    public Trader trader;
+    public CharacterAnimationController animationController;
 
     private void Awake()
     {
         equipment = GetComponent<PlayerEquipment>();
-        mysql = FindObjectOfType<Mysql>();        
+        mysql = FindObjectOfType<Mysql>();
+        animationController = GetComponentInChildren<CharacterAnimationController>();
     }
 
     public void Load()
@@ -137,6 +140,7 @@ public class PlayerCharacter : MonoBehaviour
         }
         else if (other.tag.Equals("Dock"))
         {
+            dock = other.gameObject;
             isOnDock = true;
         }
         else if (other.tag.Equals("CraftingSpot"))
@@ -176,6 +180,7 @@ public class PlayerCharacter : MonoBehaviour
         }
         else if (other.tag.Equals("Dock"))
         {
+            dock = null;
             isOnDock = false;
         }
         else if (other.tag.Equals("CraftingSpot"))
@@ -237,11 +242,14 @@ public class PlayerCharacter : MonoBehaviour
         }
 
         ServerSend.TakeDamage(id, transform.position, damage, "character", crit);
+        if (Server.clients[id].player.group != null)
+            ServerSend.GroupMembers(Server.clients[id].player.group.groupId);
     }
 
     public void Die() {
         Debug.Log("Die");
         data.dead = true;
+        Server.clients[id].player.playerMovement.DisableAgent();
         mysql.DiePlayerCharacter(Server.clients[id].player.dbid);
         //gameObject.SetActive(false);        
         ServerSend.DiePlayerCharacter(id, data);

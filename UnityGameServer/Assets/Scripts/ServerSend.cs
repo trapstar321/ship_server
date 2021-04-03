@@ -757,6 +757,18 @@ public class ServerSend : MonoBehaviour
 
                         if (player != null)
                         {
+                            float currentHealth, maxHealth;
+
+                            if (player.data.is_on_ship)
+                            {
+                                currentHealth = player.health;
+                                maxHealth = player.maxHealth;
+                            }
+                            else {
+                                currentHealth = player.playerCharacter.health;
+                                maxHealth = player.playerCharacter.maxHealth;
+                            }
+
                             memberData.Add(new GroupMember()
                             {
                                 playerId = player.id,
@@ -764,8 +776,9 @@ public class ServerSend : MonoBehaviour
                                 online = true,
                                 name = player.data.username,
                                 playerLvl = player.data.level,
-                                currentHealth = player.health,
-                                maxHealth = player.maxHealth
+                                currentHealth = currentHealth,
+                                maxHealth = maxHealth,
+                                isOnShip = player.data.is_on_ship
                             });
                             groupMembers.Add(player);
                             sendTo.Add(player.id);
@@ -781,7 +794,8 @@ public class ServerSend : MonoBehaviour
                                 name = data.username,
                                 playerLvl = data.level,
                                 currentHealth = 0,
-                                maxHealth = 0
+                                maxHealth = 0,
+                                isOnShip = data.is_on_ship
                             });
                             groupMembers.Add(player);
                         }
@@ -1073,14 +1087,18 @@ public class ServerSend : MonoBehaviour
         }
     }
 
-    public static void PlayerCharacterPosition(int from, Vector3 position, Quaternion rotation)
+    public static void PlayerCharacterPosition(int from, Vector3 position, Quaternion rotation, bool except)
     {
         using (Packet _packet = new Packet((int)ServerPackets.playerCharacterPosition))
         {
             _packet.Write(from);
             _packet.Write(position);
             _packet.Write(rotation);            
-            SendTCPDataRadius(from, _packet, position, NetworkManager.visibilityRadius);
+
+            if(except)
+                SendTCPDataRadius(from, _packet, position, NetworkManager.visibilityRadius);
+            else
+                SendTCPDataRadius(_packet, position, NetworkManager.visibilityRadius);
         }
     }
 
@@ -1211,6 +1229,47 @@ public class ServerSend : MonoBehaviour
             _packet.Write(NetworkManager.instance.respawnPointShip.transform.position);
             _packet.Write(data);
             SendTCPDataToAll(_packet);
+        }
+    }
+
+    public static void SendTradeRequest(Player player, Player sender)
+    {
+        if (player != null)
+        {
+            string acceptLink = "trade_accept" + System.Guid.NewGuid().ToString();
+            string declineLink = "trade_decline" + System.Guid.NewGuid().ToString();
+
+            PlayerTrade trade = new PlayerTrade();
+            trade.player1 = sender.data;
+            trade.player2 = player.data;
+
+            NetworkManager.tradeLinks.Add(acceptLink, trade);
+            NetworkManager.tradeLinks.Add(declineLink, trade);
+
+            string accept = $"<link={acceptLink}><color=green><u>Accept</u></color></link>";
+            string decline = $"<link={declineLink}><color=#FF0006><u>Decline</u></color></link>";
+
+            Message msg = new Message();
+            msg.messageType = Message.MessageType.privateMessage;
+            msg.text = $"{accept} or {decline} trade request from {sender.data.username}";
+            ServerSend.ChatMessage(sender.id, msg, player.id);
+        }
+    }
+
+    public static void ActivatePlayerMovement(int from, Vector3 position) {
+        using (Packet _packet = new Packet((int)ServerPackets.activatePlayerMovement))
+        {
+            _packet.Write(from);
+            SendTCPDataRadius(_packet, position, NetworkManager.visibilityRadius);
+        }
+    }
+
+    public static void DeactivatePlayerMovement(int from, Vector3 position)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.deactivatePlayerMovement))
+        {
+            _packet.Write(from);
+            SendTCPDataRadius(_packet, position, NetworkManager.visibilityRadius);
         }
     }
 }

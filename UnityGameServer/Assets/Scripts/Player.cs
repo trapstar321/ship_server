@@ -68,6 +68,7 @@ public class Player : MonoBehaviour
     public PlayerCharacter playerCharacter;
     public CannonShot cannonShot;
     public CannonController cannonController;
+    public PlayerMovement playerMovement;
 
     void Awake() {
         //mBody = GetComponent<Rigidbody>();        
@@ -128,6 +129,7 @@ public class Player : MonoBehaviour
         //if (!data.is_on_ship) {
         playerInstance = Instantiate(playerPrefab, new Vector3(data.X_PLAYER, data.Y_PLAYER, data.Z_PLAYER), Quaternion.identity);
         playerCharacter = playerInstance.GetComponent<PlayerCharacter>();
+        playerMovement = playerInstance.GetComponent<PlayerMovement>();
         playerCharacter.id = id;
         playerCharacter.data = data;
         playerInstance.transform.Find("PlayerSphere").GetComponent<SphereCollider>().radius = NetworkManager.visibilityRadius / 2;
@@ -368,6 +370,7 @@ public class Player : MonoBehaviour
         if (other.tag.Equals("Dock"))
         {
             isOnDock = false;
+            dock = null;
         }
         else if (other.name.Equals("PlayerSphere"))
         {
@@ -554,7 +557,7 @@ public class Player : MonoBehaviour
     }
 
     public void LeaveEnterShip() {
-        if (isOnDock) {
+        if (isOnDock && (dock == playerCharacter.dock || playerCharacter.dock == null)) {
             Vector3 spawnPosition = dock.transform.Find("SpawnPosition").transform.position;
 
             if (data.is_on_ship)

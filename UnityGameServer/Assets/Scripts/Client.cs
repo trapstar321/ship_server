@@ -167,7 +167,7 @@ public class Client: MonoBehaviour
 
         /// <summary>Closes and cleans up the TCP connection.</summary>
         public void Disconnect()
-        {
+        {            
             socket.Close();
             stream = null;
             receivedData = null;

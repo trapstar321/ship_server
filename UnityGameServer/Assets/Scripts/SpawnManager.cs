@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
+using UnityEngine.AI;
 
 public class SpawnManager : MonoBehaviour
 {
@@ -38,6 +39,9 @@ public class SpawnManager : MonoBehaviour
     private Dictionary<GameObjectType, GameObject> prefabs = new Dictionary<GameObjectType, GameObject>();
     public Dictionary<int, Spawn> objects = new Dictionary<int, Spawn>();
     private Mysql mysql;
+
+    public NavMeshSurface land;
+
     private void Awake()
     {
         mysql = FindObjectOfType<Mysql>();
@@ -133,6 +137,8 @@ public class SpawnManager : MonoBehaviour
         EnemyAI enemy = ai.GetComponent<EnemyAI>();
         enemy.id = id;
         Server.npcs.Add(id, enemy);*/
+
+        land.BuildNavMesh();
     }
 
     // Update is called once per frame

@@ -157,6 +157,10 @@ public class Server
     public static void Stop()
     {
         tcpListener.Stop();
+        foreach (Client client in clients.Values) {
+            client.tcp.Disconnect();
+            client.udp.Disconnect();
+        }              
         udpListener.Close();
     }
 

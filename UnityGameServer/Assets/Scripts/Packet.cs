@@ -89,7 +89,9 @@ public enum ServerPackets
     diePlayerCharacter,
     respawnPlayerCharacter,
     dieShip,
-    respawnShip
+    respawnShip,
+    activatePlayerMovement,
+    deactivatePlayerMovement
 }
 
 /// <summary>Sent from client to server.</summary>
