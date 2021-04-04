@@ -16,7 +16,7 @@ public class NetworkManager : MonoBehaviour
     public GameObject playerPrefab;
     public GameObject enemyPrefab;
     public GameObject projectilePrefab;
-    public static float visibilityRadius = 10;
+    public static float visibilityRadius = 40;
 
     float lastPositionUpdateTime = -1;
     float positionUpdateDifference = 5;
@@ -32,11 +32,17 @@ public class NetworkManager : MonoBehaviour
     public static Dictionary<int, List<SerializableObjects.Trader>> traders = new Dictionary<int, List<SerializableObjects.Trader>>();
     public static Dictionary<string, PlayerTrade> tradeLinks = new Dictionary<string, PlayerTrade>();
     public static Dictionary<int, PlayerTrade> trades = new Dictionary<int, PlayerTrade>();
-    public static Dictionary<string, PlayerAttack> playerAttacks = new Dictionary<string, PlayerAttack>() {
-        { "DSA_Top", new PlayerAttack(){ multiplier=2f, attackName="DSA_Top"} },
-        { "DSA_Long", new PlayerAttack(){ multiplier=1.5f, attackName="DSA_Long"} },
-        { "Stab", new PlayerAttack(){ multiplier=1f, attackName="Stab"} }
+    public static Dictionary<string, PlayerAbility> playerAbilities = new Dictionary<string, PlayerAbility>() {
+        { "RollLeft", new PlayerAbility(){ multiplier=0f, abilityName="RollLeft", energy = 80} },
+        { "RollRight", new PlayerAbility(){ multiplier=0f, abilityName="RollRight", energy = 80} },
+        { "DSA_Top", new PlayerAbility(){ multiplier=2f, abilityName="DSA_Top", energy = 50} },
+        { "DSA_Long", new PlayerAbility(){ multiplier=1.5f, abilityName="DSA_Long", energy = 30} },
+        { "Stab", new PlayerAbility(){ multiplier=1f, abilityName="Stab", energy=10} },
+        { "RollForward", new PlayerAbility(){ multiplier=0f, abilityName="RollForward", energy=80} }
     };
+
+    public static float energyGainPeriod = 1f;
+    public static float energyGainAmount = 10f;
 
     public class PacketData {
         public int type;

@@ -166,7 +166,7 @@ ModelImporter:
       takeName: PirateRig|Chopping
       internalID: 0
       firstFrame: 0
-      lastFrame: 24
+      lastFrame: 29
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -195,7 +195,7 @@ ModelImporter:
       takeName: PirateRig|Cooking
       internalID: 0
       firstFrame: 0
-      lastFrame: 59
+      lastFrame: 29
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -224,7 +224,7 @@ ModelImporter:
       takeName: PirateRig|DualSwordAttack_CW_Flip
       internalID: 0
       firstFrame: 0
-      lastFrame: 57
+      lastFrame: 29
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -253,7 +253,7 @@ ModelImporter:
       takeName: PirateRig|DualSwordAttack_From_Top
       internalID: 0
       firstFrame: 0
-      lastFrame: 59
+      lastFrame: 29
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -282,7 +282,7 @@ ModelImporter:
       takeName: PirateRig|Idle
       internalID: 0
       firstFrame: 0
-      lastFrame: 79
+      lastFrame: 28
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -340,7 +340,7 @@ ModelImporter:
       takeName: PirateRig|LeftSwordAttack_01
       internalID: 0
       firstFrame: 0
-      lastFrame: 17
+      lastFrame: 29
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -369,7 +369,7 @@ ModelImporter:
       takeName: PirateRig|LeftSwordStab_01
       internalID: 0
       firstFrame: 0
-      lastFrame: 14
+      lastFrame: 29
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -398,7 +398,7 @@ ModelImporter:
       takeName: PirateRig|Mining
       internalID: 0
       firstFrame: 0
-      lastFrame: 18
+      lastFrame: 29
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -427,7 +427,7 @@ ModelImporter:
       takeName: PirateRig|RightSwordAttack_01
       internalID: 0
       firstFrame: 0
-      lastFrame: 17
+      lastFrame: 29
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -456,7 +456,7 @@ ModelImporter:
       takeName: PirateRig|RightSwordStab_01
       internalID: 0
       firstFrame: 0
-      lastFrame: 14
+      lastFrame: 29
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -485,7 +485,7 @@ ModelImporter:
       takeName: PirateRig|RollForward
       internalID: 0
       firstFrame: 0
-      lastFrame: 54
+      lastFrame: 29
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -514,7 +514,7 @@ ModelImporter:
       takeName: PirateRig|RollLeft
       internalID: 0
       firstFrame: 0
-      lastFrame: 39
+      lastFrame: 29
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -543,7 +543,7 @@ ModelImporter:
       takeName: PirateRig|RollRight
       internalID: 0
       firstFrame: 0
-      lastFrame: 39
+      lastFrame: 29
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -572,123 +572,7 @@ ModelImporter:
       takeName: PirateRig|Run
       internalID: 0
       firstFrame: 0
-      lastFrame: 22
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0
-      cycleOffset: 0
-      loop: 0
-      hasAdditiveReferencePose: 0
-      loopTime: 1
-      loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask: []
-      maskType: 3
-      maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 0
-    - serializedVersion: 16
-      name: PirateRig|RunLeft
-      takeName: PirateRig|RunLeft
-      internalID: 0
-      firstFrame: 0
-      lastFrame: 22
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0
-      cycleOffset: 0
-      loop: 0
-      hasAdditiveReferencePose: 0
-      loopTime: 1
-      loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask: []
-      maskType: 3
-      maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 0
-    - serializedVersion: 16
-      name: PirateRig|RunLeftLeft
-      takeName: PirateRig|RunLeftLeft
-      internalID: 0
-      firstFrame: 0
-      lastFrame: 22
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0
-      cycleOffset: 0
-      loop: 0
-      hasAdditiveReferencePose: 0
-      loopTime: 1
-      loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask: []
-      maskType: 3
-      maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 0
-    - serializedVersion: 16
-      name: PirateRig|RunRight
-      takeName: PirateRig|RunRight
-      internalID: 0
-      firstFrame: 0
-      lastFrame: 22
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0
-      cycleOffset: 0
-      loop: 0
-      hasAdditiveReferencePose: 0
-      loopTime: 1
-      loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask: []
-      maskType: 3
-      maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 0
-    - serializedVersion: 16
-      name: PirateRig|RunRightRight
-      takeName: PirateRig|RunRightRight
-      internalID: 0
-      firstFrame: 0
-      lastFrame: 22
+      lastFrame: 29
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -717,7 +601,7 @@ ModelImporter:
       takeName: PirateRig|TwoHandLongAttack
       internalID: 0
       firstFrame: 0
-      lastFrame: 44
+      lastFrame: 29
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -742,11 +626,11 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: PirateRig|WalkBack
-      takeName: PirateRig|WalkBack
+      name: Frypan|Mining
+      takeName: Frypan|Mining
       internalID: 0
       firstFrame: 0
-      lastFrame: 39
+      lastFrame: 29
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -771,40 +655,11 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: PirateRig|WalkLeft
-      takeName: PirateRig|WalkLeft
+      name: Pancake|Cooking
+      takeName: Pancake|Cooking
       internalID: 0
       firstFrame: 0
-      lastFrame: 39
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0
-      cycleOffset: 0
-      loop: 0
-      hasAdditiveReferencePose: 0
-      loopTime: 1
-      loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask: []
-      maskType: 3
-      maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 0
-    - serializedVersion: 16
-      name: PirateRig|WalkRight
-      takeName: PirateRig|WalkRight
-      internalID: 0
-      firstFrame: 0
-      lastFrame: 39
+      lastFrame: 29
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

@@ -19,6 +19,7 @@ public class PlayerCharacter : MonoBehaviour
     public float speed;
     public float crit_chance;
     public float energy;
+    public float maxEnergy;
 
     public List<PlayerBaseStat> stats;
 
@@ -40,7 +41,7 @@ public class PlayerCharacter : MonoBehaviour
     {
         equipment = GetComponent<PlayerEquipment>();
         mysql = FindObjectOfType<Mysql>();
-        animationController = GetComponentInChildren<CharacterAnimationController>();
+        animationController = GetComponentInChildren<CharacterAnimationController>();        
     }
 
     public void Load()
@@ -77,6 +78,7 @@ public class PlayerCharacter : MonoBehaviour
                 speed = stat.speed;
                 crit_chance = stat.crit_chance;
                 energy = stat.energy;
+                maxEnergy = stat.energy;
             }
         }
     }
@@ -163,7 +165,7 @@ public class PlayerCharacter : MonoBehaviour
                 CharacterAnimationController animationController = otherPlayer.GetComponentInChildren<CharacterAnimationController>();
                 if (animationController.currentAttack != null && !animationController.currentAttack.done)
                 {
-                    Debug.Log("Attack "+animationController.currentAttack.attackName);
+                    Debug.Log("Attack "+animationController.currentAttack.abilityName);
                     animationController.currentAttack.done = true;
                     OnPlayerAttack(otherPlayer, animationController.currentAttack);
                 }
@@ -217,7 +219,7 @@ public class PlayerCharacter : MonoBehaviour
         }
     }
 
-    private void OnPlayerAttack(PlayerCharacter player, PlayerAttack attack) {
+    private void OnPlayerAttack(PlayerCharacter player, PlayerAbility attack) {
         if (data.dead)
             return;
 
@@ -259,16 +261,18 @@ public class PlayerCharacter : MonoBehaviour
         data.dead = false;
         gameObject.transform.position = NetworkManager.instance.respawnPointCharacter.transform.position;
         mysql.RespawnPlayerCharacter(Server.clients[id].player.dbid);
-        health = maxHealth;        
+        health = maxHealth;
+        energy = maxEnergy;
         ServerSend.RespawnPlayerCharacter(id, data);
         ServerSend.Stats(id);
     }
 
     public float respawnUpdateTime;
-    public float respawnTime = 10;
+    public float respawnTime = 10;    
+    public float energyUpdateStart = 0;
 
     public void Update()
-    {
+    {        
         if (data.dead)
         {
             if (Time.time - respawnUpdateTime < respawnTime)
@@ -278,8 +282,18 @@ public class PlayerCharacter : MonoBehaviour
             Debug.Log("Respawn");
             Respawn();
         }
-        else {
+        else
+        {
             respawnUpdateTime = Time.time;
         }
+        
+        if (Time.time - energyUpdateStart > NetworkManager.energyGainPeriod && energy<maxEnergy)
+        {            
+            if (energy + NetworkManager.energyGainAmount > maxEnergy)
+                energy = maxEnergy;
+            else
+                energy += NetworkManager.energyGainAmount;
+            energyUpdateStart = Time.time;
+        }        
     }
 }

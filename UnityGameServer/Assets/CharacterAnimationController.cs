@@ -27,7 +27,7 @@ public class CharacterAnimationController : MonoBehaviour
     public float DSA_Top_time = 1f;
     public float DSA_Long_time = 0.5f;
 
-    public PlayerAttack currentAttack;
+    public PlayerAbility currentAttack;
     public struct AnimationInputs
     {
         public bool w;
@@ -56,7 +56,7 @@ public class CharacterAnimationController : MonoBehaviour
                 AnimationEvent[] events = new AnimationEvent[1];
                 events[0] = new AnimationEvent();
                 events[0].functionName = "EnableWeapon";
-                events[0].time = 1.6f;
+                events[0].time = 0.6f;
                 c.events = events;
             }
         }
@@ -114,37 +114,43 @@ public class CharacterAnimationController : MonoBehaviour
             anim.SetBool(GatherTypeToAnimation(gatheringType), false);
             anim.SetBool(CraftingTypeToAnimation(craftingType), false);
             HideTool();
-        }
+        }        
 
         if (!inState)
         {
             if (!gathering && !crafting)
-            {
-                if (attackName.Equals("DSA_Top"))//Input.GetKeyDown(KeyCode.Alpha2))
+            {                
+                if (attackName.Equals("DSA_Top") && HasEnergy("DSA_Top"))//Input.GetKeyDown(KeyCode.Alpha2))
                 {
                     /*IEnumerator translateCoroutine = Translate(Vector3.forward, DSA_Top_time, 2f, 0f);
                     StartCoroutine(translateCoroutine);*/
                     anim.SetTrigger("DSA_Top");
                     attackName = "";
-                    currentAttack = NetworkManager.playerAttacks["DSA_Top"].Clone();
+                    currentAttack = NetworkManager.playerAbilities["DSA_Top"].Clone();
+                    playerCharacter.energy -= NetworkManager.playerAbilities["DSA_Top"].energy;
+                    playerCharacter.energyUpdateStart = Time.time;
                 }
-                else if (attackName.Equals("DSA_Long"))//Input.GetKeyDown(KeyCode.Alpha3))
+                else if (attackName.Equals("DSA_Long") && HasEnergy("DSA_Long"))//Input.GetKeyDown(KeyCode.Alpha3))
                 {
                     /*IEnumerator translateCoroutine = Translate(Vector3.forward, DSA_Long_time, 0.5f, 0.5f);
                     StartCoroutine(translateCoroutine);*/
                     anim.SetTrigger("DSA_Long");
                     attackName = "";
-                    currentAttack = NetworkManager.playerAttacks["DSA_Long"].Clone();
+                    currentAttack = NetworkManager.playerAbilities["DSA_Long"].Clone();
                     EnableWeapon();
+                    playerCharacter.energy -= NetworkManager.playerAbilities["DSA_Long"].energy;
+                    playerCharacter.energyUpdateStart = Time.time;
                 }
-                else if (attackName.Equals("Stab"))
+                else if (attackName.Equals("Stab") && HasEnergy("Stab"))
                 {
                     anim.SetTrigger("Stab");
                     attackName = "";
-                    currentAttack = NetworkManager.playerAttacks["Stab"].Clone();
+                    currentAttack = NetworkManager.playerAbilities["Stab"].Clone();
                     EnableWeapon();
+                    playerCharacter.energy -= NetworkManager.playerAbilities["Stab"].energy;
+                    playerCharacter.energyUpdateStart = Time.time;
                 }
-                else if (rollDirection.Equals("Left"))//Input.GetKeyDown(KeyCode.Alpha5))
+                else if (rollDirection.Equals("Left") && HasEnergy("RollLeft"))//Input.GetKeyDown(KeyCode.Alpha5))
                 {
                     /*IEnumerator rollCoroutine = Translate(Vector3.left, rollTime, 2f, 0f);
                     StartCoroutine(rollCoroutine);*/
@@ -152,8 +158,10 @@ public class CharacterAnimationController : MonoBehaviour
                     rolling = true;
                     controller.enabled = false;
                     rollDirection = "";
+                    playerCharacter.energy -= NetworkManager.playerAbilities["RollLeft"].energy;
+                    playerCharacter.energyUpdateStart = Time.time;
                 }
-                else if (rollDirection.Equals("Right"))//Input.GetKeyDown(KeyCode.Alpha6))
+                else if (rollDirection.Equals("Right") && HasEnergy("RollRight"))//Input.GetKeyDown(KeyCode.Alpha6))
                 {
                     /*IEnumerator rollCoroutine = Translate(Vector3.right, rollTime, 2f, 0f);
                     StartCoroutine(rollCoroutine);*/
@@ -161,8 +169,10 @@ public class CharacterAnimationController : MonoBehaviour
                     rolling = true;
                     controller.enabled = false;
                     rollDirection = "";
+                    playerCharacter.energy -= NetworkManager.playerAbilities["RollRight"].energy;
+                    playerCharacter.energyUpdateStart = Time.time;
                 }
-                else if (rollDirection.Equals("Forward"))//Input.GetKeyDown(KeyCode.Alpha6))
+                else if (rollDirection.Equals("Forward") && HasEnergy("RollForward"))//Input.GetKeyDown(KeyCode.Alpha6))
                 {
                     /*IEnumerator rollCoroutine = Translate(Vector3.right, rollTime, 2f, 0f);
                     StartCoroutine(rollCoroutine);*/
@@ -170,7 +180,9 @@ public class CharacterAnimationController : MonoBehaviour
                     rolling = true;
                     controller.enabled = false;
                     rollDirection = "";
-                }
+                    playerCharacter.energy -= NetworkManager.playerAbilities["RollForward"].energy;
+                    playerCharacter.energyUpdateStart = Time.time;
+                }                
             }
 
             if (jump && movement.isGrounded)
@@ -301,5 +313,9 @@ public class CharacterAnimationController : MonoBehaviour
                 yield break;
             yield return new WaitForSeconds(0.002f);
         }        
+    }
+
+    private bool HasEnergy(string abilityName) {
+        return playerCharacter.energy >= NetworkManager.playerAbilities[abilityName].energy;
     }
 }

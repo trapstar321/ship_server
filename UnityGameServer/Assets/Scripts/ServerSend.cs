@@ -551,6 +551,7 @@ public class ServerSend : MonoBehaviour
         playerStats.crit_chance = playerCharacter.crit_chance;
         playerStats.energy = playerCharacter.energy;
         playerStats.max_health = playerCharacter.maxHealth;
+        playerStats.maxEnergy = playerCharacter.maxEnergy;
 
         _packet.Write(from);
         _packet.Write(shipStats);
@@ -584,6 +585,7 @@ public class ServerSend : MonoBehaviour
             playerStats.crit_chance = playerCharacter.crit_chance;
             playerStats.energy = playerCharacter.energy;
             playerStats.max_health = playerCharacter.maxHealth;
+            playerStats.maxEnergy = playerCharacter.maxEnergy;
 
             _packet.Write(from);
             _packet.Write(shipStats);
@@ -1270,6 +1272,15 @@ public class ServerSend : MonoBehaviour
         {
             _packet.Write(from);
             SendTCPDataRadius(_packet, position, NetworkManager.visibilityRadius);
+        }
+    }
+
+    public static void PlayerAbilities(int to, Dictionary<string, PlayerAbility> abilities)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.playerAbilities))
+        {
+            _packet.Write(abilities);
+            SendTCPData(to, _packet);
         }
     }
 }

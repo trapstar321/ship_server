@@ -25,8 +25,6 @@ public class PlayerMovement : MonoBehaviour
     public bool jump;
     public Player player;
     public Player sender;
-    private NavMeshAgent agent;
-    private NavMeshPath path;
 
     public struct PlayerInputs
     {
@@ -39,8 +37,10 @@ public class PlayerMovement : MonoBehaviour
 
     public List<PlayerInputs> buffer = new List<PlayerInputs>();
     private CharacterAnimationController animationController;
+    private NavMeshAgent agent;
     public float turnSpeed = 4f;
 
+    NavMeshPath path;
     float elapsed;
 
     private void Awake()
@@ -49,8 +49,9 @@ public class PlayerMovement : MonoBehaviour
         controller = GetComponent<CharacterController>();
         agent = GetComponent<NavMeshAgent>();
 
-        elapsed = 0.0f;
         path = new NavMeshPath();
+        elapsed = 0.0f;
+        agent.speed = walkSpeed;
     }
 
     void FixedUpdate()
@@ -102,24 +103,26 @@ public class PlayerMovement : MonoBehaviour
         controller.Move(velocity * Time.deltaTime);
     }
 
-    NavMeshPathStatus pathStatus = NavMeshPathStatus.PathInvalid;
-    private void Update()
-    {
+    public float checkEvery = 1;
+    float time;
 
+    NavMeshPathStatus pathStatus = NavMeshPathStatus.PathInvalid;
+
+    private void LateUpdate()
+    {
         if (player != null)
         {
-            Debug.Log(player.playerInstance.transform.position);
             elapsed += Time.deltaTime;
-            if (elapsed > 1.0f)
+            if (elapsed > 0.2f)
             {
-                elapsed -= 1.0f;
+                elapsed -= 0.2f;
                 bool ok = NavMesh.CalculatePath(sender.playerInstance.transform.position, player.playerInstance.transform.position, NavMesh.AllAreas, path);
                 pathStatus = path.status;
 
                 if (pathStatus == NavMeshPathStatus.PathComplete)
                 {
                     agent.enabled = true;
-                    agent.SetDestination(player.playerInstance.transform.position);
+                    agent.SetPath(path);
                     ServerSend.DeactivatePlayerMovement(sender.playerCharacter.id, sender.playerInstance.transform.position);
                 }
                 else
@@ -132,8 +135,30 @@ public class PlayerMovement : MonoBehaviour
                 }
             }
 
-            if (pathStatus == NavMeshPathStatus.PathComplete)
+            /*if (agent.pathStatus == NavMeshPathStatus.PathComplete && !agent.hasPath)
             {
+                agent.enabled = false;
+                agent.enabled = true;
+                agent.SetDestination(player.playerInstance.transform.position);
+            }*/
+
+            if (agent.pathStatus == NavMeshPathStatus.PathComplete && agent.hasPath)
+            {
+                Vector3 lookPos;
+                Quaternion targetRot;
+
+                agent.updatePosition = false;
+                agent.updateRotation = false;
+
+                lookPos = player.playerInstance.transform.position - this.transform.position;
+                lookPos.y = 0;
+                targetRot = Quaternion.LookRotation(lookPos);
+                this.transform.rotation = targetRot;//Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * turnSpeed);
+                this.transform.position = agent.nextPosition;
+                //controller.Move(desVelocity.normalized * walkSpeed * Time.deltaTime);
+
+                //agent.velocity = controller.velocity;
+
                 if (Vector3.Distance(transform.position, player.playerInstance.transform.position) > 1)
                 {
                     ServerSend.PlayerCharacterPosition(sender.id, sender.playerInstance.transform.position, sender.playerInstance.transform.rotation, false);
@@ -156,6 +181,7 @@ public class PlayerMovement : MonoBehaviour
     {
         this.sender = sender;
         this.player = player;
+        agent.enabled = true;
         pathStatus = NavMeshPathStatus.PathInvalid;
     }
 

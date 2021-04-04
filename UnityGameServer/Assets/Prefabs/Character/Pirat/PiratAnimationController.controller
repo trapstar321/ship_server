@@ -8,7 +8,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: PirateRig|RightSwordStab_01
-  m_Speed: 1.5
+  m_Speed: 3
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 7707137529026636252}
@@ -22,7 +22,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -5689343589131893562, guid: 297b2de429b10f241bc09cec167abf45,
+  m_Motion: {fileID: -5689343589131893562, guid: d33da695b0a370c468c361137f00cb5b,
     type: 3}
   m_Tag: 
   m_SpeedParameter: 
@@ -147,7 +147,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 1888506447432562077, guid: 297b2de429b10f241bc09cec167abf45,
+  m_Motion: {fileID: 1888506447432562077, guid: d33da695b0a370c468c361137f00cb5b,
     type: 3}
   m_Tag: 
   m_SpeedParameter: Gather
@@ -235,7 +235,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -4569781801262457174, guid: 297b2de429b10f241bc09cec167abf45,
+  m_Motion: {fileID: -4569781801262457174, guid: d33da695b0a370c468c361137f00cb5b,
     type: 3}
   m_Tag: 
   m_SpeedParameter: 
@@ -364,7 +364,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: PirateRig|RollForward
-  m_Speed: 1
+  m_Speed: 0.5
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: -1261828857955386485}
@@ -406,7 +406,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -4689166100123425483, guid: 297b2de429b10f241bc09cec167abf45,
+  m_Motion: {fileID: -4689166100123425483, guid: d33da695b0a370c468c361137f00cb5b,
     type: 3}
   m_Tag: 
   m_SpeedParameter: 
@@ -433,7 +433,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: PirateRig|RollLeft
-  m_Speed: 1.5
+  m_Speed: 1.2
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 7964422747971881025}
@@ -447,7 +447,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 3763864771172255193, guid: 297b2de429b10f241bc09cec167abf45,
+  m_Motion: {fileID: 3763864771172255193, guid: d33da695b0a370c468c361137f00cb5b,
     type: 3}
   m_Tag: 
   m_SpeedParameter: 
@@ -508,7 +508,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: PirateRig|DualSwordAttack_From_Top
-  m_Speed: 1.5
+  m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: -6238502387474760062}
@@ -522,7 +522,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 4489604277087513630, guid: 297b2de429b10f241bc09cec167abf45,
+  m_Motion: {fileID: 4489604277087513630, guid: d33da695b0a370c468c361137f00cb5b,
     type: 3}
   m_Tag: 
   m_SpeedParameter: 
@@ -1041,7 +1041,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: PirateRig|RollRight
-  m_Speed: 1.5
+  m_Speed: 1.2
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: -5229300594491554347}
@@ -1055,7 +1055,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 6519366662871094102, guid: 297b2de429b10f241bc09cec167abf45,
+  m_Motion: {fileID: 6519366662871094102, guid: d33da695b0a370c468c361137f00cb5b,
     type: 3}
   m_Tag: 
   m_SpeedParameter: 

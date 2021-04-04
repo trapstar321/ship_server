@@ -31,7 +31,12 @@ public class ServerHandle : MonoBehaviour
             Debug.Log($"Player (ID: {_fromClient}) has assumed the wrong client ID ({_clientIdCheck})!");
         }*/
         ServerSend.Welcome(_fromClient);
-        ServerSend.Parameters(_fromClient, new Parameters() { visibilityRadius = NetworkManager.visibilityRadius, inventorySize=Inventory.space });
+        ServerSend.PlayerAbilities(_fromClient, NetworkManager.playerAbilities);
+        ServerSend.Parameters(_fromClient, new Parameters() { 
+            visibilityRadius = NetworkManager.visibilityRadius, 
+            inventorySize=Inventory.space,
+            energyGainAmount=NetworkManager.energyGainAmount,
+            energyGainPeriod=NetworkManager.energyGainPeriod});
         PlayerData data = mysql.ReadPlayerData(dbid);
         Server.clients[_fromClient].SendIntoGame(data, "username", dbid);
         //ServerSend.WavesMesh(_fromClient, NetworkManager.wavesScript.GenerateMesh());
