@@ -41,6 +41,7 @@ public class NetworkManager : MonoBehaviour
         { "RollForward", new PlayerAbility(){ multiplier=0f, abilityName="RollForward", energy=80} }
     };
 
+    public static float buffCheckPeriod = 1f;
     public static float energyGainPeriod = 1f;
     public static float energyGainAmount = 10f;
 
@@ -50,6 +51,33 @@ public class NetworkManager : MonoBehaviour
     }
 
     public static Dictionary<int, List<PacketData>> buffer = new Dictionary<int, List<PacketData>>();
+
+    public static string[] item_buff_properties = new string[] {
+        "attack", "health", "defence", "energy", "rotation", "speed",
+        "visibility", "cannon_reload_speed", "crit_chance", "cannon_force",
+        "max_health", "max_energy"
+    };
+
+    public static string[] ship_buff_properties = new string[] {
+        "rotation", "speed", "visibility", "cannon_reload_speed", "crit_chance", "cannon_force"
+    };
+
+    public static string[] player_buff_properties = new string[] {
+        "attack", "health", "defence", "energy", "speed",
+        "crit_chance", "max_health", "max_energy"
+    };
+
+    public static Parameters parameters = new Parameters()
+    {
+        visibilityRadius = NetworkManager.visibilityRadius,
+        inventorySize = Inventory.space,
+        energyGainAmount = NetworkManager.energyGainAmount,
+        buffCheckPeriod = NetworkManager.buffCheckPeriod,
+        energyGainPeriod = NetworkManager.energyGainPeriod,
+        item_buff_properties = NetworkManager.item_buff_properties,
+        ship_buff_properties = NetworkManager.ship_buff_properties,
+        player_buff_properties = NetworkManager.player_buff_properties
+    };
 
     private void Awake()
     {
@@ -357,6 +385,9 @@ public class NetworkManager : MonoBehaviour
                     case (int)ClientPackets.shipPosition:
                         ServerHandle.ShipPosition(client.id, packet.packet);
                         break;
+                    case (int)ClientPackets.addBuff:
+                        ServerHandle.AddBuff(client.id, packet.packet);
+                        break;
                 }
             }
             catch (Exception ex) {
@@ -485,7 +516,13 @@ public class NetworkManager : MonoBehaviour
             cannon_reload_speed = item.cannon_reload_speed,
             crit_chance = item.crit_chance,
             cannon_force = item.cannon_force,
-            stackable = item.stackable
+            stackable = item.stackable,
+            energy = item.energy,
+            max_energy = item.max_energy,
+            max_health = item.max_health,
+            overtime = item.overtime,
+            buff_duration = item.buff_duration,
+            cooldown = item.cooldown
         };
     }
     public static Item SerializableToItem(SerializableObjects.Item item)
@@ -507,7 +544,13 @@ public class NetworkManager : MonoBehaviour
             cannon_reload_speed = item.cannon_reload_speed,
             crit_chance = item.crit_chance,
             cannon_force = item.cannon_force,
-            stackable = item.stackable
+            stackable = item.stackable,
+            energy = item.energy,
+            max_energy = item.max_energy,
+            max_health = item.max_health,
+            overtime = item.overtime,
+            buff_duration = item.buff_duration,
+            cooldown = item.cooldown
         };
     }
 }

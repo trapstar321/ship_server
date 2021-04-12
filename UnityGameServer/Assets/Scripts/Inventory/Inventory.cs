@@ -165,4 +165,17 @@ public class Inventory : MonoBehaviour
         }
         return false;
     }
+
+    public List<Item> FindAllItems(int item_id)
+    {
+        List<Item> items = new List<Item>();
+        foreach (InventorySlot slot in this.items)
+        {
+            if (slot.item != null && slot.item.item_id == item_id)
+            {
+                items.Add(slot.item);
+            }
+        }
+        return items;
+    }
 }

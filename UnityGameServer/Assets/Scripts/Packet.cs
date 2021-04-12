@@ -92,7 +92,8 @@ public enum ServerPackets
     respawnShip,
     activatePlayerMovement,
     deactivatePlayerMovement,
-    playerAbilities
+    playerAbilities,
+    buffAdded
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -166,7 +167,8 @@ public enum ClientPackets
     jump,
     startCrafting,
     stopCrafting,
-    shipPosition
+    shipPosition,
+    addBuff
 }
 
 public class Packet: IDisposable
@@ -332,6 +334,13 @@ public class Packet: IDisposable
         buffer.AddRange(data); // Add the string itself
     }
 
+    public void Write(SerializableObjects.Item _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
     public void Write(List<SerializableObjects.Item> _value)
     {
         byte[] data = ObjectToByteArray(_value);
@@ -480,6 +489,13 @@ public class Packet: IDisposable
     }
 
     public void Write(SerializableObjects.Parameters _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(SerializableObjects.Buff _value)
     {
         byte[] data = ObjectToByteArray(_value);
         Write(data.Length); // Add the length of the string to the packet

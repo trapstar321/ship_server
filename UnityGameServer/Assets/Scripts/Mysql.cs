@@ -40,7 +40,9 @@ public class Mysql : MonoBehaviour
     public List<InventorySlot> ReadInventory(int playerID)
     {
         string sql = @"SELECT b.id as INV_SLOT_ID, b.SLOT_ID, b.QUANTITY, c.id, d.id as item_id, d.name, d.icon_name, d.is_default_item, d.item_type,d.stackable,
-                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE, CANNON_FORCE
+                        DROP_CHANCE, MAX_LOOT_QUANTITY,
+                        ATTACK,HEALTH,MAX_HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE, CANNON_FORCE,ENERGY, MAX_ENERGY, OVERTIME,
+                        BUFF_DURATION, COOLDOWN
                         FROM inventory a 
                         inner join inventory_slot as b 
                         on a.slot_id=b.id 
@@ -58,42 +60,13 @@ public class Mysql : MonoBehaviour
         while (rdr.Read())
         {
             int id = rdr.GetInt32("ID");
-            int inv_slot_id = rdr.GetInt32("INV_SLOT_ID");
-            int item_id = rdr.GetInt32("ITEM_ID");
+            int inv_slot_id = rdr.GetInt32("INV_SLOT_ID");            
             int slot_id = rdr.GetInt32("SLOT_ID");
-            int quantity = rdr.GetInt32("QUANTITY");
-            string name = rdr.GetString("NAME");
-            string icon_name = rdr.GetString("ICON_NAME");
-            string item_type = rdr.GetString("ITEM_TYPE");
-            bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
-            int attack = rdr.GetInt32("ATTACK");
-            int health = rdr.GetInt32("HEALTH");
-            int defence = rdr.GetInt32("DEFENCE");
-            int rotation = rdr.GetInt32("ROTATION");
-            int speed = rdr.GetInt32("SPEED");
-            int visibility = rdr.GetInt32("VISIBILITY");
-            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
-            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
-            int cannon_force = rdr.GetInt32("CANNON_FORCE");
-            bool stackable = rdr.GetBoolean("STACKABLE");
+            int quantity = rdr.GetInt32("QUANTITY");            
 
             Item item = new Item();
             item.id = id;
-            item.item_id = item_id;
-            item.name = name;
-            item.iconName = icon_name;
-            item.isDefaultItem = is_default_item;
-            item.item_type = item_type;
-            item.attack = attack;
-            item.health = health;
-            item.defence = defence;
-            item.rotation = rotation;
-            item.speed = speed;
-            item.visibility = visibility;
-            item.cannon_reload_speed = cannon_reload_speed;
-            item.crit_chance = crit_chance;
-            item.cannon_force = cannon_force;
-            item.stackable = stackable;
+            ReadItem(item, rdr);
 
             InventorySlot slot = new InventorySlot() { id= inv_slot_id, slotID = slot_id, quantity = quantity, item = item };
             slots.Add(slot);
@@ -118,42 +91,13 @@ public class Mysql : MonoBehaviour
         InventorySlot slot=null;
         while (rdr.Read())
         {            
-            int inv_slot_id = rdr.GetInt32("INV_SLOT_ID");
-            int item_id = rdr.GetInt32("ITEM_ID");
+            int inv_slot_id = rdr.GetInt32("INV_SLOT_ID");            
             int slot_id = rdr.GetInt32("SLOT_ID");
-            int quantity = rdr.GetInt32("QUANTITY");
-            string name = rdr.GetString("NAME");
-            string icon_name = rdr.GetString("ICON_NAME");
-            string item_type = rdr.GetString("ITEM_TYPE");
-            bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
-            int attack = rdr.GetInt32("ATTACK");
-            int health = rdr.GetInt32("HEALTH");
-            int defence = rdr.GetInt32("DEFENCE");
-            int rotation = rdr.GetInt32("ROTATION");
-            int speed = rdr.GetInt32("SPEED");
-            int visibility = rdr.GetInt32("VISIBILITY");
-            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
-            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
-            int cannon_force = rdr.GetInt32("CANNON_FORCE");
-            bool stackable = rdr.GetBoolean("STACKABLE");
+            int quantity = rdr.GetInt32("QUANTITY");            
 
             Item item = new Item();
             item.id = id;
-            item.item_id = item_id;
-            item.name = name;
-            item.iconName = icon_name;
-            item.isDefaultItem = is_default_item;
-            item.item_type = item_type;
-            item.attack = attack;
-            item.health = health;
-            item.defence = defence;
-            item.rotation = rotation;
-            item.speed = speed;
-            item.visibility = visibility;
-            item.cannon_reload_speed = cannon_reload_speed;
-            item.crit_chance = crit_chance;
-            item.cannon_force = cannon_force;
-            item.stackable = stackable;
+            ReadItem(item, rdr);
 
             slot = new InventorySlot() { id = inv_slot_id, slotID = slot_id, quantity = quantity, item = item };            
         }
@@ -163,8 +107,9 @@ public class Mysql : MonoBehaviour
 
     public List<Item> ReadShipEquipment(int playerID)
     {
-        string sql = @"select b.id, c.id as item_id, c.name, c.icon_name, c.is_default_item, c.item_type,c.stackable,
-                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE, CANNON_FORCE
+        string sql = @"select b.id, c.id as item_id,name,is_default_item, c.item_type,c.icon_name,
+                       ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE, CANNON_FORCE,DROP_CHANCE,
+                       MAX_LOOT_QUANTITY, STACKABLE, MAX_HEALTH, ENERGY, MAX_ENERGY, OVERTIME, BUFF_DURATION, COOLDOWN
                         from ship_equipment as a
                         inner join player_item as b
                         on a.item_id= b.id
@@ -178,40 +123,11 @@ public class Mysql : MonoBehaviour
         List<Item> items = new List<Item>();
         while (rdr.Read())
         {
-            int id = rdr.GetInt32("ID");
-            int item_id = rdr.GetInt32("ITEM_ID");
-            string name = rdr.GetString("NAME");
-            string icon_name = rdr.GetString("ICON_NAME");
-            string item_type = rdr.GetString("ITEM_TYPE");
-            bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
-            int attack = rdr.GetInt32("ATTACK");
-            int health = rdr.GetInt32("HEALTH");
-            int defence = rdr.GetInt32("DEFENCE");
-            int rotation = rdr.GetInt32("ROTATION");
-            int speed = rdr.GetInt32("SPEED");
-            int visibility = rdr.GetInt32("VISIBILITY");
-            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
-            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
-            int cannon_force = rdr.GetInt32("CANNON_FORCE");
-            bool stackable = rdr.GetBoolean("STACKABLE");
+            int id = rdr.GetInt32("ID");            
 
             Item item = new Item();
             item.id = id;
-            item.item_id = item_id;
-            item.name = name;
-            item.iconName = icon_name;
-            item.isDefaultItem = is_default_item;
-            item.item_type = item_type;
-            item.attack = attack;
-            item.health = health;
-            item.defence = defence;
-            item.rotation = rotation;
-            item.speed = speed;
-            item.visibility = visibility;
-            item.cannon_reload_speed = cannon_reload_speed;
-            item.crit_chance = crit_chance;
-            item.cannon_force = cannon_force;
-            item.stackable = stackable;
+            ReadItem(item, rdr);            
 
             items.Add(item);
         }
@@ -221,8 +137,9 @@ public class Mysql : MonoBehaviour
 
     public List<Item> ReadPlayerEquipment(int playerID)
     {
-        string sql = @"select b.id, c.id as item_id, c.name, c.icon_name, c.is_default_item, c.item_type, c.stackable,
-                       ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE, CANNON_FORCE
+        string sql = @"select b.id, c.id as item_id,name,is_default_item, c.item_type,c.icon_name,
+                       ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE, CANNON_FORCE,DROP_CHANCE,
+                       MAX_LOOT_QUANTITY, STACKABLE, MAX_HEALTH, ENERGY, MAX_ENERGY, OVERTIME, BUFF_DURATION, COOLDOWN
                         from player_equipment as a
                         inner join player_item as b
                         on a.item_id= b.id
@@ -236,40 +153,12 @@ public class Mysql : MonoBehaviour
         List<Item> items = new List<Item>();
         while (rdr.Read())
         {
-            int id = rdr.GetInt32("ID");
-            int item_id = rdr.GetInt32("ITEM_ID");
-            string name = rdr.GetString("NAME");
-            string icon_name = rdr.GetString("ICON_NAME");
-            string item_type = rdr.GetString("ITEM_TYPE");
-            bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
-            int attack = rdr.GetInt32("ATTACK");
-            int health = rdr.GetInt32("HEALTH");
-            int defence = rdr.GetInt32("DEFENCE");
-            int rotation = rdr.GetInt32("ROTATION");
-            int speed = rdr.GetInt32("SPEED");
-            int visibility = rdr.GetInt32("VISIBILITY");
-            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
-            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
-            int cannon_force = rdr.GetInt32("CANNON_FORCE");
-            bool stackable = rdr.GetBoolean("STACKABLE");
+            int id = rdr.GetInt32("ID");            
 
             Item item = new Item();
             item.id = id;
-            item.item_id = item_id;
-            item.name = name;
-            item.iconName = icon_name;
-            item.isDefaultItem = is_default_item;
-            item.item_type = item_type;
-            item.attack = attack;
-            item.health = health;
-            item.defence = defence;
-            item.rotation = rotation;
-            item.speed = speed;
-            item.visibility = visibility;
-            item.cannon_reload_speed = cannon_reload_speed;
-            item.crit_chance = crit_chance;
-            item.cannon_force = cannon_force;
-            item.stackable = stackable;
+            ReadItem(item, rdr);
+
             items.Add(item);
         }
         rdr.Close();
@@ -280,7 +169,7 @@ public class Mysql : MonoBehaviour
     {
         string sql = @"select ID, NAME, ICON_NAME, IS_DEFAULT_ITEM, ITEM_TYPE, 
                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE, CANNON_FORCE,DROP_CHANCE,
-                       MAX_LOOT_QUANTITY, STACKABLE
+                       MAX_LOOT_QUANTITY, STACKABLE, MAX_HEALTH, ENERGY, MAX_ENERGY, OVERTIME, BUFF_DURATION, COOLDOWN
                        from item";
 
         var cmd = new MySqlCommand(sql, con);
@@ -288,23 +177,7 @@ public class Mysql : MonoBehaviour
 
         List<Item> items = new List<Item>();
         while (rdr.Read())
-        {            
-            int item_id = rdr.GetInt32("ID");
-            string name = rdr.GetString("NAME");
-            string icon_name = rdr.GetString("ICON_NAME");
-            string item_type = rdr.GetString("ITEM_TYPE");
-            bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
-            int attack = rdr.GetInt32("ATTACK");
-            int health = rdr.GetInt32("HEALTH");
-            int defence = rdr.GetInt32("DEFENCE");
-            int rotation = rdr.GetInt32("ROTATION");
-            int speed = rdr.GetInt32("SPEED");
-            int visibility = rdr.GetInt32("VISIBILITY");
-            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
-            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
-            int cannon_force = rdr.GetInt32("CANNON_FORCE");
-            bool stackable = rdr.GetBoolean("STACKABLE");
-
+        {      
             int drop_chance = 0;
             if (!rdr.IsDBNull(14))
             {
@@ -317,25 +190,7 @@ public class Mysql : MonoBehaviour
                 max_loot_quantity = rdr.GetFloat("MAX_LOOT_QUANTITY"); 
             }            
 
-            Item item = new Item();            
-            item.item_id = item_id;
-            item.name = name;
-            item.iconName = icon_name;
-            item.isDefaultItem = is_default_item;
-            item.item_type = item_type;
-            item.attack = attack;
-            item.health = health;
-            item.defence = defence;
-            item.rotation = rotation;
-            item.speed = speed;
-            item.visibility = visibility;
-            item.cannon_reload_speed = cannon_reload_speed;
-            item.crit_chance = crit_chance;
-            item.cannon_force = cannon_force;
-            item.dropChance = drop_chance;
-            item.maxLootQuantity = max_loot_quantity;
-            item.stackable = stackable;
-            items.Add(item);
+            
         }
         rdr.Close();
         return items;
@@ -354,41 +209,11 @@ public class Mysql : MonoBehaviour
         List<Item> items = new List<Item>();
         while (rdr.Read())
         {
-            int id = rdr.GetInt32("ID");
-            int item_id = rdr.GetInt32("ITEM_ID");
-            string name = rdr.GetString("NAME");
-            string icon_name = rdr.GetString("ICON_NAME");
-            string item_type = rdr.GetString("ITEM_TYPE");
-            bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
-            int attack = rdr.GetInt32("ATTACK");
-            int health = rdr.GetInt32("HEALTH");
-            int defence = rdr.GetInt32("DEFENCE");
-            int rotation = rdr.GetInt32("ROTATION");
-            int speed = rdr.GetInt32("SPEED");
-            int visibility = rdr.GetInt32("VISIBILITY");
-            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
-            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
-            int cannon_force = rdr.GetInt32("CANNON_FORCE");
-            bool stackable = rdr.GetBoolean("STACKABLE");
+            int id = rdr.GetInt32("ID");           
 
             Item item = new Item();
             item.id = id;
-            item.item_id = item_id;
-            item.name = name;
-            item.iconName = icon_name;
-            item.isDefaultItem = is_default_item;
-            item.item_type = item_type;
-            item.attack = attack;
-            item.health = health;
-            item.defence = defence;
-            item.rotation = rotation;
-            item.speed = speed;
-            item.visibility = visibility;
-            item.cannon_reload_speed = cannon_reload_speed;
-            item.crit_chance = crit_chance;
-            item.cannon_force = cannon_force;
-            item.stackable = stackable;
-            items.Add(item);
+            ReadItem(item, rdr);
         }
         rdr.Close();
         return items;
@@ -397,7 +222,9 @@ public class Mysql : MonoBehaviour
     public Item ReadItem(int id)
     {
         string sql = @"select ID, NAME, ICON_NAME, IS_DEFAULT_ITEM, ITEM_TYPE,STACKABLE,
-                       ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE,CANNON_FORCE
+                       ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE,CANNON_FORCE,
+                       DROP_CHANCE, MAX_LOOT_QUANTITY,
+                       MAX_HEALTH, ENERGY, MAX_ENERGY, OVERTIME, BUFF_DURATION, COOLDOWN
                        from item where id=@id";
 
         var cmd = new MySqlCommand(sql, con);
@@ -407,37 +234,9 @@ public class Mysql : MonoBehaviour
         Item item = new Item();
         while (rdr.Read())
         {
-            int item_id = rdr.GetInt32("ID");
-            string name = rdr.GetString("NAME");
-            string icon_name = rdr.GetString("ICON_NAME");
-            string item_type = rdr.GetString("ITEM_TYPE");
-            bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
-            int attack = rdr.GetInt32("ATTACK");
-            int health = rdr.GetInt32("HEALTH");
-            int defence = rdr.GetInt32("DEFENCE");
-            int rotation = rdr.GetInt32("ROTATION");
-            int speed = rdr.GetInt32("SPEED");
-            int visibility = rdr.GetInt32("VISIBILITY");
-            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
-            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
-            int cannon_force = rdr.GetInt32("CANNON_FORCE");
-            bool stackable = rdr.GetBoolean("STACKABLE");
-
+            int item_id = rdr.GetInt32("ID");            
             item.item_id = item_id;
-            item.name = name;
-            item.iconName = icon_name;
-            item.isDefaultItem = is_default_item;
-            item.item_type = item_type;
-            item.attack = attack;
-            item.health = health;
-            item.defence = defence;
-            item.rotation = rotation;
-            item.speed = speed;
-            item.visibility = visibility;
-            item.cannon_reload_speed = cannon_reload_speed;
-            item.crit_chance = crit_chance;
-            item.cannon_force = cannon_force;
-            item.stackable = stackable;
+            ReadItem(item, rdr);
         }
         rdr.Close();
         return item;
@@ -1805,7 +1604,8 @@ public class Mysql : MonoBehaviour
 
     public List<TradeBrokerItem> ReadTradeBrokerItems(int playerId, int? categoryId, string name, bool showMyItems, bool showSoldItems) {
         string sql = @"select distinct username, a.player_id, a.id, price, quantity, c.id as item_id, c.name, c.icon_name, c.is_default_item, c.item_type,c.stackable,
-                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE, CANNON_FORCE, DROP_CHANCE, MAX_LOOT_QUANTITY, STACKABLE, SOLD
+                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE, CANNON_FORCE, DROP_CHANCE, MAX_LOOT_QUANTITY, STACKABLE, SOLD,
+                        MAX_HEALTH, ENERGY, MAX_ENERGY, OVERTIME, BUFF_DURATION, COOLDOWN
                         from trade_broker_items as a                        
                         inner join item as c
                         on a.item_id=c.id
@@ -1858,44 +1658,16 @@ public class Mysql : MonoBehaviour
 
             int id = rdr.GetInt32("ID");
             int quantity = rdr.GetInt32("QUANTITY");
-            float price = rdr.GetFloat("PRICE");            
-            int item_id = rdr.GetInt32("ITEM_ID");
-            string item_name = rdr.GetString("NAME");
-            string icon_name = rdr.GetString("ICON_NAME");
-            string item_type = rdr.GetString("ITEM_TYPE");
-            bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
-            int attack = rdr.GetInt32("ATTACK");
-            int health = rdr.GetInt32("HEALTH");
-            int defence = rdr.GetInt32("DEFENCE");
-            int rotation = rdr.GetInt32("ROTATION");
-            int speed = rdr.GetInt32("SPEED");
-            int visibility = rdr.GetInt32("VISIBILITY");
-            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
-            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
-            int cannon_force = rdr.GetInt32("CANNON_FORCE");
-            bool stackable = rdr.GetBoolean("STACKABLE");
+            float price = rdr.GetFloat("PRICE");                        
             string seller = rdr.GetString("USERNAME");
             int pId = rdr.GetInt32("PLAYER_ID");
             bool sold = rdr.GetBoolean("SOLD");
 
-            SerializableObjects.Item item = new SerializableObjects.Item();            
-            item.item_id = item_id;
-            item.name = item_name;
-            item.iconName = icon_name;
-            item.isDefaultItem = is_default_item;
-            item.item_type = item_type;
-            item.attack = attack;
-            item.health = health;
-            item.defence = defence;
-            item.rotation = rotation;
-            item.speed = speed;
-            item.visibility = visibility;
-            item.cannon_reload_speed = cannon_reload_speed;
-            item.crit_chance = crit_chance;
-            item.cannon_force = cannon_force;            
-            item.stackable = stackable;
-            
-            broker_item.item = item;
+            Item item = new Item();
+            item.id = id;
+            ReadItem(item, rdr);
+
+            broker_item.item = NetworkManager.ItemToSerializable(item);
             broker_item.price = price;
             broker_item.quantity = quantity;
             broker_item.id = id;
@@ -1911,7 +1683,8 @@ public class Mysql : MonoBehaviour
     public TradeBrokerItem ReadTradeBrokerItem(int playerId, int itemId)
     {
         string sql = @"select distinct username, a.player_id, a.id, price, quantity, c.id as item_id, c.name, c.icon_name, c.is_default_item, c.item_type,c.stackable,
-                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE, CANNON_FORCE, DROP_CHANCE, MAX_LOOT_QUANTITY, STACKABLE, SOLD, PARENT_ID
+                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE, CANNON_FORCE, DROP_CHANCE, MAX_LOOT_QUANTITY, STACKABLE, SOLD, PARENT_ID,
+                        MAX_HEALTH, ENERGY, MAX_ENERGY, OVERTIME, BUFF_DURATION, COOLDOWN
                         from trade_broker_items as a                        
                         inner join item as c
                         on a.item_id=c.id
@@ -1934,27 +1707,12 @@ public class Mysql : MonoBehaviour
 
             int id = rdr.GetInt32("ID");
             int quantity = rdr.GetInt32("QUANTITY");
-            float price = rdr.GetFloat("PRICE");
-            int item_id = rdr.GetInt32("ITEM_ID");
-            string item_name = rdr.GetString("NAME");
-            string icon_name = rdr.GetString("ICON_NAME");
-            string item_type = rdr.GetString("ITEM_TYPE");
-            bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
-            int attack = rdr.GetInt32("ATTACK");
-            int health = rdr.GetInt32("HEALTH");
-            int defence = rdr.GetInt32("DEFENCE");
-            int rotation = rdr.GetInt32("ROTATION");
-            int speed = rdr.GetInt32("SPEED");
-            int visibility = rdr.GetInt32("VISIBILITY");
-            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
-            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
-            int cannon_force = rdr.GetInt32("CANNON_FORCE");
-            bool stackable = rdr.GetBoolean("STACKABLE");
+            float price = rdr.GetFloat("PRICE");            
             string seller = rdr.GetString("USERNAME");
             int pId = rdr.GetInt32("PLAYER_ID");
             bool sold = rdr.GetBoolean("SOLD");
             int? parent_id;
-            if (rdr.IsDBNull(24))
+            if (rdr.IsDBNull(rdr.GetOrdinal("PARENT_ID")))
             {
                 parent_id = null;
             }
@@ -1962,24 +1720,11 @@ public class Mysql : MonoBehaviour
                 parent_id = rdr.GetInt32("PARENT_ID");
             }
 
-            SerializableObjects.Item item = new SerializableObjects.Item();
-            item.item_id = item_id;
-            item.name = item_name;
-            item.iconName = icon_name;
-            item.isDefaultItem = is_default_item;
-            item.item_type = item_type;
-            item.attack = attack;
-            item.health = health;
-            item.defence = defence;
-            item.rotation = rotation;
-            item.speed = speed;
-            item.visibility = visibility;
-            item.cannon_reload_speed = cannon_reload_speed;
-            item.crit_chance = crit_chance;
-            item.cannon_force = cannon_force;
-            item.stackable = stackable;
+            Item item = new Item();
+            item.id = id;
+            ReadItem(item, rdr);            
 
-            broker_item.item = item;
+            broker_item.item = NetworkManager.ItemToSerializable(item);
             broker_item.price = price;
             broker_item.quantity = quantity;
             broker_item.id = id;
@@ -1996,7 +1741,8 @@ public class Mysql : MonoBehaviour
     public TradeBrokerItem ReadSoldTradeBrokerItem(int playerId, int itemId)
     {
         string sql = @"select distinct username, a.player_id, a.id, price, quantity, c.id as item_id, c.name, c.icon_name, c.is_default_item, c.item_type,c.stackable,
-                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE, CANNON_FORCE, DROP_CHANCE, MAX_LOOT_QUANTITY, STACKABLE, SOLD 
+                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED, CRIT_CHANCE, CANNON_FORCE, DROP_CHANCE, MAX_LOOT_QUANTITY, STACKABLE, SOLD,
+                        MAX_HEALTH, ENERGY, MAX_ENERGY, OVERTIME, BUFF_DURATION, COOLDOWN
                         from trade_broker_items as a                        
                         inner join item as c
                         on a.item_id=c.id
@@ -2019,44 +1765,16 @@ public class Mysql : MonoBehaviour
 
             int id = rdr.GetInt32("ID");
             int quantity = rdr.GetInt32("QUANTITY");
-            float price = rdr.GetFloat("PRICE");
-            int item_id = rdr.GetInt32("ITEM_ID");
-            string item_name = rdr.GetString("NAME");
-            string icon_name = rdr.GetString("ICON_NAME");
-            string item_type = rdr.GetString("ITEM_TYPE");
-            bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
-            int attack = rdr.GetInt32("ATTACK");
-            int health = rdr.GetInt32("HEALTH");
-            int defence = rdr.GetInt32("DEFENCE");
-            int rotation = rdr.GetInt32("ROTATION");
-            int speed = rdr.GetInt32("SPEED");
-            int visibility = rdr.GetInt32("VISIBILITY");
-            int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
-            int crit_chance = rdr.GetInt32("CRIT_CHANCE");
-            int cannon_force = rdr.GetInt32("CANNON_FORCE");
-            bool stackable = rdr.GetBoolean("STACKABLE");
+            float price = rdr.GetFloat("PRICE");            
             string seller = rdr.GetString("USERNAME");
             int pId = rdr.GetInt32("PLAYER_ID");
             bool sold = rdr.GetBoolean("SOLD");
 
-            SerializableObjects.Item item = new SerializableObjects.Item();
-            item.item_id = item_id;
-            item.name = item_name;
-            item.iconName = icon_name;
-            item.isDefaultItem = is_default_item;
-            item.item_type = item_type;
-            item.attack = attack;
-            item.health = health;
-            item.defence = defence;
-            item.rotation = rotation;
-            item.speed = speed;
-            item.visibility = visibility;
-            item.cannon_reload_speed = cannon_reload_speed;
-            item.crit_chance = crit_chance;
-            item.cannon_force = cannon_force;
-            item.stackable = stackable;
+            Item item = new Item();
+            item.id = id;
+            ReadItem(item, rdr);            
 
-            broker_item.item = item;
+            broker_item.item = NetworkManager.ItemToSerializable(item);
             broker_item.price = price;
             broker_item.quantity = quantity;
             broker_item.id = id;
@@ -2381,5 +2099,79 @@ public class Mysql : MonoBehaviour
 
         cmd.Parameters.AddWithValue("@id", dbid);
         cmd.ExecuteNonQuery();
+    }
+
+    public void ReadItem(Item item, MySqlDataReader rdr) {
+        int item_id = 0;
+        if(HasColumn(rdr, "ITEM_ID"))
+            item_id = rdr.GetInt32("ITEM_ID");                
+        string name = rdr.GetString("NAME");
+        string icon_name = rdr.GetString("ICON_NAME");
+        string item_type = rdr.GetString("ITEM_TYPE");
+        bool is_default_item = rdr.GetBoolean("IS_DEFAULT_ITEM");
+        int attack = rdr.GetInt32("ATTACK");
+        int health = rdr.GetInt32("HEALTH");
+        int max_health = rdr.GetInt32("MAX_HEALTH");
+        int defence = rdr.GetInt32("DEFENCE");
+        int rotation = rdr.GetInt32("ROTATION");
+        int speed = rdr.GetInt32("SPEED");
+        int visibility = rdr.GetInt32("VISIBILITY");
+        int cannon_reload_speed = rdr.GetInt32("CANNON_RELOAD_SPEED");
+        int crit_chance = rdr.GetInt32("CRIT_CHANCE");
+        int cannon_force = rdr.GetInt32("CANNON_FORCE");
+        bool stackable = rdr.GetBoolean("STACKABLE");
+        int energy = rdr.GetInt32("ENERGY");
+        int max_energy = rdr.GetInt32("MAX_ENERGY");
+        bool overtime = rdr.GetBoolean("OVERTIME");
+        float buff_duration = rdr.GetFloat("BUFF_DURATION");
+        float cooldown = rdr.GetFloat("COOLDOWN");
+
+        int drop_chance = 0;
+        if (!rdr.IsDBNull(rdr.GetOrdinal("DROP_CHANCE")))
+        {
+            drop_chance = rdr.GetInt32("DROP_CHANCE");
+        }
+        float max_loot_quantity = 0;
+        if (!rdr.IsDBNull(rdr.GetOrdinal("MAX_LOOT_QUANTITY")))
+        {
+            max_loot_quantity = rdr.GetFloat("MAX_LOOT_QUANTITY");
+        }
+
+        item.item_id = item_id;
+        item.name = name;
+        item.iconName = icon_name;
+        item.isDefaultItem = is_default_item;
+        item.item_type = item_type;
+        item.attack = attack;
+        item.health = health;
+        item.max_health = max_health;
+        item.defence = defence;
+        item.rotation = rotation;
+        item.speed = speed;
+        item.visibility = visibility;
+        item.cannon_reload_speed = cannon_reload_speed;
+        item.crit_chance = crit_chance;
+        item.cannon_force = cannon_force;
+        item.stackable = stackable;
+        item.energy = energy;
+        item.max_energy = max_energy;
+        item.overtime = overtime;
+        item.buff_duration = buff_duration;
+        item.cooldown = cooldown;
+        item.dropChance = drop_chance;
+        item.maxLootQuantity = max_loot_quantity;
+        item.cooldown = cooldown;
+    }
+
+    public static bool HasColumn(MySqlDataReader r, string columnName)
+    {
+        try
+        {
+            return r.GetOrdinal(columnName) >= 0;
+        }
+        catch (IndexOutOfRangeException)
+        {
+            return false;
+        }
     }
 }

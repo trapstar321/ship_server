@@ -17,6 +17,7 @@ public class Item : ScriptableObject,IComparable
     public int attack;
     public int defence;
     public int health;
+    public int max_health;
     public int rotation;
     public int speed;
     public int visibility;
@@ -24,6 +25,12 @@ public class Item : ScriptableObject,IComparable
     public int crit_chance;
     public int cannon_force;
     public bool stackable;
+    public int energy;
+    public int max_energy;
+    public bool overtime;
+    public float buff_duration;
+    public float cooldown;
+    public DateTime buff_start;
 
     public int dropChance;
     public float maxLootQuantity;

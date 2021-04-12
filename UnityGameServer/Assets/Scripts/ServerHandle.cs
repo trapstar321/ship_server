@@ -32,11 +32,7 @@ public class ServerHandle : MonoBehaviour
         }*/
         ServerSend.Welcome(_fromClient);
         ServerSend.PlayerAbilities(_fromClient, NetworkManager.playerAbilities);
-        ServerSend.Parameters(_fromClient, new Parameters() { 
-            visibilityRadius = NetworkManager.visibilityRadius, 
-            inventorySize=Inventory.space,
-            energyGainAmount=NetworkManager.energyGainAmount,
-            energyGainPeriod=NetworkManager.energyGainPeriod});
+        ServerSend.Parameters(_fromClient, NetworkManager.parameters);
         PlayerData data = mysql.ReadPlayerData(dbid);
         Server.clients[_fromClient].SendIntoGame(data, "username", dbid);
         //ServerSend.WavesMesh(_fromClient, NetworkManager.wavesScript.GenerateMesh());
@@ -1421,6 +1417,16 @@ public class ServerHandle : MonoBehaviour
         playerMovement.jump = true;
     }
 
+    public static void AddBuff(int from, Packet packet)
+    {
+        int slotID = packet.ReadInt();
+        InventorySlot slot = Server.clients[from].player.inventory.FindSlot(slotID);
+        if (slot != null && slot.item != null && (slot.item.item_type.Equals("potion") || slot.item.item_type.Equals("scroll")))
+        {
+            Server.clients[from].player.playerCharacter.buffManager.AddBuff(slot.item);
+        }
+    }
+
     public static int InventoryQuantity(Inventory inventory,SerializableObjects.Item item) {
         int quantity = 0;
         foreach (InventorySlot slot in inventory.items) {
@@ -1429,5 +1435,5 @@ public class ServerHandle : MonoBehaviour
             }
         }
         return quantity;
-    }  
+    }      
 }

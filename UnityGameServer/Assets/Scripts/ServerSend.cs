@@ -372,7 +372,13 @@ public class ServerSend : MonoBehaviour
                 cannon_reload_speed = slot.item.cannon_reload_speed,
                 crit_chance = slot.item.crit_chance,
                 cannon_force = slot.item.cannon_force,
-                stackable = slot.item.stackable
+                stackable = slot.item.stackable,
+                energy = slot.item.energy,
+                max_energy = slot.item.max_energy,
+                max_health = slot.item.max_health,
+                overtime = slot.item.overtime,
+                buff_duration = slot.item.buff_duration,
+                cooldown = slot.item.cooldown
             };
         }
 
@@ -550,8 +556,8 @@ public class ServerSend : MonoBehaviour
         playerStats.speed = playerCharacter.speed;
         playerStats.crit_chance = playerCharacter.crit_chance;
         playerStats.energy = playerCharacter.energy;
-        playerStats.max_health = playerCharacter.maxHealth;
-        playerStats.maxEnergy = playerCharacter.maxEnergy;
+        playerStats.max_health = playerCharacter.max_health;
+        playerStats.maxEnergy = playerCharacter.max_energy;
 
         _packet.Write(from);
         _packet.Write(shipStats);
@@ -584,8 +590,8 @@ public class ServerSend : MonoBehaviour
             playerStats.speed = playerCharacter.speed;
             playerStats.crit_chance = playerCharacter.crit_chance;
             playerStats.energy = playerCharacter.energy;
-            playerStats.max_health = playerCharacter.maxHealth;
-            playerStats.maxEnergy = playerCharacter.maxEnergy;
+            playerStats.max_health = playerCharacter.max_health;
+            playerStats.maxEnergy = playerCharacter.max_energy;
 
             _packet.Write(from);
             _packet.Write(shipStats);
@@ -768,7 +774,7 @@ public class ServerSend : MonoBehaviour
                             }
                             else {
                                 currentHealth = player.playerCharacter.health;
-                                maxHealth = player.playerCharacter.maxHealth;
+                                maxHealth = player.playerCharacter.max_health;
                             }
 
                             memberData.Add(new GroupMember()
@@ -1281,6 +1287,16 @@ public class ServerSend : MonoBehaviour
         {
             _packet.Write(abilities);
             SendTCPData(to, _packet);
+        }
+    }
+
+    public static void BuffAdded(int from, Vector3 position, Buff buff, Item item)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.buffAdded))
+        {
+            _packet.Write(NetworkManager.ItemToSerializable(item));
+            _packet.Write(buff);
+            SendTCPDataRadius(_packet, position, NetworkManager.visibilityRadius); 
         }
     }
 }

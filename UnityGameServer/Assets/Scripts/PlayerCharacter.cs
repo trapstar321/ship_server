@@ -12,14 +12,14 @@ public class PlayerCharacter : MonoBehaviour
     public bool weaponEnabled;
     // Start is called before the first frame update
 
-    public float maxHealth = 100f;
+    public float max_health = 100f;
     public float attack;
     public float health;
     public float defence;    
     public float speed;
     public float crit_chance;
     public float energy;
-    public float maxEnergy;
+    public float max_energy;
 
     public List<PlayerBaseStat> stats;
 
@@ -36,6 +36,7 @@ public class PlayerCharacter : MonoBehaviour
     public CraftingSpot craftingSpot;
     public Trader trader;
     public CharacterAnimationController animationController;
+    public BuffManager buffManager;
 
     private void Awake()
     {
@@ -49,6 +50,7 @@ public class PlayerCharacter : MonoBehaviour
         this.stats = mysql.ReadPlayerBaseStatsTable();
         LoadBaseStats();
         LoadPlayerEquipment();
+        buffManager = new BuffManager(id, Server.clients[id], this);
     }
 
     public void LoadPlayerEquipment()
@@ -73,12 +75,12 @@ public class PlayerCharacter : MonoBehaviour
             {
                 attack = stat.attack;
                 health = stat.health;
-                maxHealth = stat.health;
+                max_health = stat.health;
                 defence = stat.defence;                
                 speed = stat.speed;
                 crit_chance = stat.crit_chance;
                 energy = stat.energy;
-                maxEnergy = stat.energy;
+                max_energy = stat.energy;
             }
         }
     }
@@ -87,7 +89,7 @@ public class PlayerCharacter : MonoBehaviour
     {
         attack += item.attack;
         health += item.health;
-        maxHealth += item.health;
+        max_health += item.health;
         defence += item.defence;
         speed += item.speed;
         crit_chance += item.crit_chance;        
@@ -99,7 +101,7 @@ public class PlayerCharacter : MonoBehaviour
     {
         attack -= item.attack;
         health -= item.health;
-        maxHealth -= item.health;
+        max_health -= item.health;
         defence -= item.defence;        
         speed -= item.speed;
         crit_chance -= item.crit_chance;
@@ -261,8 +263,8 @@ public class PlayerCharacter : MonoBehaviour
         data.dead = false;
         gameObject.transform.position = NetworkManager.instance.respawnPointCharacter.transform.position;
         mysql.RespawnPlayerCharacter(Server.clients[id].player.dbid);
-        health = maxHealth;
-        energy = maxEnergy;
+        health = max_health;
+        energy = max_energy;
         ServerSend.RespawnPlayerCharacter(id, data);
         ServerSend.Stats(id);
     }
@@ -272,7 +274,9 @@ public class PlayerCharacter : MonoBehaviour
     public float energyUpdateStart = 0;
 
     public void Update()
-    {        
+    {
+        buffManager.BuffCheck();
+
         if (data.dead)
         {
             if (Time.time - respawnUpdateTime < respawnTime)
@@ -287,10 +291,10 @@ public class PlayerCharacter : MonoBehaviour
             respawnUpdateTime = Time.time;
         }
         
-        if (Time.time - energyUpdateStart > NetworkManager.energyGainPeriod && energy<maxEnergy)
+        if (Time.time - energyUpdateStart > NetworkManager.energyGainPeriod && energy<max_energy)
         {            
-            if (energy + NetworkManager.energyGainAmount > maxEnergy)
-                energy = maxEnergy;
+            if (energy + NetworkManager.energyGainAmount > max_energy)
+                energy = max_energy;
             else
                 energy += NetworkManager.energyGainAmount;
             energyUpdateStart = Time.time;
