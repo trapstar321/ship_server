@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class BuffManager
 {
-    private List<Buff> buffs = new List<Buff>();
+    public List<Buff> buffs = new List<Buff>();
     public float buffCheckStart;
     private object ship;
     private object playerCharacter;
@@ -35,6 +35,7 @@ public class BuffManager
                     {
                         buff.value *= -1;
                         ApplyBuff(buff);
+                        ServerSend.Stats(from);
                     }
                     Debug.Log("Remove buff: " + buff.item_name);
                     buffs.RemoveAt(i);                    
@@ -45,13 +46,15 @@ public class BuffManager
             foreach (Buff buff in buffs.Where(x => x.overtime && x.buff_duration > 0))
             {
                 ApplyBuff(buff);
+                ServerSend.Stats(from);
             }
             buffCheckStart = Time.time;
         }
     }
 
-    public void AddBuff(Item item)
+    public void AddBuff(Item item, out bool onCooldown)
     {
+        onCooldown = false;
         Debug.Log("Buff: " + item.name);
         //cooldown check        
         foreach (Item it in Server.clients[from].player.inventory.FindAllItems(item.item_id))
@@ -61,6 +64,7 @@ public class BuffManager
                 if ((DateTime.UtcNow - it.buff_start).TotalSeconds < it.cooldown * 60)
                 {
                     Debug.Log("On cooldown: "+it.name);
+                    onCooldown = true;
                     return;
                 }
             }
@@ -88,6 +92,7 @@ public class BuffManager
         {
             ApplyBuff(buff);
             ServerSend.BuffAdded(from, ((PlayerCharacter)playerCharacter).transform.position, buff, item);
+            ServerSend.Stats(from);
 
             if (!buff.overtime && buff.buff_duration == 0)
             {

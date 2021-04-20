@@ -19,7 +19,8 @@ public class SpawnManager : MonoBehaviour
         tinRock,
         traderGeneric,
         tradeBroker,
-        cookingSpot
+        cookingSpot,
+        dragon
     }
 
     public class Spawn {
@@ -56,6 +57,7 @@ public class SpawnManager : MonoBehaviour
         prefabs.Add(GameObjectType.traderGeneric, Resources.Load("Prefabs/TraderGeneric", typeof(GameObject)) as GameObject);
         prefabs.Add(GameObjectType.tradeBroker, Resources.Load("Prefabs/TradeBroker", typeof(GameObject)) as GameObject);
         prefabs.Add(GameObjectType.cookingSpot, Resources.Load("Prefabs/CookingSpot", typeof(GameObject)) as GameObject);
+        prefabs.Add(GameObjectType.dragon, Resources.Load("Prefabs/DragonNPC", typeof(GameObject)) as GameObject);
     }
 
     // Start is called before the first frame update
@@ -119,6 +121,8 @@ public class SpawnManager : MonoBehaviour
             craftingSpotScript.skillType = craftingSpot.skillType;
         }
 
+        land.BuildNavMesh();
+
         /*id = NextId();
         GameObject palmTree = Instantiate(prefabs[GameObjectType.palmTree], new Vector3(32.62526f, 0.8707776f, 45.96268f), Quaternion.identity);
         objects.Add(id, new Spawn() { id = id, type = GameObjectType.palmTree, gameObject = palmTree });
@@ -136,9 +140,12 @@ public class SpawnManager : MonoBehaviour
         objects.Add(id, new Spawn() { id = id, type = GameObjectType.npcShip, gameObject = ai });
         EnemyAI enemy = ai.GetComponent<EnemyAI>();
         enemy.id = id;
-        Server.npcs.Add(id, enemy);*/
+        Server.npcs.Add(id, enemy);*/         
+        
 
-        land.BuildNavMesh();
+        id = NextId();
+        GameObject dragon = Instantiate(prefabs[GameObjectType.dragon], new Vector3(57.39f, 1f, 42f), Quaternion.identity);
+        objects.Add(id, new Spawn() { id = id, type = GameObjectType.dragon, gameObject = dragon });        
     }
 
     // Update is called once per frame

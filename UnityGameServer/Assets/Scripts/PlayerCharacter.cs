@@ -37,7 +37,7 @@ public class PlayerCharacter : MonoBehaviour
     public Trader trader;
     public CharacterAnimationController animationController;
     public BuffManager buffManager;
-
+    public GameObject pirate;
     private void Awake()
     {
         equipment = GetComponent<PlayerEquipment>();
@@ -125,6 +125,7 @@ public class PlayerCharacter : MonoBehaviour
                 }*/
                 ServerSend.ActivateShip(id, otherPlayerId);
                 ServerSend.Stats(otherPlayerId, id);
+                ServerSend.Buffs(otherPlayerId, id);
             }
         }
         else if (other.name.Equals("PlayerSphere"))
@@ -135,6 +136,16 @@ public class PlayerCharacter : MonoBehaviour
             {
                 ServerSend.ActivatePlayerCharacter(id, otherPlayerId);
                 ServerSend.Stats(otherPlayerId, id);
+                ServerSend.Buffs(otherPlayerId, id);
+                Player player = Server.clients[otherPlayerId].player;
+                if (player.playerMovement.agent.enabled)
+                {
+                    ServerSend.DeactivatePlayerMovement(otherPlayerId, player.playerInstance.transform.position);
+                }
+                else
+                {
+                    ServerSend.ActivatePlayerMovement(otherPlayerId, player.playerInstance.transform.position);
+                }
             }
         }
         else if (other.tag.Equals("Resource"))
@@ -207,7 +218,7 @@ public class PlayerCharacter : MonoBehaviour
 
             if (otherPlayerId != id)
             {
-                ServerSend.DeactivatePlayerCharacter(id, otherPlayerId);                
+                ServerSend.DeactivatePlayerCharacter(id, otherPlayerId);                   
             }
         }
         else if (other.name.Equals("Sphere"))
@@ -297,6 +308,7 @@ public class PlayerCharacter : MonoBehaviour
                 energy = max_energy;
             else
                 energy += NetworkManager.energyGainAmount;
+            ServerSend.Stats(id);
             energyUpdateStart = Time.time;
         }        
     }

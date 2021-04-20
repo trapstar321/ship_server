@@ -71,7 +71,24 @@ public class CharacterAnimationController : MonoBehaviour
     float horizontal;
     string attackName = "";
     string rollDirection = "";
-    
+
+    public string[] animation_tags = new string[] {
+        "DSA_Flip", "DSA_Top", "DSA_Long",
+        "Stab", "RollLeft", "RollRight",
+        "Jump", "RollForward"};
+
+    public bool InState()
+    {
+        AnimatorStateInfo info = anim.GetCurrentAnimatorStateInfo(0);
+
+        foreach (string tag in animation_tags)
+        {
+            if (anim.GetCurrentAnimatorStateInfo(0).IsTag(tag))
+                return true;
+        }
+        return false;
+    }
+
     void FixedUpdate()
     {
         //TODO: ovo poništi jump, popraviti
@@ -116,7 +133,7 @@ public class CharacterAnimationController : MonoBehaviour
             HideTool();
         }        
 
-        if (!inState)
+        if (!InState())
         {
             if (!gathering && !crafting)
             {                

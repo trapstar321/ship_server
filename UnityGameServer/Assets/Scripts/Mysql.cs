@@ -2101,10 +2101,9 @@ public class Mysql : MonoBehaviour
         cmd.ExecuteNonQuery();
     }
 
-    public void ReadItem(Item item, MySqlDataReader rdr) {
-        int item_id = 0;
+    public void ReadItem(Item item, MySqlDataReader rdr) {        
         if(HasColumn(rdr, "ITEM_ID"))
-            item_id = rdr.GetInt32("ITEM_ID");                
+            item.item_id = rdr.GetInt32("ITEM_ID");
         string name = rdr.GetString("NAME");
         string icon_name = rdr.GetString("ICON_NAME");
         string item_type = rdr.GetString("ITEM_TYPE");
@@ -2136,8 +2135,7 @@ public class Mysql : MonoBehaviour
         {
             max_loot_quantity = rdr.GetFloat("MAX_LOOT_QUANTITY");
         }
-
-        item.item_id = item_id;
+        
         item.name = name;
         item.iconName = icon_name;
         item.isDefaultItem = is_default_item;

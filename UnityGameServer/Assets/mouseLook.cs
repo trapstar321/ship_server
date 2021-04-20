@@ -8,7 +8,7 @@ public class mouseLook : MonoBehaviour
     public Transform playerBody;
     private float xRot = 0;
 
-    public List<float> buffer = new List<float>();
+    public List<float> buffer = new List<float>();    
 
     // Start is called before the first frame update
     void Start()
@@ -30,7 +30,7 @@ public class mouseLook : MonoBehaviour
             //transform.localRotation = Quaternion.Euler(xRot, 0f, 0f);
             playerBody.Rotate(Vector3.up * buffer[i]);
 
-            buffer.RemoveAt(i);
+            buffer.RemoveAt(i);            
         }
     }
 }

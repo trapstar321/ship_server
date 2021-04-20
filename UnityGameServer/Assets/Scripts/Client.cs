@@ -333,6 +333,15 @@ public class Client: MonoBehaviour
                 NetworkManager.trades.Remove(otherPlayer);
             }
 
+            for (int i = 0; i < Server.clients.Count; i++) {
+                if (Server.clients[i+1].player) {
+                    Player p = Server.clients[i + 1].player;
+                    if (Server.clients[i + 1].player.playerMovement.player && Server.clients[i+1].player.playerMovement.player.id == player.id) {
+                        Server.clients[i+1].player.playerMovement.DisableAgent();
+                    }
+                }
+            }
+
             player = null;
 
             if (groupId != 0) {

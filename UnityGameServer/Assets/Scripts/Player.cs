@@ -319,6 +319,7 @@ public class Player : MonoBehaviour
             if (otherPlayerId != id)
             {
                 ServerSend.Stats(otherPlayerId, id);
+                ServerSend.Buffs(otherPlayerId, id);
 
                 CannonController cannonController = other.GetComponentInParent<CannonController>();
                 Quaternion leftRotation = cannonController.L_Cannon_1.transform.localRotation;
@@ -348,9 +349,20 @@ public class Player : MonoBehaviour
                 {*/
                 //ServerSend.InstantiatePlayerCharacter(id, otherPlayerId, position, playerCharacter.transform.eulerAngles.y);
                 //}*/                
-                if(data.is_on_ship)
+                if (data.is_on_ship)
+                {
                     ServerSend.ActivatePlayerCharacter(id, otherPlayerId);
+                    Player player = Server.clients[otherPlayerId].player;
+                    if (player.playerMovement.agent.enabled)
+                    {
+                        ServerSend.DeactivatePlayerMovement(otherPlayerId, player.playerInstance.transform.position);
+                    }
+                    else {
+                        ServerSend.ActivatePlayerMovement(otherPlayerId, player.playerInstance.transform.position);
+                    }
+                }
                 ServerSend.Stats(otherPlayerId, id);
+                ServerSend.Buffs(otherPlayerId, id);
             }
         }
         else if (other.name.Equals("NPCSphere"))

@@ -16,7 +16,7 @@ public class NetworkManager : MonoBehaviour
     public GameObject playerPrefab;
     public GameObject enemyPrefab;
     public GameObject projectilePrefab;
-    public static float visibilityRadius = 40;
+    public static float visibilityRadius = 20;
 
     float lastPositionUpdateTime = -1;
     float positionUpdateDifference = 5;

@@ -140,6 +140,7 @@ MonoBehaviour:
   player: {fileID: 0}
   sender: {fileID: 0}
   turnSpeed: 1
+  checkEvery: 1
 --- !u!114 &-5338092380957027230
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -187,13 +188,14 @@ MonoBehaviour:
     sunk: 0
   currentWeapon: {fileID: 0}
   weaponEnabled: 0
-  maxHealth: 100
+  max_health: 100
   attack: 0
   health: 0
   defence: 0
   speed: 0
   crit_chance: 0
   energy: 0
+  max_energy: 0
   stats: []
   dock: {fileID: 0}
   isOnDock: 0
@@ -205,8 +207,10 @@ MonoBehaviour:
   craftingSpot: {fileID: 0}
   trader: {fileID: 0}
   animationController: {fileID: 0}
+  pirate: {fileID: 6387850148728863766}
   respawnUpdateTime: 0
   respawnTime: 10
+  energyUpdateStart: 0
 --- !u!114 &3065972343804387326
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -441,6 +445,20 @@ MonoBehaviour:
   rollTime: 0.9
   DSA_Top_time: 1.5
   DSA_Long_time: 0.5
+  currentAttack:
+    abilityName: 
+    multiplier: 0
+    done: 0
+    energy: 0
+  animation_tags:
+  - DSA_Flip
+  - DSA_Top
+  - DSA_Long
+  - Stab
+  - RollLeft
+  - RollRight
+  - Jump
+  - RollForward
 --- !u!1 &6546923916990955624
 GameObject:
   m_ObjectHideFlags: 0
@@ -548,6 +566,20 @@ MonoBehaviour:
   rollTime: 0.9
   DSA_Top_time: 1.5
   DSA_Long_time: 0.5
+  currentAttack:
+    abilityName: 
+    multiplier: 0
+    done: 0
+    energy: 0
+  animation_tags:
+  - DSA_Flip
+  - DSA_Top
+  - DSA_Long
+  - Stab
+  - RollLeft
+  - RollRight
+  - Jump
+  - RollForward
 --- !u!64 &3118602327427253314
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1098,7 +1130,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: e7169d039e077964488f069db3cbcf78, type: 2}
+      objectReference: {fileID: 9100000, guid: 2f8072cf253aa604aa79fc516764a84a, type: 2}
     - target: {fileID: 5866666021909216657, guid: d33da695b0a370c468c361137f00cb5b,
         type: 3}
       propertyPath: m_CullingMode

@@ -1391,8 +1391,13 @@ public class ServerHandle : MonoBehaviour
         if (player.playerInstance != null && !player.playerCharacter.data.dead)
         {
             player.playerInstance.transform.position = packet.ReadVector3();
-            player.playerInstance.transform.rotation = packet.ReadQuaternion();            
-            ServerSend.PlayerCharacterPosition(from, player.playerInstance.transform.position, player.playerInstance.transform.rotation, true);
+            player.playerInstance.transform.rotation = packet.ReadQuaternion();
+            player.playerCharacter.pirate.transform.rotation = packet.ReadQuaternion();
+            player.playerMovement.DisableAgent();
+            ServerSend.PlayerCharacterPosition(from, player.playerInstance.transform.position, 
+                player.playerInstance.transform.rotation,
+                player.playerCharacter.pirate.transform.rotation,
+                true);
         }        
     }
 
@@ -1420,10 +1425,29 @@ public class ServerHandle : MonoBehaviour
     public static void AddBuff(int from, Packet packet)
     {
         int slotID = packet.ReadInt();
-        InventorySlot slot = Server.clients[from].player.inventory.FindSlot(slotID);
-        if (slot != null && slot.item != null && (slot.item.item_type.Equals("potion") || slot.item.item_type.Equals("scroll")))
+        Inventory inventory = Server.clients[from].player.inventory;
+        InventorySlot slot = inventory.FindSlot(slotID);
+        if (slot != null && slot.item != null 
+            && (slot.item.item_type.Equals("potion") || slot.item.item_type.Equals("scroll"))
+            && inventory.FindSlot(slotID).quantity>=1)
         {
-            Server.clients[from].player.playerCharacter.buffManager.AddBuff(slot.item);
+            bool onCooldown = false;
+            Server.clients[from].player.playerCharacter.buffManager.AddBuff(slot.item, out onCooldown);
+            if (!onCooldown)
+            {
+                inventory.RemoveAmount(slotID, 1);
+
+                if (slot.item == null)
+                {
+                    mysql.RemoveInventoryItem(Server.clients[from].player.dbid, slot.slotID);
+                }
+                else
+                {
+                    mysql.UpdateItemQuantity(Server.clients[from].player.dbid, slot);
+                }
+
+                ServerSend.InventorySlot(from, slot);
+            }
         }
     }
 

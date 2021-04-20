@@ -71,7 +71,7 @@ public class ServerSend : MonoBehaviour
                 Server.clients[i].tcp.SendData(_packet);
             }
         }
-    }  
+    }
 
     private static void SendTCPDataRadius(Packet _packet, Vector3 position, float sendRadius)
     {
@@ -86,7 +86,7 @@ public class ServerSend : MonoBehaviour
                 {
                     targetPosition = Server.clients[i].player.transform.position;
                 }
-                else 
+                else
                 {
                     targetPosition = Server.clients[i].player.playerInstance.transform.position;
                 }
@@ -130,7 +130,7 @@ public class ServerSend : MonoBehaviour
                 }
             }
         }
-    }    
+    }
 
     IEnumerator MakeLag(int to, Packet packet, float ms)
     {
@@ -293,12 +293,23 @@ public class ServerSend : MonoBehaviour
         }
     }
 
+    public static void InventorySlot(int to, InventorySlot inventorySlot)
+    {
+        int dbid = Server.clients[to].player.dbid;
+
+        using (Packet _packet = new Packet((int)ServerPackets.inventorySlot))
+        {
+            _packet.Write(SlotToSerializable(inventorySlot));
+            SendTCPData(to, _packet);
+        }
+    }
+
     public static void InventoryItemCount(int to)
     {
         int dbid = Server.clients[to].player.dbid;
 
         using (Packet _packet = new Packet((int)ServerPackets.inventoryItemCount))
-        {            
+        {
             _packet.Write(mysql.TotalItems(dbid));
             SendTCPData(to, _packet);
         }
@@ -388,7 +399,7 @@ public class ServerSend : MonoBehaviour
             quantity = slot.quantity,
             item = item
         };
-    }    
+    }
 
     protected static SerializableObjects.ItemDrop ItemDropToSerializable(ItemDrop drop)
     {
@@ -429,7 +440,8 @@ public class ServerSend : MonoBehaviour
                 Trader trader = spawn.gameObject.GetComponent<Trader>();
                 _packet.Write(trader.id);
             }
-            else if (spawn.objectType == ObjectType.CRAFTING_SPOT) {
+            else if (spawn.objectType == ObjectType.CRAFTING_SPOT)
+            {
                 CraftingSpot craftingSpot = spawn.gameObject.GetComponent<CraftingSpot>();
                 _packet.Write((int)craftingSpot.skillType);
             }
@@ -438,7 +450,7 @@ public class ServerSend : MonoBehaviour
         }
     }
 
-    public static void OnGameStart(int _toClient, List<ShipBaseStat> shipStats, List<PlayerBaseStat> playerStats,List<Experience> exp, PlayerData data)
+    public static void OnGameStart(int _toClient, List<ShipBaseStat> shipStats, List<PlayerBaseStat> playerStats, List<Experience> exp, PlayerData data)
     {
         using (Packet _packet = new Packet((int)ServerPackets.onGameStart))
         {
@@ -483,8 +495,8 @@ public class ServerSend : MonoBehaviour
             _packet.Write(damage);
             _packet.Write(crit);
 
-            SendTCPDataRadius(_packet, pos, NetworkManager.visibilityRadius);            
-        }        
+            SendTCPDataRadius(_packet, pos, NetworkManager.visibilityRadius);
+        }
     }
 
     public static void CannonRotate(int from, string direction, string side)
@@ -536,7 +548,8 @@ public class ServerSend : MonoBehaviour
             GroupMembers(player.group.groupId);
     }
 
-    private static void InitalizeStatsPacket(int from, Packet _packet, Player player, PlayerCharacter playerCharacter) {
+    private static void InitalizeStatsPacket(int from, Packet _packet, Player player, PlayerCharacter playerCharacter)
+    {
         ShipBaseStat shipStats = new ShipBaseStat();
         shipStats.attack = player.attack;
         shipStats.health = player.health;
@@ -772,7 +785,8 @@ public class ServerSend : MonoBehaviour
                                 currentHealth = player.health;
                                 maxHealth = player.maxHealth;
                             }
-                            else {
+                            else
+                            {
                                 currentHealth = player.playerCharacter.health;
                                 maxHealth = player.playerCharacter.max_health;
                             }
@@ -1038,12 +1052,12 @@ public class ServerSend : MonoBehaviour
 
             foreach (InventorySlot slot in inventory.items)
             {
-                if(slot.item!=null)
+                if (slot.item != null)
                     items.Add(SlotToSerializable(slot));
             }
             _packet.Write(items);
 
-            SendTCPData(Server.FindPlayerByUsername(trade.player1.username).id, _packet);            
+            SendTCPData(Server.FindPlayerByUsername(trade.player1.username).id, _packet);
         }
     }
 
@@ -1068,7 +1082,8 @@ public class ServerSend : MonoBehaviour
         }
     }
 
-    public static void Parameters(int to, Parameters p) {
+    public static void Parameters(int to, Parameters p)
+    {
         using (Packet _packet = new Packet((int)ServerPackets.parameters))
         {
             _packet.Write(p);
@@ -1090,20 +1105,21 @@ public class ServerSend : MonoBehaviour
     {
         using (Packet _packet = new Packet((int)ServerPackets.targetSelected))
         {
-            _packet.Write(playerId);            
+            _packet.Write(playerId);
             SendTCPData(to, _packet);
         }
     }
 
-    public static void PlayerCharacterPosition(int from, Vector3 position, Quaternion rotation, bool except)
+    public static void PlayerCharacterPosition(int from, Vector3 position, Quaternion rotation, Quaternion childRotation, bool except)
     {
         using (Packet _packet = new Packet((int)ServerPackets.playerCharacterPosition))
         {
             _packet.Write(from);
             _packet.Write(position);
-            _packet.Write(rotation);            
+            _packet.Write(rotation);
+            _packet.Write(childRotation);
 
-            if(except)
+            if (except)
                 SendTCPDataRadius(from, _packet, position, NetworkManager.visibilityRadius);
             else
                 SendTCPDataRadius(_packet, position, NetworkManager.visibilityRadius);
@@ -1157,13 +1173,14 @@ public class ServerSend : MonoBehaviour
         }
     }
 
-    public static void ActivatePlayerCharacter(int to, int from) {
+    public static void ActivatePlayerCharacter(int to, int from)
+    {
         using (Packet _packet = new Packet((int)ServerPackets.activatePlayerCharacter))
         {
             GameObject playerCharacter = Server.clients[from].player.playerInstance;
             _packet.Write(from);
             _packet.Write(playerCharacter.transform.position);
-            _packet.Write(playerCharacter.transform.rotation);            
+            _packet.Write(playerCharacter.transform.rotation);
             SendTCPData(to, _packet);
         }
     }
@@ -1264,7 +1281,8 @@ public class ServerSend : MonoBehaviour
         }
     }
 
-    public static void ActivatePlayerMovement(int from, Vector3 position) {
+    public static void ActivatePlayerMovement(int from, Vector3 position)
+    {
         using (Packet _packet = new Packet((int)ServerPackets.activatePlayerMovement))
         {
             _packet.Write(from);
@@ -1294,9 +1312,22 @@ public class ServerSend : MonoBehaviour
     {
         using (Packet _packet = new Packet((int)ServerPackets.buffAdded))
         {
+            _packet.Write(from);
             _packet.Write(NetworkManager.ItemToSerializable(item));
             _packet.Write(buff);
-            SendTCPDataRadius(_packet, position, NetworkManager.visibilityRadius); 
+            SendTCPDataRadius(_packet, position, NetworkManager.visibilityRadius);
+        }
+    }
+
+    public static void Buffs(int from, int to)
+    {
+        List<Buff> buffs = Server.clients[from].player.playerCharacter.buffManager.buffs;       
+        
+        using (Packet _packet = new Packet((int)ServerPackets.buffs))
+        {
+            _packet.Write(from);
+            _packet.Write(buffs);
+            SendTCPData(to, _packet);
         }
     }
 }

@@ -37,7 +37,7 @@ public class PlayerMovement : MonoBehaviour
 
     public List<PlayerInputs> buffer = new List<PlayerInputs>();
     private CharacterAnimationController animationController;
-    private NavMeshAgent agent;
+    public NavMeshAgent agent;
     public float turnSpeed = 4f;
 
     NavMeshPath path;
@@ -161,7 +161,10 @@ public class PlayerMovement : MonoBehaviour
 
                 if (Vector3.Distance(transform.position, player.playerInstance.transform.position) > 1)
                 {
-                    ServerSend.PlayerCharacterPosition(sender.id, sender.playerInstance.transform.position, sender.playerInstance.transform.rotation, false);
+                    ServerSend.PlayerCharacterPosition(sender.id, sender.playerInstance.transform.position, 
+                        sender.playerInstance.transform.rotation,
+                        sender.playerCharacter.pirate.transform.rotation,
+                        false);
                 }
 
                 if (Vector3.Distance(transform.position, player.playerInstance.transform.position) < 1)
