@@ -184,6 +184,12 @@ public class PlayerCharacter : MonoBehaviour
                 }
             }
         }
+        else if (other.name.Equals("NPCSphere"))
+        {            
+            int npcId = other.GetComponentInParent<NPC>().id;
+            ServerSend.NPCStats(npcId, id);
+            ServerSend.ActivateNPC(id, npcId);
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -218,7 +224,7 @@ public class PlayerCharacter : MonoBehaviour
 
             if (otherPlayerId != id)
             {
-                ServerSend.DeactivatePlayerCharacter(id, otherPlayerId);                   
+                ServerSend.DeactivatePlayerCharacter(id, otherPlayerId);
             }
         }
         else if (other.name.Equals("Sphere"))
@@ -226,9 +232,14 @@ public class PlayerCharacter : MonoBehaviour
             int otherPlayerId = other.GetComponentInParent<Player>().id;
 
             if (otherPlayerId != id)
-            {                
+            {
                 ServerSend.DeactivateShip(id, otherPlayerId);
             }
+        }
+        else if (other.name.Equals("NPCSphere"))
+        {
+            int npcId = other.GetComponentInParent<NPC>().id;
+            ServerSend.DeactivateNPC(id, npcId);
         }
     }
 

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
+using static SpawnManager;
 
 public class ServerSend : MonoBehaviour
 {
@@ -79,7 +80,7 @@ public class ServerSend : MonoBehaviour
 
         for (int i = 1; i <= Server.MaxPlayers; i++)
         {
-            if (Server.clients[i].player != null)
+            if (Server.clients[i].player != null && Server.clients[i].player.playerInstance!=null)
             {
                 Vector3 targetPosition;
                 if (Server.clients[i].player.data.is_on_ship)
@@ -241,7 +242,7 @@ public class ServerSend : MonoBehaviour
         //}
     }
 
-    public void NPCPosition(EnemyAI npc, float visibilityRadius)
+    public void NPCPosition(ShipNPC npc, float visibilityRadius)
     {
         //using (Packet _packet = new Packet((int)ServerPackets.playerPosition))
         //{
@@ -618,9 +619,9 @@ public class ServerSend : MonoBehaviour
     {
         using (Packet _packet = new Packet((int)ServerPackets.npcStats))
         {
-            EnemyAI npc = Server.npcs[from].GetComponent<EnemyAI>();
+            NPC npc = Server.npcs[from];
 
-            ShipBaseStat stats = new ShipBaseStat();
+            NPCBaseStat stats = new NPCBaseStat();
             stats.attack = npc.attack;
             stats.health = npc.health;
             stats.defence = npc.defence;
@@ -1126,6 +1127,18 @@ public class ServerSend : MonoBehaviour
         }
     }
 
+    public static void NPCPosition(int from, Vector3 position, Quaternion rotation)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.npcPosition))
+        {
+            _packet.Write(from);
+            _packet.Write(position);
+            _packet.Write(rotation);            
+            
+            SendTCPDataRadius(_packet, position, NetworkManager.visibilityRadius);
+        }
+    }
+
     public static void ShipPosition(int from, Vector3 position, Quaternion rotation)
     {
         using (Packet _packet = new Packet((int)ServerPackets.shipPosition))
@@ -1215,6 +1228,26 @@ public class ServerSend : MonoBehaviour
         }
     }
 
+    public static void ActivateNPC(int to, int from)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.activateNPC))
+        {
+            GameObject npc = Server.npcs[from].gameObject;
+            _packet.Write(from);
+            _packet.Write(npc.transform.position);
+            _packet.Write(npc.transform.rotation);
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void DeactivateNPC(int to, int from)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.deactivateNPC))
+        {
+            _packet.Write(from);
+            SendTCPData(to, _packet);
+        }
+    }
     public static void DiePlayerCharacter(int from, PlayerData data)
     {
         using (Packet _packet = new Packet((int)ServerPackets.diePlayerCharacter))
@@ -1328,6 +1361,39 @@ public class ServerSend : MonoBehaviour
             _packet.Write(from);
             _packet.Write(buffs);
             SendTCPData(to, _packet);
+        }
+    }
+
+    public static void NPCSwitchState(int from, int state, int objectType, Vector3 position, float visibilityRadius) {
+        using (Packet _packet = new Packet((int)ServerPackets.npcSwitchState))
+        {
+            _packet.Write(from);
+            _packet.Write(state);
+            _packet.Write(objectType);
+            SendTCPDataRadius(_packet, position, visibilityRadius);
+        }
+    }
+
+    public static void NPCDoAbility(int from, int ability, int objectType, Vector3 position, float visibilityRadius)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.npcDoAbility))
+        {
+            _packet.Write(from);
+            _packet.Write(ability);
+            _packet.Write(objectType);
+            SendTCPDataRadius(_packet, position, visibilityRadius);
+        }
+    }
+
+    public static void NPCTarget(int from, int target, int objectType, Vector3 position)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.npcTarget))
+        {
+            _packet.Write(from);            
+            _packet.Write(target);
+            _packet.Write(objectType);
+
+            SendTCPDataRadius(_packet, position, NetworkManager.visibilityRadius);
         }
     }
 }

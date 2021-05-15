@@ -13,7 +13,7 @@ public class Server
     public static Dictionary<int, Client> clients = new Dictionary<int, Client>();
     public delegate void PacketHandler(int _fromClient, Packet _packet);
     /*public static Dictionary<int, PacketHandler> packetHandlers;*/
-    public static Dictionary<int, EnemyAI> npcs = new Dictionary<int, EnemyAI>();
+    public static Dictionary<int, NPC> npcs = new Dictionary<int, NPC>();
 
     private static TcpListener tcpListener;
     private static UdpClient udpListener;

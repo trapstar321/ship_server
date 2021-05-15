@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
+using System.Threading.Tasks;
 
 public class Player : MonoBehaviour
 {
@@ -69,6 +70,7 @@ public class Player : MonoBehaviour
     public CannonShot cannonShot;
     public CannonController cannonController;
     public PlayerMovement playerMovement;
+    public SpawnManager spawnManager;
 
     void Awake() {
         //mBody = GetComponent<Rigidbody>();        
@@ -84,6 +86,7 @@ public class Player : MonoBehaviour
         mysql = FindObjectOfType<Mysql>();
         cannonShot = GetComponent<CannonShot>();
         cannonController = GetComponent<CannonController>();
+        spawnManager = FindObjectOfType<SpawnManager>();
     }
 
     private void Start()
@@ -110,45 +113,124 @@ public class Player : MonoBehaviour
     {
         Mysql mysql = FindObjectOfType<Mysql>();
 
-        List<ShipBaseStat> stats = mysql.ReadShipBaseStatsTable();
-        List<Experience> exp = mysql.ReadExperienceTable();
-        PlayerData data = mysql.ReadPlayerData(dbid);
-        List<PlayerSkillLevel> skills = mysql.ReadPlayerSkills(dbid);
+        Action ac = () =>
+        {
+            try { 
+                List<ShipBaseStat> stats = mysql.ReadShipBaseStatsTable();
+                List<Experience> exp = mysql.ReadExperienceTable();
+                PlayerData data = mysql.ReadPlayerData(dbid);
+                List<PlayerSkillLevel> skills = mysql.ReadPlayerSkills(dbid);
 
-        if (!NetworkManager.traders.ContainsKey(dbid)) {
-            NetworkManager.traders.Add(dbid, mysql.ReadTraders());
-        }
+                this.stats = stats;
+                this.exp = exp;
+                this.data = data;
+                this.skills = skills;
 
-        this.stats = stats;
-        this.exp = exp;
-        this.data = data;
-        this.skills = skills;
+                if (!NetworkManager.traders.ContainsKey(dbid))
+                {
+                    NetworkManager.traders.Add(dbid, mysql.ReadTraders());
+                }
+                List<SerializableObjects.Item> shipEquipment = LoadShipEquipment(mysql);
 
-        LoadBaseStats();
+                ThreadManager.ExecuteOnMainThread(() =>
+                {
+                    LoadBaseStats();
 
-        //if (!data.is_on_ship) {
-        playerInstance = Instantiate(playerPrefab, new Vector3(data.X_PLAYER, data.Y_PLAYER, data.Z_PLAYER), Quaternion.identity);
-        playerCharacter = playerInstance.GetComponent<PlayerCharacter>();
-        playerMovement = playerInstance.GetComponent<PlayerMovement>();
-        playerCharacter.id = id;
-        playerCharacter.data = data;
-        playerInstance.transform.Find("PlayerSphere").GetComponent<SphereCollider>().radius = NetworkManager.visibilityRadius / 2;
-        playerInstance.transform.eulerAngles = new Vector3(0, data.Y_ROT_PLAYER, 0);        
+                    //if (!data.is_on_ship) {
+                    playerInstance = Instantiate(playerPrefab, new Vector3(data.X_PLAYER, data.Y_PLAYER, data.Z_PLAYER), Quaternion.identity);
+                    playerCharacter = playerInstance.GetComponent<PlayerCharacter>();
+                    playerMovement = playerInstance.GetComponent<PlayerMovement>();
+                    playerCharacter.id = id;
+                    playerCharacter.data = data;
+                    playerInstance.transform.Find("PlayerSphere").GetComponent<SphereCollider>().radius = NetworkManager.visibilityRadius / 2;
+                    playerInstance.transform.eulerAngles = new Vector3(0, data.Y_ROT_PLAYER, 0);
+                    playerCharacter.pirate.transform.rotation = Quaternion.Euler(0, data.Y_ROT_PLAYER_CHILD, 0);
 
-        if (data.is_on_ship)
-            playerInstance.SetActive(false);
+                    if (data.is_on_ship)
+                        playerInstance.SetActive(false);                                       
 
-        //}
-        
-        ServerSend.OnGameStart(id, stats, playerCharacter.stats, exp, data);
-        playerCharacter.Load();
+                    ServerSend.OnGameStart(id, stats, playerCharacter.stats, exp, data);
+                    playerCharacter.Load();
 
-        LoadInventory();
-        //LoadPlayerEquipment();
-        LoadShipEquipment();
+                    ShipEquipment equipment = ship_equipment;
 
-        //send stats after all is loaded
-        ServerSend.Stats(id);
+                    foreach (SerializableObjects.Item item in shipEquipment)
+                    {
+                        equipment.Add(NetworkManager.SerializableToItem(item));
+                    }
+
+                    // Send the new player to all players
+                    foreach (Client _client in Server.clients.Values)
+                    {
+                        if (_client.player != null)
+                        {
+                            if (_client.player.id != id)
+                                ServerSend.SpawnShip(_client.id, this);
+                        }
+                    }
+
+                    // Send all players to the new player
+                    foreach (Client _client in Server.clients.Values)
+                    {
+                        if (_client.player != null)
+                        {
+                            if (_client.id != id)
+                            {
+                                ServerSend.SpawnShip(id, _client.player);
+                            }
+                        }
+                    }
+
+                    // Send the new player to all players except himself        
+                    foreach (Client _client in Server.clients.Values)
+                    {
+                        if (_client.player != null)
+                        {
+                            if (_client.player.id != id)
+                            {
+                                //ServerSend.SpawnPlayer(_client.id, player);                        
+                                ServerSend.InstantiatePlayerCharacter(_client.id, id,
+                                    this.playerInstance.transform.position,
+                                    this.playerInstance.transform.eulerAngles.y);
+                            }
+                        }
+                    }
+
+                    // Send all players to the new player
+                    foreach (Client _client in Server.clients.Values)
+                    {
+                        if (_client.player != null)
+                        {
+                            if (_client.id != id)
+                            {
+                                /*if(!_client.player.data.is_on_ship)
+                                    ServerSend.SpawnPlayer(id, _client.player);*/
+                                ServerSend.InstantiatePlayerCharacter(id, _client.player.id,
+                                        _client.player.playerInstance.transform.position,
+                                        _client.player.playerInstance.transform.eulerAngles.y);
+                            }
+                        }
+                    }
+
+                    spawnManager.SendAllGameObjects(id);
+                    ServerSend.Recipes(id);
+
+                    //send stats after all is loaded
+                    ServerSend.Stats(id);
+                });
+                
+                //LoadPlayerEquipment();              
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(ex);
+            }
+        };        
+
+        Task task = new Task(ac);
+        task.Start();  
+
+        LoadInventory();        
     }
 
     public void Update()
@@ -270,7 +352,7 @@ public class Player : MonoBehaviour
             ServerSend.GroupMembers(group.groupId);
     }
 
-    private void TakeDamage(EnemyAI npc)
+    private void TakeDamage(ShipNPC npc)
     {
         if (data.sunk)
             return;
@@ -300,7 +382,7 @@ public class Player : MonoBehaviour
         if (other.tag.Equals("CannonBall"))
         {
             Player player = other.gameObject.GetComponent<CannonBall>().player;
-            EnemyAI npc = other.gameObject.GetComponent<CannonBall>().npc;
+            ShipNPC npc = other.gameObject.GetComponent<CannonBall>().npc;
 
             Vector3 tempPos = other.transform.position - new Vector3(0f, 0.5f, 0f);
 
@@ -367,8 +449,12 @@ public class Player : MonoBehaviour
         }
         else if (other.name.Equals("NPCSphere"))
         {
-            int npcId = other.GetComponentInParent<EnemyAI>().id;
-            ServerSend.NPCStats(npcId, id);
+            if (data.is_on_ship)
+            {
+                int npcId = other.GetComponentInParent<NPC>().id;
+                ServerSend.NPCStats(npcId, id);
+                ServerSend.ActivateNPC(id, npcId);
+            }
         }
         else if (other.tag.Equals("Dock"))
         {
@@ -394,13 +480,22 @@ public class Player : MonoBehaviour
                     ServerSend.DeactivatePlayerCharacter(id, otherPlayerId);
             }
         }
-        else if (other.name.Equals("Sphere")) {
+        else if (other.name.Equals("Sphere"))
+        {
             int otherPlayerId = other.GetComponentInParent<Player>().id;
 
             if (otherPlayerId != id)
-            {          
-                if(data.is_on_ship)
+            {
+                if (data.is_on_ship)
                     ServerSend.DeactivateShip(id, otherPlayerId);
+            }
+        }
+        else if (other.name.Equals("NPCSphere"))
+        {
+            if (data.is_on_ship)
+            {
+                int npcId = other.GetComponentInParent<NPC>().id;
+                ServerSend.DeactivateNPC(id, npcId);
             }
         }
     }
@@ -475,16 +570,15 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void LoadShipEquipment() {
-        Mysql mysql = FindObjectOfType<Mysql>();
+    public List<SerializableObjects.Item> LoadShipEquipment(Mysql mysql) {        
         Player player = Server.clients[id].player;
-        List<Item> items = mysql.ReadShipEquipment(player.dbid);
-        ShipEquipment equipment = player.ship_equipment;
+        return mysql.ReadShipEquipment(player.dbid);
+        /*ShipEquipment equipment = player.ship_equipment;
 
-        foreach (Item item in items)
-        {
-            equipment.Add(item);
-        }
+        foreach (SerializableObjects.Item item in items)
+        {            
+            equipment.Add(NetworkManager.SerializableToItem(item));
+        }*/
     }
 
     /*public void LoadPlayerEquipment() {

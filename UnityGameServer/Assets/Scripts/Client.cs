@@ -236,60 +236,7 @@ public class Client: MonoBehaviour
         player.Initialize(id, dbid);
 
         ServerSend.SpawnShip(id, player);
-        player.Load();
-
-        // Send the new player to all players
-        foreach (Client _client in Server.clients.Values)
-        {
-            if (_client.player != null)
-            {
-                if(_client.player.id!=id)
-                    ServerSend.SpawnShip(_client.id, player);
-            }
-        }
-
-        // Send all players to the new player
-        foreach (Client _client in Server.clients.Values)
-        {
-            if (_client.player != null)
-            {
-                if (_client.id != id)
-                {
-                    ServerSend.SpawnShip(id, _client.player);                    
-                }
-            }
-        }        
-
-        // Send the new player to all players except himself        
-        foreach(Client _client in Server.clients.Values)
-        {
-            if (_client.player != null)
-            {
-                if (_client.player.id != id)
-                {
-                    //ServerSend.SpawnPlayer(_client.id, player);                        
-                    ServerSend.InstantiatePlayerCharacter(_client.id, id, 
-                        player.playerInstance.transform.position,
-                        player.playerInstance.transform.eulerAngles.y);
-                }
-            }
-        }        
-
-        // Send all players to the new player
-        foreach (Client _client in Server.clients.Values)
-        {
-            if (_client.player != null)
-            {
-                if (_client.id != id)
-                {
-                    /*if(!_client.player.data.is_on_ship)
-                        ServerSend.SpawnPlayer(id, _client.player);*/
-                    ServerSend.InstantiatePlayerCharacter(id, _client.player.id,
-                            _client.player.playerInstance.transform.position,
-                            _client.player.playerInstance.transform.eulerAngles.y);
-                }
-            }
-        }
+        player.Load();        
 
         /*foreach (ItemSpawner _itemSpawner in ItemSpawner.spawners.Values)
         {

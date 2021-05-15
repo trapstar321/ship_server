@@ -22,29 +22,13 @@ public class ServerHandle : MonoBehaviour
 
     public static void Welcome(int _fromClient, int dbid)
     {
-        //int _clientIdCheck = _packet.ReadInt();
-        //string _username = _packet.ReadString();
-
         Debug.Log($"{Server.clients[_fromClient].tcp.socket.Client.RemoteEndPoint} connected successfully and is now player {_fromClient}.");
-        /*if (_fromClient != _clientIdCheck)
-        {
-            Debug.Log($"Player (ID: {_fromClient}) has assumed the wrong client ID ({_clientIdCheck})!");
-        }*/
+        
         ServerSend.Welcome(_fromClient);
         ServerSend.PlayerAbilities(_fromClient, NetworkManager.playerAbilities);
         ServerSend.Parameters(_fromClient, NetworkManager.parameters);
         PlayerData data = mysql.ReadPlayerData(dbid);
-        Server.clients[_fromClient].SendIntoGame(data, "username", dbid);
-        //ServerSend.WavesMesh(_fromClient, NetworkManager.wavesScript.GenerateMesh());
-
-        ServerSend.Time(Time.time);
-        NetworkManager.SendNPCBaseStats(_fromClient);
-        spawnManager.SendAllGameObjects(_fromClient);
-        ServerSend.Recipes(_fromClient);
-
-        //send current stats to all
-        //send stats from all to player
-        //NetworkManager.SendStats(_fromClient);          
+        Server.clients[_fromClient].SendIntoGame(data, "username", dbid);        
     }
 
     public static void Login(int _fromClient, Packet _packet)

@@ -18,7 +18,7 @@ public class CannonShotNPC : MonoBehaviour
     public float DestroyDistance = 50;    
     float LastShotTime = -1;
     public float reloadSpeed;
-    EnemyAI AIscript;
+    ShipNPC AIscript;
 
     [Header("Angle Calculation")]
     public float R; //Range from player
@@ -29,7 +29,7 @@ public class CannonShotNPC : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        AIscript = gameObject.GetComponent<EnemyAI>();
+        AIscript = gameObject.GetComponent<ShipNPC>();
     }
 
     // Update is called once per frame

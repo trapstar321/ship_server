@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
+using System.Threading.Tasks;
 
 public class NetworkManager : MonoBehaviour
 {
@@ -16,10 +17,11 @@ public class NetworkManager : MonoBehaviour
     public GameObject playerPrefab;
     public GameObject enemyPrefab;
     public GameObject projectilePrefab;
-    public static float visibilityRadius = 20;
-
-    float lastPositionUpdateTime = -1;
-    float positionUpdateDifference = 5;
+    public static float visibilityRadius = 60;
+    
+    float positionAndRotationTick = 25;
+    float playerPositionUpdateTick = 5;
+    float respawnTradersTick = 10;
 
     Mysql mysql;
     public GameObject respawnPointCharacter;
@@ -83,7 +85,10 @@ public class NetworkManager : MonoBehaviour
     {
         send = FindObjectOfType<ServerSend>();
         StartCoroutine(Tick());
+        StartCoroutine(NPCPositionAndRotationTick());
         StartCoroutine(Respawn());
+        StartCoroutine(UpdatePlayerPosition());
+        StartCoroutine(RespawnTraders());
         wavesScript = GameObject.FindWithTag("Waves").GetComponent<Waves>();
 
         if (instance == null)
@@ -97,13 +102,6 @@ public class NetworkManager : MonoBehaviour
         }
 
         mysql = FindObjectOfType<Mysql>();        
-    }
-
-    private void Update()
-    {
-        ServerSend.Time(Time.deltaTime);
-        UpdatePlayerPosition();
-        RespawnTraders();
     }
 
     private void Start()
@@ -125,50 +123,55 @@ public class NetworkManager : MonoBehaviour
         return Instantiate(playerPrefab, new Vector3(x, y, z), Quaternion.identity).GetComponent<Player>();
     }
 
-    public static void SendNPCBaseStats(int to) {
-        Mysql mysql = FindObjectOfType<Mysql>();
-        List<ShipBaseStat> stats = mysql.ReadNPCBaseStatsTable();
-
-        ServerSend.BaseStats(to, stats, "npc");
-    }
-
     int moveCount = 1;
     IEnumerator Tick()
     {
         while (true)
         {
             foreach (Client client in Server.clients.Values)
-            {
+            {                
                 if (buffer.ContainsKey(client.id))
                 {                    
                     ProcessBuffer(client);
-                    ProcessMovementPackets(client);
+                    //ProcessMovementPackets(client);
                 }
             }
-            yield return new WaitForSeconds(1 / 50);
+            yield return new WaitForSeconds(1 / positionAndRotationTick);
         }
     }
 
-    void UpdatePlayerPosition()
-    {
-        if (Time.time - lastPositionUpdateTime < positionUpdateDifference && lastPositionUpdateTime != -1)
-            return;
-
-        lastPositionUpdateTime = Time.time;
-
-        foreach (Client client in Server.clients.Values)
+    IEnumerator NPCPositionAndRotationTick()
+    {        
+        while (true)
         {
-            Player player = client.player;
+            foreach (NPC npc in Server.npcs.Values)
+            {
+                ServerSend.NPCPosition(npc.id, npc.transform.position, npc.transform.rotation);                    
+            }
+            yield return new WaitForSeconds(1 / positionAndRotationTick);
+        }        
+    }
 
-            if (player != null)
-            {               
-                mysql.UpdateShipPosition(player.dbid, player.transform.position.x, player.transform.position.y, player.transform.position.z, player.transform.eulerAngles.y);
+    IEnumerator UpdatePlayerPosition()
+    {
+        while (true)
+        {
+            foreach (Client client in Server.clients.Values)
+            {
+                Player player = client.player;
 
-                if (!player.data.is_on_ship) {
-                    Transform transform = player.playerInstance.transform;
-                    mysql.UpdatePlayerPosition(player.dbid, transform.position.x, transform.position.y, transform.position.z, transform.eulerAngles.y);
+                if (player != null)
+                {
+                    mysql.UpdateShipPosition(player.dbid, player.transform.position.x, player.transform.position.y, player.transform.position.z, player.transform.eulerAngles.y);
+
+                    if (!player.data.is_on_ship)
+                    {
+                        Transform transform = player.playerInstance.transform;
+                        mysql.UpdatePlayerPosition(player.dbid, transform.position.x, transform.position.y, transform.position.z, transform.eulerAngles.y, player.playerCharacter.pirate.transform.eulerAngles.y);
+                    }
                 }
             }
+            yield return new WaitForSeconds(playerPositionUpdateTick);
         }
     }
 
@@ -398,7 +401,7 @@ public class NetworkManager : MonoBehaviour
         buffer[client.id].RemoveRange(0, end);
     }
 
-    void ProcessMovementPackets(Client client) {
+    /*void ProcessMovementPackets(Client client) {
         int lastInputSequenceNumber = 0;
         PlayerInputs lastInput = null;
         //Debug.Log("To process: "+client.inputBuffer.Count);
@@ -418,14 +421,14 @@ public class NetworkManager : MonoBehaviour
         if (end != 0)
             client.inputBuffer.RemoveRange(0, end);
 
-        /*if (lastInputSequenceNumber != 0)
-        {
-            client.lastInputSequenceNumber = lastInputSequenceNumber;
-            send.PlayerPosition(lastInput, client.lastInputSequenceNumber, client.player, visibilityRadius);
+        //if (lastInputSequenceNumber != 0)
+        //{
+            //client.lastInputSequenceNumber = lastInputSequenceNumber;
+            //send.PlayerPosition(lastInput, client.lastInputSequenceNumber, client.player, visibilityRadius);
             //Debug.Log("SN " + client.lastInputSequenceNumber + ", position=" + client.player.transform.position);
-        }*/
+        //}
         //Debug.Log("LSN:" + client.lastInputSequenceNumber);
-    }
+    }*/
 
     public static void PlayerDisconnected(int id) {
         buffer.Remove(id);
@@ -479,21 +482,36 @@ public class NetworkManager : MonoBehaviour
         yield return new WaitForSeconds(5);
     }
 
-    public void RespawnTraders() {
-        foreach (int playerId in traders.Keys)
-        {
-            List<SerializableObjects.Trader> traders = NetworkManager.traders[playerId];
-
-            for(int i=0; i<traders.Count; i++)
+    IEnumerator RespawnTraders() {
+        Action ac = () =>
+        {   
+            foreach (int playerId in traders.Keys)
             {
-                SerializableObjects.Trader trader = traders[i];
-                if ((DateTime.Now - trader.respawned).TotalMinutes > trader.item_respawn_time)
+                List<SerializableObjects.Trader> traders = NetworkManager.traders[playerId];
+
+                for (int i = 0; i < traders.Count; i++)
                 {
+                    SerializableObjects.Trader trader = traders[i];
+                    //if ((DateTime.Now - trader.respawned).TotalMinutes > trader.item_respawn_time)
+                    //{
                     trader = mysql.ReadTrader(trader.id);
                     trader.respawned = DateTime.Now;
                     traders[i] = trader;
+                    //}
                 }
-            }
+            }            
+        };
+        Task task = null;
+
+        while (true)
+        {   
+            if (task==null || task.Status!=TaskStatus.Running)
+            {
+                task = new Task(ac);
+                task.Start();
+            }                                         
+            
+            yield return new WaitForSeconds(respawnTradersTick);
         }
     }
 

@@ -2362,7 +2362,7 @@ NavMeshAgent:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5537675507034748358}
   m_Enabled: 1
-  m_AgentTypeID: 0
+  m_AgentTypeID: -1372625422
   m_Radius: 5
   m_Speed: 2
   m_Acceleration: 8
@@ -2389,19 +2389,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id: 0
-  currentDestination: {fileID: 0}
-  destination1: {fileID: 0}
-  destination2: {fileID: 0}
-  lookRadius: 100
-  minShootingRange: 20
-  maxShootingRange: 30
-  L_cannon1: {fileID: 2374237413029809330}
-  L_cannon2: {fileID: 6421097631660348816}
-  R_cannon1: {fileID: 4443084640064115697}
-  R_cannon2: {fileID: 3943251071536368813}
-  dist: 0
-  cannonForce: 800
-  cannonVelocity: 0
+  level: 0
   attack: 0
   health: 0
   defence: 0
@@ -2412,6 +2400,19 @@ MonoBehaviour:
   crit_chance: 0
   cannon_force: 0
   maxHealth: 100
+  aggro_range: 0
+  currentDestination: {fileID: 0}
+  destination1: {fileID: 0}
+  destination2: {fileID: 0}
+  minShootingRange: 20
+  maxShootingRange: 30
+  L_cannon1: {fileID: 2374237413029809330}
+  L_cannon2: {fileID: 6421097631660348816}
+  R_cannon1: {fileID: 4443084640064115697}
+  R_cannon2: {fileID: 3943251071536368813}
+  dist: 0
+  cannonVelocity: 0
+  dead: 0
 --- !u!114 &5075477781698103359
 MonoBehaviour:
   m_ObjectHideFlags: 0

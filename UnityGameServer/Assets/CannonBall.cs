@@ -5,7 +5,7 @@ using UnityEngine;
 public class CannonBall : MonoBehaviour
 {
     public Player player;
-    public EnemyAI npc;
+    public ShipNPC npc;
 
     // Start is called before the first frame update
     void Start()

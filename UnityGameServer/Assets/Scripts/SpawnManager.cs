@@ -8,21 +8,6 @@ using UnityEngine.AI;
 
 public class SpawnManager : MonoBehaviour
 {
-    public enum GameObjectType {
-        chest,
-        npcShip,
-        palmTree,
-        ironRock,
-        goldRock,
-        coal, 
-        silverRock,
-        tinRock,
-        traderGeneric,
-        tradeBroker,
-        cookingSpot,
-        dragon
-    }
-
     public class Spawn {
         public int id;
         public GameObjectType type;
@@ -67,6 +52,7 @@ public class SpawnManager : MonoBehaviour
         List<SerializableObjects.Trader> traders = mysql.ReadTraders();
         List<TradeBroker> brokers = mysql.ReadTradeBrokers();
         List<CraftingSpotSpawn> craftingSpots = mysql.ReadCraftingSpots();
+        List<NPCSpawn> npcSpots = mysql.ReadNPCSpawns();
 
         //create Chest prefab
         int id = NextId();
@@ -140,12 +126,23 @@ public class SpawnManager : MonoBehaviour
         objects.Add(id, new Spawn() { id = id, type = GameObjectType.npcShip, gameObject = ai });
         EnemyAI enemy = ai.GetComponent<EnemyAI>();
         enemy.id = id;
-        Server.npcs.Add(id, enemy);*/         
-        
+        Server.npcs.Add(id, enemy);*/
 
-        id = NextId();
-        GameObject dragon = Instantiate(prefabs[GameObjectType.dragon], new Vector3(57.39f, 1f, 42f), Quaternion.identity);
-        objects.Add(id, new Spawn() { id = id, type = GameObjectType.dragon, gameObject = dragon });        
+
+        foreach (NPCSpawn spawn in npcSpots)
+        {
+            if (spawn.enabled)
+            {
+                id = NextId();
+                GameObject go = Instantiate(prefabs[(GameObjectType)spawn.gameObjectType], new Vector3(spawn.x, spawn.y, spawn.z), Quaternion.identity);
+                go.transform.eulerAngles = new Vector3(0, spawn.Y_rot, 0);
+                objects.Add(id, new Spawn() { id = id, type = GameObjectType.dragon, objectType = ObjectType.NPC, gameObject = go });
+                NPC npc = go.GetComponent<NPC>();
+                npc.id = id;
+                npc.aggro_range = spawn.aggro_range;
+                Server.npcs.Add(id, npc);
+            }
+        }
     }
 
     // Update is called once per frame

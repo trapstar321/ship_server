@@ -95,7 +95,12 @@ public enum ServerPackets
     playerAbilities,
     buffAdded,
     inventorySlot,
-    buffs
+    buffs,
+    activateNPC,
+    deactivateNPC,
+    npcSwitchState,
+    npcDoAbility,
+    npcTarget
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -365,6 +370,13 @@ public class Packet: IDisposable
     }
 
     public void Write(SerializableObjects.ShipBaseStat _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(SerializableObjects.NPCBaseStat _value)
     {
         byte[] data = ObjectToByteArray(_value);
         Write(data.Length); // Add the length of the string to the packet
