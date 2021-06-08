@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Vector3 = UnityEngine.Vector3;
+using Quaternion = UnityEngine.Quaternion;
 
 public class PlayerCharacter : MonoBehaviour
 {
@@ -38,11 +40,21 @@ public class PlayerCharacter : MonoBehaviour
     public CharacterAnimationController animationController;
     public BuffManager buffManager;
     public GameObject pirate;
+
+    public Vector3 clientPosition;
+    public Quaternion clientRotation;
+    public Quaternion childRotation;
+
+    public mouseLook mouseLook;
+
     private void Awake()
     {
         equipment = GetComponent<PlayerEquipment>();
         mysql = FindObjectOfType<Mysql>();
-        animationController = GetComponentInChildren<CharacterAnimationController>();        
+        animationController = GetComponentInChildren<CharacterAnimationController>();
+        mouseLook = GetComponent<mouseLook>();
+        
+        respawnUpdateTime = Time.time;
     }
 
     public void Load()
@@ -50,13 +62,13 @@ public class PlayerCharacter : MonoBehaviour
         this.stats = mysql.ReadPlayerBaseStatsTable();
         LoadBaseStats();
         LoadPlayerEquipment();
-        buffManager = new BuffManager(id, Server.clients[id], this);
+        buffManager = new BuffManager(id, GameServer.clients[id], this);
     }
 
     public void LoadPlayerEquipment()
     {
         Mysql mysql = FindObjectOfType<Mysql>();
-        Player player = Server.clients[id].player;
+        Player player = GameServer.clients[id].player;
         List<Item> items = mysql.ReadPlayerEquipment(player.dbid);        
 
         foreach (Item item in items)
@@ -107,6 +119,16 @@ public class PlayerCharacter : MonoBehaviour
         crit_chance -= item.crit_chance;
         
         ServerSend.Stats(id);
+    }    
+
+    private void OnParticleCollision(GameObject other)
+    {
+        GameObject parent = other.GetComponent<ParticleParent>().parent;
+        ParticleDamage particleDamage = parent.GetComponent<ParticleDamage>();
+        float damage = particleDamage.Damage(other.name, parent);
+
+        if(!data.dead)
+            TakeDamage(damage, false);        
     }
 
     private void OnTriggerEnter(Collider other)
@@ -117,7 +139,7 @@ public class PlayerCharacter : MonoBehaviour
 
             if (otherPlayerId != id)
             {
-                bool isOnShip = Server.clients[otherPlayerId].player.data.is_on_ship;
+                bool isOnShip = GameServer.clients[otherPlayerId].player.data.is_on_ship;
 
                 /*if (isOnShip)
                 {
@@ -137,7 +159,7 @@ public class PlayerCharacter : MonoBehaviour
                 ServerSend.ActivatePlayerCharacter(id, otherPlayerId);
                 ServerSend.Stats(otherPlayerId, id);
                 ServerSend.Buffs(otherPlayerId, id);
-                Player player = Server.clients[otherPlayerId].player;
+                Player player = GameServer.clients[otherPlayerId].player;
                 if (player.playerMovement.agent.enabled)
                 {
                     ServerSend.DeactivatePlayerMovement(otherPlayerId, player.playerInstance.transform.position);
@@ -172,23 +194,20 @@ public class PlayerCharacter : MonoBehaviour
         {
             tradeBrokerEnabled = true;
         }
-        else if (other.tag == "Weapon") {
-            PlayerCharacter otherPlayer = other.GetComponent<Weapon>().player.GetComponent<PlayerCharacter>();
-            if (otherPlayer.id != id) {
-                CharacterAnimationController animationController = otherPlayer.GetComponentInChildren<CharacterAnimationController>();
-                if (animationController.currentAttack != null && !animationController.currentAttack.done)
-                {
-                    Debug.Log("Attack "+animationController.currentAttack.abilityName);
-                    animationController.currentAttack.done = true;
-                    OnPlayerAttack(otherPlayer, animationController.currentAttack);
-                }
-            }
+        else if (other.tag == "Weapon")
+        {
+            PlayerAttack.OnPlayerAttack(this, other);
         }
         else if (other.name.Equals("NPCSphere"))
-        {            
+        {
             int npcId = other.GetComponentInParent<NPC>().id;
             ServerSend.NPCStats(npcId, id);
             ServerSend.ActivateNPC(id, npcId);
+        }
+        else if (other.name.Equals("DamageCollider")) {
+            NPC npc = other.GetComponentInParent<NPC>();
+            DamageColliderInfo info = other.GetComponent<DamageColliderInfo>();
+            NPCAttack.OnNPCAttack(info, npc, this);
         }
     }
 
@@ -243,7 +262,7 @@ public class PlayerCharacter : MonoBehaviour
         }
     }
 
-    private void OnPlayerAttack(PlayerCharacter player, PlayerAbility attack) {
+    /*private void OnPlayerAttack(PlayerCharacter player, PlayerAbility attack) {
         if (data.dead)
             return;
 
@@ -268,15 +287,15 @@ public class PlayerCharacter : MonoBehaviour
         }
 
         ServerSend.TakeDamage(id, transform.position, damage, "character", crit);
-        if (Server.clients[id].player.group != null)
-            ServerSend.GroupMembers(Server.clients[id].player.group.groupId);
-    }
+        if (GameServer.clients[id].player.group != null)
+            ServerSend.GroupMembers(GameServer.clients[id].player.group.groupId);
+    }*/
 
     public void Die() {
         Debug.Log("Die");
         data.dead = true;
-        Server.clients[id].player.playerMovement.DisableAgent();
-        mysql.DiePlayerCharacter(Server.clients[id].player.dbid);
+        GameServer.clients[id].player.playerMovement.DisableAgent();
+        mysql.DiePlayerCharacter(GameServer.clients[id].player.dbid);
         //gameObject.SetActive(false);        
         ServerSend.DiePlayerCharacter(id, data);
     }
@@ -284,7 +303,8 @@ public class PlayerCharacter : MonoBehaviour
     public void Respawn() {
         data.dead = false;
         gameObject.transform.position = NetworkManager.instance.respawnPointCharacter.transform.position;
-        mysql.RespawnPlayerCharacter(Server.clients[id].player.dbid);
+        clientPosition = gameObject.transform.position;
+        mysql.RespawnPlayerCharacter(GameServer.clients[id].player.dbid);
         health = max_health;
         energy = max_energy;
         ServerSend.RespawnPlayerCharacter(id, data);
@@ -297,6 +317,15 @@ public class PlayerCharacter : MonoBehaviour
 
     public void Update()
     {
+        /*transform.position = Vector3.Lerp(transform.position, clientPosition, UnityEngine.Time.deltaTime * 5f);
+        transform.rotation = Quaternion.Lerp(transform.rotation, clientRotation, UnityEngine.Time.deltaTime * 5f);
+        pirate.transform.rotation = Quaternion.Lerp(pirate.transform.rotation, childRotation, UnityEngine.Time.deltaTime * 5f);*/
+
+        /*ServerSend.PlayerCharacterPosition(id, transform.position,
+                transform.rotation,
+                pirate.transform.rotation,
+                true);*/
+
         buffManager.BuffCheck();
 
         if (data.dead)
@@ -322,5 +351,19 @@ public class PlayerCharacter : MonoBehaviour
             ServerSend.Stats(id);
             energyUpdateStart = Time.time;
         }        
+    }
+
+    public void TakeDamage(float damage, bool crit) {
+        health -= damage;        
+
+        ServerSend.TakeDamage(id, transform.position, damage, "character", crit);
+        if (GameServer.clients[id].player.group != null)
+            ServerSend.GroupMembers(GameServer.clients[id].player.group.groupId);
+
+        if (health <= 0)
+        {
+            health = 0;
+            Die();
+        }
     }
 }

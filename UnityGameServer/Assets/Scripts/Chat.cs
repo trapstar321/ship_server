@@ -12,8 +12,8 @@ public class Chat : MonoBehaviour
             ServerSend.ChatMessage(from, message);
         }
         else if (message.messageType == Message.MessageType.groupMessage) {
-            foreach (int dbid in Server.clients[from].player.group.players) {                
-                Player player = Server.FindPlayerByDBid(dbid);
+            foreach (int dbid in GameServer.clients[from].player.group.players) {                
+                Player player = GameServer.FindPlayerByDBid(dbid);
                 if(from!=player.id)
                     ServerSend.ChatMessage(from, message, player.id);
             }
@@ -23,7 +23,7 @@ public class Chat : MonoBehaviour
             string to = message.to;
 
             bool found = false;
-            foreach (Client client in Server.clients.Values)
+            foreach (Client client in GameServer.clients.Values)
             {
                 if (client.player != null && client.player.data.username.Equals(to))
                 {

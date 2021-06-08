@@ -33,7 +33,7 @@ public class Crafting: MonoBehaviour
         }
 
         craftingItem = mysql.ReadItem(recipe.item_id);
-        inventory = Server.clients[from].player.inventory;
+        inventory = GameServer.clients[from].player.inventory;
     }
 
     public List<RecipeItemPossessed> itemsPossessed = new List<RecipeItemPossessed>();
@@ -57,7 +57,7 @@ public class Crafting: MonoBehaviour
 
     RecipeItemPossessed CheckIfPlayerHasRequiredItem(int itemId)
     {
-        Inventory inventory = Server.clients[from].player.inventory;
+        Inventory inventory = GameServer.clients[from].player.inventory;
 
         foreach (InventorySlot slot in inventory.items)
         {
@@ -96,7 +96,7 @@ public class Crafting: MonoBehaviour
 
     public void Craft(int amount, int modifier, float time_to_craft) {
         float time = time_to_craft - time_to_craft / modifier;
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
 
         ServerSend.CraftStatus(player.id, amount, time, craftingItem.iconName, craftingItem.name);
 
@@ -135,7 +135,7 @@ public class Crafting: MonoBehaviour
                 player.skills = mysql.ReadPlayerSkills(player.dbid);
 
                 i--;
-                ServerSend.Inventory(from, Server.clients[from].player.inventory);
+                ServerSend.Inventory(from, GameServer.clients[from].player.inventory);
                 ServerSend.ExperienceGained(from, recipe.experience);
             }
         }

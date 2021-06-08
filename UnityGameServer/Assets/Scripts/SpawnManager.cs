@@ -140,7 +140,7 @@ public class SpawnManager : MonoBehaviour
                 NPC npc = go.GetComponent<NPC>();
                 npc.id = id;
                 npc.aggro_range = spawn.aggro_range;
-                Server.npcs.Add(id, npc);
+                GameServer.npcs.Add(id, npc);
             }
         }
     }

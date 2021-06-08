@@ -49,12 +49,12 @@ public class Group
     public void Disband() {
         foreach (int dbid in players)
         {
-            Player player = Server.FindPlayerByDBid(dbid);
+            Player player = GameServer.FindPlayerByDBid(dbid);
             if (player != null)
                 player.group = null;
         }
 
-        Player owner = Server.FindPlayerByDBid(this.owner);
+        Player owner = GameServer.FindPlayerByDBid(this.owner);
         if(owner!=null)
             owner.ownedGroup = null;
         players.Clear();

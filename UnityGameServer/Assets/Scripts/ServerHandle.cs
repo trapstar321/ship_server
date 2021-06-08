@@ -5,6 +5,7 @@ using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
 using System.Linq;
+using System;
 
 public class ServerHandle : MonoBehaviour
 {
@@ -22,13 +23,13 @@ public class ServerHandle : MonoBehaviour
 
     public static void Welcome(int _fromClient, int dbid)
     {
-        Debug.Log($"{Server.clients[_fromClient].tcp.socket.Client.RemoteEndPoint} connected successfully and is now player {_fromClient}.");
+        Debug.Log($"New player connected successfully and is now player {_fromClient}.");
         
         ServerSend.Welcome(_fromClient);
         ServerSend.PlayerAbilities(_fromClient, NetworkManager.playerAbilities);
         ServerSend.Parameters(_fromClient, NetworkManager.parameters);
         PlayerData data = mysql.ReadPlayerData(dbid);
-        Server.clients[_fromClient].SendIntoGame(data, "username", dbid);        
+        GameServer.clients[_fromClient].SendIntoGame(data, "username", dbid);        
     }
 
     public static void Login(int _fromClient, Packet _packet)
@@ -57,7 +58,7 @@ public class ServerHandle : MonoBehaviour
         }
         Quaternion _rotation = _packet.ReadQuaternion();
 
-        Server.clients[_fromClient].player.SetInput(_inputs, _rotation);
+        GameServer.clients[_fromClient].player.SetInput(_inputs, _rotation);
     }
 
     public static void Position(int _fromClient, Packet _packet)
@@ -68,8 +69,8 @@ public class ServerHandle : MonoBehaviour
         bool right = _packet.ReadBool();
         bool forward = _packet.ReadBool();
 
-        //Server.clients[_fromClient].player.Move(new Vector3(left ? 1 : 0, right ? 1 : 0, forward ? 1 : 0));                
-        Client client = Server.clients[_fromClient];
+        //GameServer.clients[_fromClient].player.Move(new Vector3(left ? 1 : 0, right ? 1 : 0, forward ? 1 : 0));                
+        Client client = GameServer.clients[_fromClient];
         client.inputBuffer.Add(new PlayerInputs() { left = left, right = right, forward = forward, inputSequenceNumber = inputSequenceNumber });
     }
 
@@ -79,7 +80,7 @@ public class ServerHandle : MonoBehaviour
         float vertical = _packet.ReadFloat();
         float horizontal = _packet.ReadFloat();
 
-        Server.clients[_fromClient].player.SetInput(vertical, horizontal);
+        GameServer.clients[_fromClient].player.SetInput(vertical, horizontal);
     }
 
     public static void test(int _fromClient, Packet _packet)
@@ -90,7 +91,7 @@ public class ServerHandle : MonoBehaviour
 
     public static void GetInventory(int from, Packet packet)
     {
-        Inventory inventory = Server.clients[from].player.inventory;
+        Inventory inventory = GameServer.clients[from].player.inventory;
 
         ServerSend.Inventory(from, inventory);
 
@@ -104,7 +105,7 @@ public class ServerHandle : MonoBehaviour
 
     public static void GetShipEquipment(int from, Packet packet)
     {
-        ShipEquipment equipment = Server.clients[from].player.ship_equipment;
+        ShipEquipment equipment = GameServer.clients[from].player.ship_equipment;
         ServerSend.ShipEquipment(from, equipment.Items());
 
         /*Item wood = new Item();
@@ -117,7 +118,7 @@ public class ServerHandle : MonoBehaviour
 
     public static void GetPlayerEquipment(int from, Packet packet)
     {
-        PlayerEquipment equipment = Server.clients[from].player.playerInstance.GetComponent<PlayerCharacter>().equipment;
+        PlayerEquipment equipment = GameServer.clients[from].player.playerInstance.GetComponent<PlayerCharacter>().equipment;
 
         ServerSend.PlayerEquipment(from, equipment.Items());
 
@@ -131,7 +132,7 @@ public class ServerHandle : MonoBehaviour
 
     public static void DropItem(int from, Packet packet)
     {
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
         Inventory inventory = player.inventory;
         SerializableObjects.InventorySlot slot = packet.ReadInventorySlot();
         int quantity = packet.ReadInt();
@@ -141,13 +142,13 @@ public class ServerHandle : MonoBehaviour
             if (slot.slot_type.Equals("player_equipment"))
             {
                 Item item = NetworkManager.SerializableToItem(slot.item);
-                PlayerEquipment pequipment = Server.clients[from].player.playerInstance.GetComponent<PlayerCharacter>().equipment;
+                PlayerEquipment pequipment = GameServer.clients[from].player.playerInstance.GetComponent<PlayerCharacter>().equipment;
                 mysql.RemovePlayerEquipment(player.dbid, item);
                 pequipment.Remove(item);
             }
             else if (slot.slot_type.Equals("ship_equipment")) {
                 Item item = NetworkManager.SerializableToItem(slot.item);
-                ShipEquipment sequipment = Server.clients[from].player.ship_equipment;
+                ShipEquipment sequipment = GameServer.clients[from].player.ship_equipment;
                 mysql.RemoveShipEquipment(player.dbid, item);
                 sequipment.Remove(item);
             }
@@ -159,7 +160,7 @@ public class ServerHandle : MonoBehaviour
             if (!s.item.stackable || (s.item.stackable && s.quantity == quantity))
             {
                 inventory.Remove(slot.slotID);
-                mysql.DropItem(Server.clients[from].player.dbid, s);
+                mysql.DropItem(GameServer.clients[from].player.dbid, s);
 
                 quantity = 1;
                 int id = 0;
@@ -180,10 +181,10 @@ public class ServerHandle : MonoBehaviour
 
     public static void UnequipItem(int from, Packet packet)
     {
-        int dbid = Server.clients[from].player.dbid;
-        Inventory inventory = Server.clients[from].player.inventory;
-        ShipEquipment sequipment = Server.clients[from].player.ship_equipment;
-        PlayerEquipment pequipment = Server.clients[from].player.playerInstance.GetComponent<PlayerCharacter>().equipment;
+        int dbid = GameServer.clients[from].player.dbid;
+        Inventory inventory = GameServer.clients[from].player.inventory;
+        ShipEquipment sequipment = GameServer.clients[from].player.ship_equipment;
+        PlayerEquipment pequipment = GameServer.clients[from].player.playerInstance.GetComponent<PlayerCharacter>().equipment;
 
         string eq = packet.ReadString();
         string type = packet.ReadString();        
@@ -224,7 +225,7 @@ public class ServerHandle : MonoBehaviour
 
     public static void RemoveItemFromInventory(int from, Packet packet)
     {
-        Inventory inventory = Server.clients[from].player.inventory;
+        Inventory inventory = GameServer.clients[from].player.inventory;
 
         SerializableObjects.InventorySlot slot = packet.ReadInventorySlot();
         mysql.RemoveInventoryItem(from, slot.slotID);
@@ -233,9 +234,9 @@ public class ServerHandle : MonoBehaviour
 
     public static void ReplaceShipEquipment(int from, Packet packet)
     {
-        Player player = Server.clients[from].player;
-        Inventory inventory = Server.clients[from].player.inventory;
-        ShipEquipment equipment = Server.clients[from].player.ship_equipment;
+        Player player = GameServer.clients[from].player;
+        Inventory inventory = GameServer.clients[from].player.inventory;
+        ShipEquipment equipment = GameServer.clients[from].player.ship_equipment;
 
         SerializableObjects.InventorySlot sl = packet.ReadInventorySlot();
         InventorySlot slot = inventory.FindSlot(sl.slotID);
@@ -268,9 +269,9 @@ public class ServerHandle : MonoBehaviour
 
     public static void ReplacePlayerEquipment(int from, Packet packet)
     {
-        Player player = Server.clients[from].player;
-        Inventory inventory = Server.clients[from].player.inventory;
-        PlayerEquipment equipment = Server.clients[from].player.playerInstance.GetComponent<PlayerCharacter>().equipment;
+        Player player = GameServer.clients[from].player;
+        Inventory inventory = GameServer.clients[from].player.inventory;
+        PlayerEquipment equipment = GameServer.clients[from].player.playerInstance.GetComponent<PlayerCharacter>().equipment;
 
         SerializableObjects.InventorySlot sl = packet.ReadInventorySlot();
         InventorySlot slot = inventory.FindSlot(sl.slotID);
@@ -304,8 +305,8 @@ public class ServerHandle : MonoBehaviour
 
     public static void DragAndDrop(int from, Packet packet)
     {
-        int dbid = Server.clients[from].player.dbid;
-        Inventory inventory = Server.clients[from].player.inventory;
+        int dbid = GameServer.clients[from].player.dbid;
+        Inventory inventory = GameServer.clients[from].player.inventory;
         SerializableObjects.InventorySlot slot1 = packet.ReadInventorySlot();
         SerializableObjects.InventorySlot slot2 = packet.ReadInventorySlot();
 
@@ -365,11 +366,11 @@ public class ServerHandle : MonoBehaviour
 
     public static void SearchChest(int from, Packet packet)
     {
-        Server.clients[from].player.SearchChest();
+        GameServer.clients[from].player.SearchChest();
     }
 
     /*public static void OnGameStart(int from, Packet packet) {
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
         List<BaseStat> stats = player.stats;
         List<Experience> exp = player.exp;
         PlayerData data = player.data;        
@@ -379,22 +380,22 @@ public class ServerHandle : MonoBehaviour
 
     public static void Shoot(int from, Packet packet)
     {
-        CannonShot shootScript = Server.clients[from].player.cannonShot;
+        CannonShot shootScript = GameServer.clients[from].player.cannonShot;
         shootScript.Shoot(packet.ReadString());
     }
 
     public static void CannonRotate(int from, Packet packet)
     {
-        CannonController cannonRotate = Server.clients[from].player.cannonController;
+        CannonController cannonRotate = GameServer.clients[from].player.cannonController;
         cannonRotate.CannonRotate(packet.ReadString(), packet.ReadString());
     }
 
     public static void CollectLoot(int from, Packet packet)
     {
-        int dbid = Server.clients[from].player.dbid;
+        int dbid = GameServer.clients[from].player.dbid;
         List<int> items = packet.ReadIntList();
 
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
 
         bool ItemInList(ItemDrop drop)
         {
@@ -427,7 +428,7 @@ public class ServerHandle : MonoBehaviour
 
     public static void ChatMessage(int from, Packet packet)
     {
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
         Message message = packet.ReadMessage();
         message.from = player.data.username;
         chat.OnChatMessage(from, message);
@@ -435,7 +436,7 @@ public class ServerHandle : MonoBehaviour
 
     public static void CreateGroup(int from, Packet packet)
     {
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
 
         if (player.ownedGroup != null)
         {
@@ -467,7 +468,7 @@ public class ServerHandle : MonoBehaviour
     {
         int groupId = packet.ReadInt();
 
-        Player applicant = Server.clients[from].player;
+        Player applicant = GameServer.clients[from].player;
 
         if (applicant.group != null || (NetworkManager.groups.ContainsKey(groupId) && NetworkManager.groups[groupId].players.Count == Group.maxPlayers))
             return;
@@ -478,7 +479,7 @@ public class ServerHandle : MonoBehaviour
             if (group.groupId == groupId)
             {
                 groupFound = true;
-                Player owner = Server.FindPlayerByDBid(group.owner);
+                Player owner = GameServer.FindPlayerByDBid(group.owner);
 
                 if (owner != null)
                 {
@@ -506,8 +507,8 @@ public class ServerHandle : MonoBehaviour
         msg.text = "Welcome to group!";
         ServerSend.OnGameMessage(applicantId, msg);
 
-        Player owner = Server.clients[from].player;
-        Player applicant = Server.clients[applicantId].player;
+        Player owner = GameServer.clients[from].player;
+        Player applicant = GameServer.clients[applicantId].player;
         Group group = owner.group;
 
         if (group != null)
@@ -528,8 +529,8 @@ public class ServerHandle : MonoBehaviour
 
     public static void KickGroupMember(int from, Packet packet)
     {
-        Group group = Server.clients[from].player.group;
-        Player player = Server.clients[packet.ReadInt()].player;
+        Group group = GameServer.clients[from].player.group;
+        Player player = GameServer.clients[packet.ReadInt()].player;
 
         group.RemovePlayer(player);
 
@@ -542,14 +543,14 @@ public class ServerHandle : MonoBehaviour
 
     public static void LeaveGroup(int from, Packet packet)
     {
-        Player player = Server.clients[from].player;
-        Group group = Server.clients[from].player.group;
+        Player player = GameServer.clients[from].player;
+        Group group = GameServer.clients[from].player.group;
 
         foreach (int dbid in group.players)
         {
             if (dbid != player.dbid)
             {
-                Player otherPlayer = Server.FindPlayerByDBid(dbid);
+                Player otherPlayer = GameServer.FindPlayerByDBid(dbid);
                 if (otherPlayer != null)
                 {
                     Message msg = new Message();
@@ -574,7 +575,7 @@ public class ServerHandle : MonoBehaviour
     {
         List<PlayerData> players = new List<PlayerData>();
 
-        foreach (Client client in Server.clients.Values)
+        foreach (Client client in GameServer.clients.Values)
         {
             if (client.player != null && client.player.id != from)
             {
@@ -591,11 +592,11 @@ public class ServerHandle : MonoBehaviour
         string username = packet.ReadString();
         foreach (Group g in NetworkManager.groups.Values)
         {
-            if (g.owner == Server.clients[from].player.dbid)
+            if (g.owner == GameServer.clients[from].player.dbid)
                 group = g;
         }
 
-        foreach (Client client in Server.clients.Values)
+        foreach (Client client in GameServer.clients.Values)
         {
             if (client.player != null && client.player.data.username == username)
             {
@@ -633,7 +634,7 @@ public class ServerHandle : MonoBehaviour
                 msg.text = "Welcome to group!";
                 ServerSend.OnGameMessage(applicantId, msg);
 
-                Player applicant = Server.clients[applicantId].player;
+                Player applicant = GameServer.clients[applicantId].player;
 
                 if (group != null)
                 {
@@ -658,21 +659,21 @@ public class ServerHandle : MonoBehaviour
         {
             int groupId = NetworkManager.invitationLinks[link];
             Group group = NetworkManager.groups[groupId];
-            Player player = Server.clients[from].player;
+            Player player = GameServer.clients[from].player;
 
             if (group != null)
             {
                 Message msg = new Message();
                 msg.messageType = Message.MessageType.privateMessage;
                 msg.text = $"Player {player.data.username} decline group invitation!";
-                ServerSend.ChatMessage(from, msg, Server.FindPlayerByDBid(group.owner).id);
+                ServerSend.ChatMessage(from, msg, GameServer.FindPlayerByDBid(group.owner).id);
             }
         }
     }
 
     public static void LeaveEnterShip(int from, Packet packet)
     {
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
         player.LeaveEnterShip();
         
         if (player.group != null) {
@@ -682,29 +683,32 @@ public class ServerHandle : MonoBehaviour
 
     public static void PlayerInputs(int from, Packet packet)
     {
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
 
         if (player.playerInstance != null)
         {
-            Vector3 position = player.playerInstance.transform.position;
-            PlayerMovement movement = player.playerInstance.GetComponent<PlayerMovement>();
-            CharacterAnimationController animationController = player.playerInstance.GetComponentInChildren<CharacterAnimationController>();
-            bool w = packet.ReadBool();
+            PlayerMovement movement = player.playerMovement;
+
+            float x = packet.ReadFloat();
+            float z = packet.ReadFloat();
+            float x_raw = packet.ReadFloat();
+            float y_raw = packet.ReadFloat();
+            bool w = packet.ReadBool();            
+            bool s = packet.ReadBool();
             bool leftShift = packet.ReadBool();
-            bool jump = packet.ReadBool();
-            bool leftMouseDown = packet.ReadBool();
-            Vector3 move = packet.ReadVector3();
+            Vector3 position = packet.ReadVector3();
 
-            PlayerMovement.PlayerInputs input = new PlayerMovement.PlayerInputs() { w = w, leftShift = leftShift, jump = jump, move = move, leftMouseDown = leftMouseDown };
-            movement.buffer.Add(input);
+            movement.Simulate(x,z,x_raw,y_raw,w,s,leftShift);
 
-            ServerSend.PlayerInputs(from, input, position);
+            if (Vector3.Distance(movement.transform.position, position) > 0.01f) {
+                ServerSend.CorrectState(from, movement.transform.position, DateTime.UtcNow.Ticks);
+            }
         }
     }
 
     public static void AnimationInputs(int from, Packet packet)
     {
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
         if (player.playerInstance != null)
         {
             Vector3 position = player.playerInstance.transform.position;
@@ -737,16 +741,17 @@ public class ServerHandle : MonoBehaviour
 
     public static void MouseX(int from, Packet packet)
     {
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
         if (player.playerInstance != null)
         {
             Vector3 position = player.playerInstance.transform.position;
 
-            mouseLook look = player.playerInstance.GetComponent<mouseLook>();
+            mouseLook look = player.playerCharacter.mouseLook;
             float x = packet.ReadFloat();
-            look.buffer.Add(x);
+            look.Rotate(x);
+            //look.buffer.Add(x);
 
-            ServerSend.MouseLook(from, x, position);
+            //ServerSend.MouseLook(from, x, position);
         }
     }
 
@@ -757,7 +762,7 @@ public class ServerHandle : MonoBehaviour
 
         GameObject gameObject = spawnManager.objects[resourceID].gameObject;
         Resource resource = gameObject.GetComponent<Resource>();
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
         PlayerSkillLevel skill = player.FindSkill(resource.skill_type);
         PlayerCharacter playerCharacter = player.playerInstance.GetComponent<PlayerCharacter>();
 
@@ -813,8 +818,8 @@ public class ServerHandle : MonoBehaviour
         craftingList.Add(crafting);
         int maxAmount = crafting.GetMaxCraftAmount();
 
-        PlayerSkillLevel level = Server.clients[from].player.FindSkillRequirement(recipe.skill_id, recipe.skill.level);
-        if (makeAmount <= maxAmount && Server.clients[from].player.HasSkillRequirement(recipe.skill_id, recipe.skill.level)) {
+        PlayerSkillLevel level = GameServer.clients[from].player.FindSkillRequirement(recipe.skill_id, recipe.skill.level);
+        if (makeAmount <= maxAmount && GameServer.clients[from].player.HasSkillRequirement(recipe.skill_id, recipe.skill.level)) {
             crafting.Craft(makeAmount, level.modifier, recipe.time_to_craft);
         }
     }
@@ -831,13 +836,13 @@ public class ServerHandle : MonoBehaviour
     }
 
     public static void RequestCrafting(int from, Packet packet) {
-        CraftingSpot craftingSpot = Server.clients[from].player.playerInstance.GetComponent<PlayerCharacter>().craftingSpot;
+        CraftingSpot craftingSpot = GameServer.clients[from].player.playerInstance.GetComponent<PlayerCharacter>().craftingSpot;
         ServerSend.RequestCraftingResponse(from, craftingSpot);
     }
 
     public static void TraderInventoryRequest(int from, Packet packet)
     {
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
         List<SerializableObjects.Trader> traders = NetworkManager.traders[player.dbid];
         int traderId = packet.ReadInt();
         foreach (SerializableObjects.Trader trader in traders)
@@ -863,8 +868,8 @@ public class ServerHandle : MonoBehaviour
         if (amount == 0)
             return;
 
-        Player player = Server.clients[from].player;
-        PlayerCharacter playerCharacter = Server.clients[from].player.playerInstance.GetComponent<PlayerCharacter>();
+        Player player = GameServer.clients[from].player;
+        PlayerCharacter playerCharacter = GameServer.clients[from].player.playerInstance.GetComponent<PlayerCharacter>();
         if (playerCharacter.trader != null) {
             SerializableObjects.TraderItem traderItem = NetworkManager.FindTraderItem(player.dbid, playerCharacter.trader.id, itemID);
             SerializableObjects.Trader trader = NetworkManager.FindTrader(player.dbid, playerCharacter.trader.id);
@@ -893,8 +898,8 @@ public class ServerHandle : MonoBehaviour
         if (amount == 0)
             return;
 
-        Player player = Server.clients[from].player;
-        PlayerCharacter playerCharacter = Server.clients[from].player.playerInstance.GetComponent<PlayerCharacter>();
+        Player player = GameServer.clients[from].player;
+        PlayerCharacter playerCharacter = GameServer.clients[from].player.playerInstance.GetComponent<PlayerCharacter>();
         SerializableObjects.Trader trader = NetworkManager.FindTrader(from, playerCharacter.trader.id);
         SerializableObjects.TraderItem traderItem = NetworkManager.FindTraderItem(from, playerCharacter.trader.id, itemID);
 
@@ -920,11 +925,11 @@ public class ServerHandle : MonoBehaviour
         bool showMyItems = packet.ReadBool();
         bool showSoldItems = packet.ReadBool();
 
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
 
         List<TradeBrokerItem> items = mysql.ReadTradeBrokerItems(player.dbid, categoryId, name.Length == 0 ? null : name, showMyItems, showSoldItems);
         ServerSend.TradeBrokerItems(from, items);
-        ServerSend.Inventory(from, Server.clients[from].player.inventory);
+        ServerSend.Inventory(from, GameServer.clients[from].player.inventory);
     }
 
     public static void RegisterItemOnBroker(int from, Packet packet) {
@@ -936,8 +941,8 @@ public class ServerHandle : MonoBehaviour
         bool showMyItems = packet.ReadBool();
         bool showSoldItems = packet.ReadBool();
 
-        Player player = Server.clients[from].player;
-        PlayerCharacter playerCharacter = Server.clients[from].player.playerInstance.GetComponent<PlayerCharacter>();
+        Player player = GameServer.clients[from].player;
+        PlayerCharacter playerCharacter = GameServer.clients[from].player.playerInstance.GetComponent<PlayerCharacter>();
 
         //dodati u trade_broker_items
         if (playerCharacter.tradeBrokerEnabled &&
@@ -962,7 +967,7 @@ public class ServerHandle : MonoBehaviour
         bool showMyItems = packet.ReadBool();
         bool showSoldItems = packet.ReadBool();
 
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
         TradeBrokerItem item = mysql.ReadTradeBrokerItem(player.dbid, id);
         if (item.IsMyItem) {
             mysql.DropTradeBrokerItem(id);
@@ -983,7 +988,7 @@ public class ServerHandle : MonoBehaviour
         bool showMyItems = packet.ReadBool();
         bool showSoldItems = packet.ReadBool();
 
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
         TradeBrokerItem item = mysql.ReadTradeBrokerItem(player.dbid, id);
 
         if (item != null && !item.sold && player.data.gold>=item.price*quantity)
@@ -1016,13 +1021,13 @@ public class ServerHandle : MonoBehaviour
             mysql.UpdatePlayerGold(player.dbid, player.data.gold);
             mysql.InventoryAdd(player, NetworkManager.SerializableToItem(item.item), quantity);
 
-            Player seller = Server.FindPlayerByDBid(item.seller_id);
+            Player seller = GameServer.FindPlayerByDBid(item.seller_id);
             if (seller != null)
             {
                 Message message = new Message();
                 message.messageType = Message.MessageType.gameInfo;
                 message.text = "Your item " + item.item.name + " has been sold!";
-                ServerSend.OnGameMessage(Server.FindPlayerByDBid(item.seller_id).id, message);                
+                ServerSend.OnGameMessage(GameServer.FindPlayerByDBid(item.seller_id).id, message);                
             }
             ServerSend.PlayerData(from, player.data);
             ServerSend.Inventory(from, player.inventory);
@@ -1053,7 +1058,7 @@ public class ServerHandle : MonoBehaviour
         bool showMyItems = packet.ReadBool();
         bool showSoldItems = packet.ReadBool();
 
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
         TradeBrokerItem item = mysql.ReadTradeBrokerItem(player.dbid, id);
 
         if (item != null && item.parent_id.HasValue) {
@@ -1074,10 +1079,10 @@ public class ServerHandle : MonoBehaviour
 
     public static void TradeRequest(int from, Packet packet) {
         string username = packet.ReadString();
-        Player sender = Server.clients[from].player;
-        Player player = Server.FindPlayerByUsername(username);
+        Player sender = GameServer.clients[from].player;
+        Player player = GameServer.FindPlayerByUsername(username);
 
-        Server.clients[from].player.playerMovement.SetDestination(sender, player);        
+        GameServer.clients[from].player.playerMovement.SetDestination(sender, player);        
     }
 
     public static void AcceptTrade(int from, Packet packet)
@@ -1100,12 +1105,12 @@ public class ServerHandle : MonoBehaviour
             trade2.items1 = new List<SerializableObjects.InventorySlot>();
             trade2.items2 = new List<SerializableObjects.InventorySlot>();
 
-            int player1 = Server.FindPlayerByUsername(trade1.player1.username).id;
-            int player2 = Server.FindPlayerByUsername(trade2.player1.username).id;
+            int player1 = GameServer.FindPlayerByUsername(trade1.player1.username).id;
+            int player2 = GameServer.FindPlayerByUsername(trade2.player1.username).id;
             NetworkManager.trades.Add(player1, trade1);
             NetworkManager.trades.Add(player2, trade2);
-            ServerSend.PlayerTrade(trade1, Server.clients[player1].player.inventory);
-            ServerSend.PlayerTrade(trade2, Server.clients[player2].player.inventory);
+            ServerSend.PlayerTrade(trade1, GameServer.clients[player1].player.inventory);
+            ServerSend.PlayerTrade(trade2, GameServer.clients[player2].player.inventory);
         }
     }
 
@@ -1116,7 +1121,7 @@ public class ServerHandle : MonoBehaviour
         {
             PlayerTrade trade = NetworkManager.tradeLinks[link];
             NetworkManager.tradeLinks.Remove(link);
-            int otherPlayer = Server.GetOtherPlayer(trade, from);
+            int otherPlayer = GameServer.GetOtherPlayer(trade, from);
             
             Message msg = new Message();
             msg.messageType = Message.MessageType.gameInfo;
@@ -1128,7 +1133,7 @@ public class ServerHandle : MonoBehaviour
     public static void CancelPlayerTrade(int from, Packet packet) {
         if (NetworkManager.trades.ContainsKey(from)) {
             PlayerTrade trade = NetworkManager.trades[from];
-            int otherPlayer = Server.FindPlayerByUsername(trade.player2.username).id;
+            int otherPlayer = GameServer.FindPlayerByUsername(trade.player2.username).id;
 
             ServerSend.PlayerTradeCanceled(otherPlayer);        
             NetworkManager.trades.Remove(from);
@@ -1159,12 +1164,12 @@ public class ServerHandle : MonoBehaviour
                 slot.quantity = quantity;
                 trade.items1.Add(slot);
             }
-            int otherPlayer = Server.FindPlayerByUsername(trade.player2.username).id;
+            int otherPlayer = GameServer.FindPlayerByUsername(trade.player2.username).id;
 
             PlayerTrade tradeOther = NetworkManager.trades[otherPlayer];
             tradeOther.items2 = trade.items1;
 
-            ServerSend.PlayerTrade(tradeOther, Server.clients[otherPlayer].player.inventory);
+            ServerSend.PlayerTrade(tradeOther, GameServer.clients[otherPlayer].player.inventory);
         }
     }
 
@@ -1199,12 +1204,12 @@ public class ServerHandle : MonoBehaviour
                 }
             }
 
-            int otherPlayer = Server.FindPlayerByUsername(trade.player2.username).id;
+            int otherPlayer = GameServer.FindPlayerByUsername(trade.player2.username).id;
 
             PlayerTrade tradeOther = NetworkManager.trades[otherPlayer];
             tradeOther.items2 = trade.items1;
 
-            ServerSend.PlayerTrade(tradeOther, Server.clients[otherPlayer].player.inventory);
+            ServerSend.PlayerTrade(tradeOther, GameServer.clients[otherPlayer].player.inventory);
         }
     }
 
@@ -1216,12 +1221,12 @@ public class ServerHandle : MonoBehaviour
             PlayerTrade trade = NetworkManager.trades[from];
             trade.gold1 = gold;            
 
-            int otherPlayer = Server.FindPlayerByUsername(trade.player2.username).id;
+            int otherPlayer = GameServer.FindPlayerByUsername(trade.player2.username).id;
 
             PlayerTrade tradeOther = NetworkManager.trades[otherPlayer];
             tradeOther.gold2 = gold;
 
-            ServerSend.PlayerTrade(tradeOther, Server.clients[otherPlayer].player.inventory);
+            ServerSend.PlayerTrade(tradeOther, GameServer.clients[otherPlayer].player.inventory);
         }
     }
 
@@ -1230,7 +1235,7 @@ public class ServerHandle : MonoBehaviour
         {
             PlayerTrade trade = NetworkManager.trades[from];
             trade.accepted = true;
-            int otherPlayer = Server.FindPlayerByUsername(trade.player2.username).id;
+            int otherPlayer = GameServer.FindPlayerByUsername(trade.player2.username).id;
             PlayerTrade tradeOther = NetworkManager.trades[otherPlayer];
 
             Message msg = new Message();
@@ -1242,8 +1247,8 @@ public class ServerHandle : MonoBehaviour
                 bool result1 = PlayerTradeCheck(trade);
                 bool result2 = PlayerTradeCheck(tradeOther);                
 
-                Player player1 = Server.FindPlayerByUsername(trade.player1.username);
-                Player player2 = Server.FindPlayerByUsername(tradeOther.player1.username);
+                Player player1 = GameServer.FindPlayerByUsername(trade.player1.username);
+                Player player2 = GameServer.FindPlayerByUsername(tradeOther.player1.username);
 
                 if (result1 && result2 && player1.data.gold >= trade.gold1 && player2.data.gold >= tradeOther.gold1)
                 {
@@ -1299,7 +1304,7 @@ public class ServerHandle : MonoBehaviour
     public static void IsOnShip(int from, Packet packet) {
         int playerId = packet.ReadInt();
         Debug.Log("IsOnShip player=" + playerId);
-        Player player = Server.clients[playerId].player;
+        Player player = GameServer.clients[playerId].player;
         ServerSend.IsOnShip(from, playerId, player.data.is_on_ship);
     }
     struct PlayerDistance
@@ -1309,11 +1314,11 @@ public class ServerHandle : MonoBehaviour
     };
 
     public static void SwitchTarget(int from, Packet packet) {
-        Player player = Server.clients[from].player;
-        GameObject playerObject = Server.clients[from].player.playerInstance;
+        Player player = GameServer.clients[from].player;
+        GameObject playerObject = GameServer.clients[from].player.playerInstance;
         List<PlayerDistance> players = new List<PlayerDistance>();
         
-        foreach (Client client in Server.clients.Values)
+        foreach (Client client in GameServer.clients.Values)
         {
             if (client.player != null && client.player.id!=from)
             {
@@ -1346,7 +1351,7 @@ public class ServerHandle : MonoBehaviour
     }
 
     public static bool PlayerTradeCheck(PlayerTrade trade) {
-        Inventory inventory = Server.FindPlayerByUsername(trade.player1.username).inventory;
+        Inventory inventory = GameServer.FindPlayerByUsername(trade.player1.username).inventory;
         
         List<SerializableObjects.InventorySlot> slots = new List<SerializableObjects.InventorySlot>();
         foreach (SerializableObjects.InventorySlot slot in trade.items1) {
@@ -1370,29 +1375,43 @@ public class ServerHandle : MonoBehaviour
     }
 
     public static void PlayerCharacterPosition(int from, Packet packet) {        
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
 
         if (player.playerInstance != null && !player.playerCharacter.data.dead)
         {
-            player.playerInstance.transform.position = packet.ReadVector3();
+            /*player.playerInstance.transform.position = packet.ReadVector3();
             player.playerInstance.transform.rotation = packet.ReadQuaternion();
-            player.playerCharacter.pirate.transform.rotation = packet.ReadQuaternion();
-            player.playerMovement.DisableAgent();
-            ServerSend.PlayerCharacterPosition(from, player.playerInstance.transform.position, 
-                player.playerInstance.transform.rotation,
-                player.playerCharacter.pirate.transform.rotation,
+            player.playerCharacter.pirate.transform.rotation = packet.ReadQuaternion();*/
+            player.playerCharacter.clientPosition = packet.ReadVector3();
+            player.playerCharacter.clientRotation = packet.ReadQuaternion();
+            player.playerCharacter.childRotation = packet.ReadQuaternion();
+            player.playerMovement.DisableAgent();            
+
+            ServerSend.PlayerCharacterPosition(from, player.playerCharacter.clientPosition,
+                player.playerCharacter.clientRotation,
+                player.playerCharacter.childRotation,
                 true);
+
+            player.data.X_PLAYER = player.playerInstance.transform.position.x;
+            player.data.Y_PLAYER = player.playerInstance.transform.position.y;
+            player.data.Z_PLAYER = player.playerInstance.transform.position.z;
+            player.data.Y_ROT_PLAYER = player.playerInstance.transform.rotation.eulerAngles.y;
+            player.data.Y_ROT_PLAYER_CHILD = player.playerCharacter.pirate.transform.rotation.eulerAngles.y;
         }        
     }
 
     public static void ShipPosition(int from, Packet packet)
     {
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
 
         if (!player.data.sunk)
         {
             player.transform.position = packet.ReadVector3();
             player.transform.rotation = packet.ReadQuaternion();
+            player.data.X_SHIP = player.transform.position.x;
+            player.data.Y_SHIP = player.transform.position.y;
+            player.data.Z_SHIP = player.transform.position.z;
+            player.data.Y_ROT_SHIP = player.transform.rotation.eulerAngles.y;
 
             ServerSend.ShipPosition(from, player.transform.position, player.transform.rotation);
         }
@@ -1400,7 +1419,7 @@ public class ServerHandle : MonoBehaviour
 
     public static void Jump(int from, Packet packet) {        
         ServerSend.Jump(from);
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
 
         PlayerMovement playerMovement = player.playerInstance.GetComponent<PlayerMovement>();
         playerMovement.jump = true;
@@ -1409,25 +1428,25 @@ public class ServerHandle : MonoBehaviour
     public static void AddBuff(int from, Packet packet)
     {
         int slotID = packet.ReadInt();
-        Inventory inventory = Server.clients[from].player.inventory;
+        Inventory inventory = GameServer.clients[from].player.inventory;
         InventorySlot slot = inventory.FindSlot(slotID);
         if (slot != null && slot.item != null 
             && (slot.item.item_type.Equals("potion") || slot.item.item_type.Equals("scroll"))
             && inventory.FindSlot(slotID).quantity>=1)
         {
             bool onCooldown = false;
-            Server.clients[from].player.playerCharacter.buffManager.AddBuff(slot.item, out onCooldown);
+            GameServer.clients[from].player.playerCharacter.buffManager.AddBuff(slot.item, out onCooldown);
             if (!onCooldown)
             {
                 inventory.RemoveAmount(slotID, 1);
 
                 if (slot.item == null)
                 {
-                    mysql.RemoveInventoryItem(Server.clients[from].player.dbid, slot.slotID);
+                    mysql.RemoveInventoryItem(GameServer.clients[from].player.dbid, slot.slotID);
                 }
                 else
                 {
-                    mysql.UpdateItemQuantity(Server.clients[from].player.dbid, slot);
+                    mysql.UpdateItemQuantity(GameServer.clients[from].player.dbid, slot);
                 }
 
                 ServerSend.InventorySlot(from, slot);

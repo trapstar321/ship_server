@@ -8,7 +8,7 @@ using SerializableObjects;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
 
-public class NPC:MonoBehaviour
+public class NPC : MonoBehaviour
 {
     public int id;
 
@@ -23,7 +23,7 @@ public class NPC:MonoBehaviour
     public float crit_chance;
     public float cannon_force;
     public float maxHealth = 100f;
-    
+
     public float aggro_range;
 
     protected List<NPCBaseStat> baseStats;
@@ -33,12 +33,16 @@ public class NPC:MonoBehaviour
     protected Vector3 patrolPoint;
     public float rotationSpeed;
 
+    public bool dead;
+    public float respawnUpdateTime;
+    public float respawnTime = 10;
+
     public void Initialize()
     {
         level = 1;
         LoadBaseStats();
 
-        playerEnterCollider = GetComponentInChildren<SphereCollider>();
+        playerEnterCollider = GetComponentsInChildren<SphereCollider>().Where(x => x.name.Equals("NPCSphere")).FirstOrDefault();
         playerEnterCollider.radius = NetworkManager.visibilityRadius / 2;
 
         randomLoot = FindObjectOfType<RandomLoot>();
@@ -70,7 +74,7 @@ public class NPC:MonoBehaviour
         Vector3 lookPos = destination - transform.position;
         lookPos.y = 0;
         Quaternion rotation = Quaternion.LookRotation(lookPos);
-        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, rotationSpeed*Time.deltaTime);
+        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, rotationSpeed * Time.deltaTime);
     }
 
     public bool InState(Animator anim, string[] animation_tags)
@@ -82,6 +86,60 @@ public class NPC:MonoBehaviour
             if (anim.GetCurrentAnimatorStateInfo(0).IsTag(tag))
                 return true;
         }
+        return false;
+    }
+
+    public virtual void Die()
+    {
+
+    }
+
+    public void TakeDamage(float damage, bool crit)
+    {
+        health -= damage;
+
+        if (health <= 0)
+        {
+            health = 0;
+            Die();
+        }
+
+        ServerSend.TakeDamage(id, transform.position, damage, "npc", crit);
+    }
+
+    public void Update()
+    {
+        if (dead)
+        {
+            if (Time.time - respawnUpdateTime < respawnTime)
+                return;
+
+            respawnUpdateTime = Time.time;
+            Respawn();
+        }
+        else
+        {
+            respawnUpdateTime = Time.time;
+        }
+    }
+
+    public virtual void Respawn()
+    {
+
+    }
+
+    public virtual float AbilityDamage(DamageColliderInfo info)
+    {
+        return 0;
+    }
+
+    public virtual void DamageCollision(DamageColliderInfo info, PlayerCharacter receiver)
+    {
+
+    }
+
+    public virtual bool DisableMultipleCollision(DamageColliderInfo info, PlayerCharacter receiver)
+    {
         return false;
     }
 }

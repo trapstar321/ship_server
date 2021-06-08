@@ -16,6 +16,10 @@ public class mouseLook : MonoBehaviour
         //Cursor.lockState = CursorLockMode.Locked;
     }
 
+    public void Rotate(float mouseX) {
+        playerBody.Rotate(Vector3.up * mouseX);
+    }
+
     // Update is called once per frame
     void Update()
     {

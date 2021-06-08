@@ -45,7 +45,7 @@ public class InventoryTable : MonoBehaviour
         addButton.onClick.RemoveAllListeners();
         addButton.onClick.AddListener(() => inventoryDialogScript.AddInventory(player_id));
 
-        List<InventorySlot> slots = mysql.ReadInventory(playerID);
+        List<SerializableObjects.InventorySlot> slots = mysql.ReadInventory(playerID);
 
         for (int i = 0; i < container.transform.childCount; i++)
         {

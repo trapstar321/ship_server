@@ -57,7 +57,7 @@ public class BuffManager
         onCooldown = false;
         Debug.Log("Buff: " + item.name);
         //cooldown check        
-        foreach (Item it in Server.clients[from].player.inventory.FindAllItems(item.item_id))
+        foreach (Item it in GameServer.clients[from].player.inventory.FindAllItems(item.item_id))
         {
             if (it.cooldown > 0)
             {
@@ -96,7 +96,7 @@ public class BuffManager
 
             if (!buff.overtime && buff.buff_duration == 0)
             {
-                foreach (Item it in Server.clients[from].player.inventory.FindAllItems(item.item_id))
+                foreach (Item it in GameServer.clients[from].player.inventory.FindAllItems(item.item_id))
                 {
                     it.buff_start = DateTime.UtcNow;
                 }

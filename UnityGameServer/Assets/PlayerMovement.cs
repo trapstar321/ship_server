@@ -22,9 +22,10 @@ public class PlayerMovement : MonoBehaviour
     Vector3 velocity;
     public bool isGrounded;
 
-    public bool jump;
+    public bool jump;       
     public Player player;
     public Player sender;
+    public PlayerCharacter playerCharacter;
 
     public struct PlayerInputs
     {
@@ -43,16 +44,78 @@ public class PlayerMovement : MonoBehaviour
     NavMeshPath path;
     float elapsed;
 
+    Vector2 input;
+    float angle;
+    Quaternion targetRotation;
+
     private void Awake()
     {
         animationController = GetComponentInChildren<CharacterAnimationController>();
         controller = GetComponent<CharacterController>();
         agent = GetComponent<NavMeshAgent>();
+        playerCharacter = GetComponent<PlayerCharacter>();
 
         path = new NavMeshPath();
         elapsed = 0.0f;
         agent.speed = walkSpeed;
     }
+
+    public void Simulate(float x, float z, float x_raw, float y_raw, bool w, bool s, bool leftShift)
+    {
+        if (w && !leftShift)
+        {
+            Vector3 move = transform.right * x + transform.forward * z;
+            controller.Move(move * runSpeed / 1.5f * Time.fixedDeltaTime);
+        }
+        else if (w && leftShift)
+        {
+            Vector3 move = transform.right * x + transform.forward * z;
+            controller.Move(move * runSpeed * Time.fixedDeltaTime);
+        }
+        else if (s && !leftShift)
+        {
+            Vector3 move = transform.right * -x + (transform.forward * -1) * z;
+            controller.Move(-move * runSpeed / 1.5f * Time.fixedDeltaTime);
+        }
+        else if (s && leftShift)
+        {
+            Vector3 move = transform.right * -x + (transform.forward * -1) * z;
+            controller.Move(-move * runSpeed * Time.fixedDeltaTime);
+        }
+
+        if (w)
+        {
+            input.x = x_raw;
+            input.y = y_raw;
+            CalcilateDirection();
+            Rotate();
+        }
+
+        if (s)
+        {
+            input.x = x_raw;
+            input.y = y_raw;
+            CalcilateDirection();
+            Rotate();
+        }
+    }
+    void CalcilateDirection()
+    {
+        angle = Mathf.Atan2(input.x, input.y);
+        angle = Mathf.Rad2Deg * angle;
+        angle += transform.localEulerAngles.y;
+    }
+
+    void Rotate()
+    {
+        targetRotation = Quaternion.Euler(0, angle, 0);
+        playerCharacter.pirate.transform.rotation = Quaternion.Lerp(playerCharacter.pirate.transform.rotation, targetRotation, Time.fixedDeltaTime * 10);
+    }
+
+    public float jumpLerpStep = 0.05f;
+    public int jumpFrames = 21;
+    public int jumpFrame = 0;
+    public bool jumping = false;
 
     void FixedUpdate()
     {
@@ -62,45 +125,32 @@ public class PlayerMovement : MonoBehaviour
         {
             velocity.y = -2f;
         }
-
-        /*for (int i = buffer.Count - 1; i >= 0; i--)
-        {
-            w = buffer[i].w;
-            leftShift = buffer[i].leftShift;
-            jump = buffer[i].jump;
-            Vector3 move = buffer[i].move;            
-
-            /*float x = Input.GetAxis("Horizontal");
-            float z = Input.GetAxis("Vertical");
-
-            move = transform.right * x + transform.forward * z;*/
-
-        /*if (w && !leftShift)
-        {
-            controller.Move(move * walkSpeed * Time.deltaTime);
-        }
-        else if (w && leftShift)
-        {
-            controller.Move(move * runSpeed * Time.deltaTime);
-        }*/
-
-        /*if (jump && isGrounded)
-        {
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-        }            
-
-        buffer.RemoveAt(i);
-    }*/
-
+        
         if (jump && isGrounded)
         {
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-            animationController.Jump();
+            animationController.Jump();            
             jump = false;
+            jumping = true;            
         }
 
-        velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
+        if (jumping && jumpFrame<=jumpFrames) {
+            jumpFrame += 1;
+            Vector3 moveDirection = new Vector3(0, 0, 0);
+            moveDirection.y = Mathf.Lerp(0, jumpHeight, jumpLerpStep);
+            transform.Translate(moveDirection);
+
+            if (jumpFrame==jumpFrames)
+            {                
+                jumpFrame = 0;
+                jumping = false;                
+            }
+        }
+
+        if (!jumping)
+        {
+            velocity.y += gravity * Time.fixedDeltaTime;
+            controller.Move(velocity * Time.fixedDeltaTime);
+        }
     }
 
     public float checkEvery = 1;

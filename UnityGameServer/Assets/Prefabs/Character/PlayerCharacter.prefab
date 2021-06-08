@@ -42,13 +42,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4413806292277777273}
-  - component: {fileID: 3711157488771688936}
   - component: {fileID: 4160038632994246648}
   - component: {fileID: 3110487071838130090}
   - component: {fileID: -5338092380957027230}
   - component: {fileID: -8369201964053164885}
   - component: {fileID: 3065972343804387326}
   - component: {fileID: 7430617564208098849}
+  - component: {fileID: -8783142300410951525}
   m_Layer: 12
   m_Name: PlayerCharacter
   m_TagString: Untagged
@@ -80,22 +80,6 @@ RectTransform:
   m_AnchoredPosition: {x: 31.523052, y: 0.8310108}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!54 &3711157488771688936
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 758610521937163471}
-  serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!143 &4160038632994246648
 CharacterController:
   m_ObjectHideFlags: 0
@@ -108,7 +92,7 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 2
   m_Height: 1
-  m_Radius: 0.3
+  m_Radius: 0.2
   m_SlopeLimit: 45
   m_StepOffset: 0.7
   m_SkinWidth: 0.08
@@ -139,6 +123,7 @@ MonoBehaviour:
   jump: 0
   player: {fileID: 0}
   sender: {fileID: 0}
+  agent: {fileID: 0}
   turnSpeed: 1
   checkEvery: 1
 --- !u!114 &-5338092380957027230
@@ -181,6 +166,7 @@ MonoBehaviour:
     Y_PLAYER: 0
     Z_PLAYER: 0
     Y_ROT_PLAYER: 0
+    Y_ROT_PLAYER_CHILD: 0
     is_on_ship: 0
     username: 
     gold: 0
@@ -208,6 +194,9 @@ MonoBehaviour:
   trader: {fileID: 0}
   animationController: {fileID: 0}
   pirate: {fileID: 6387850148728863766}
+  clientPosition: {x: 0, y: 0, z: 0}
+  clientRotation: {x: 0, y: 0, z: 0, w: 0}
+  childRotation: {x: 0, y: 0, z: 0, w: 0}
   respawnUpdateTime: 0
   respawnTime: 10
   energyUpdateStart: 0
@@ -250,6 +239,22 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!54 &-8783142300410951525
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 758610521937163471}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!64 &8879465494100910838
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -441,6 +446,7 @@ MonoBehaviour:
   gatheringType: 0
   craftingType: 0
   controller: {fileID: 4160038632994246648}
+  inState: 0
   rollDistance: 7
   rollTime: 0.9
   DSA_Top_time: 1.5
@@ -562,6 +568,7 @@ MonoBehaviour:
   gatheringType: 0
   craftingType: 0
   controller: {fileID: 4160038632994246648}
+  inState: 0
   rollDistance: 7
   rollTime: 0.9
   DSA_Top_time: 1.5
@@ -1130,7 +1137,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 2f8072cf253aa604aa79fc516764a84a, type: 2}
+      objectReference: {fileID: 9100000, guid: e7169d039e077964488f069db3cbcf78, type: 2}
     - target: {fileID: 5866666021909216657, guid: d33da695b0a370c468c361137f00cb5b,
         type: 3}
       propertyPath: m_CullingMode

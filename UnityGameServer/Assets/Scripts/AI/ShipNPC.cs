@@ -49,8 +49,7 @@ public class ShipNPC : NPC
 
     
 
-    Dictionary<int, float> PlayerDamage = new Dictionary<int, float>();
-    public bool dead = false;
+    Dictionary<int, float> PlayerDamage = new Dictionary<int, float>();    
 
     public void Awake() {        
         Mysql mysql = FindObjectOfType<Mysql>();
@@ -138,7 +137,7 @@ public class ShipNPC : NPC
             }
         }
 
-        Server.clients[mostDamagePlayer].player.lootCache = loot;
+        GameServer.clients[mostDamagePlayer].player.lootCache = loot;
         ServerSend.OnLootDropped(mostDamagePlayer, loot);
     }
 
@@ -568,7 +567,7 @@ public class ShipNPC : NPC
         float minDist = aggro_range;
         Vector3 currentPos = transform.position;
 
-        foreach (Client client in Server.clients.Values)
+        foreach (Client client in GameServer.clients.Values)
         {
             Player p = client.player;
             if (p != null)

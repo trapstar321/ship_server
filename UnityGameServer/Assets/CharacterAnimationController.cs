@@ -20,7 +20,7 @@ public class CharacterAnimationController : MonoBehaviour
     public SkillType craftingType;
     public CharacterController controller;
 
-    public static bool inState = false;
+    public bool inState = false;
 
     public float rollDistance = 7f;
     public float rollTime = 0.9f;
@@ -51,12 +51,40 @@ public class CharacterAnimationController : MonoBehaviour
 
         foreach (AnimationClip c in clips)
         {
-            if (c.name.Equals("PirateRig|DualSwordAttack_From_Top"))
+            if (animation_length.ContainsKey(c.name) 
+                && !c.name.Contains("PirateRig|DualSwordAttack_From_Top")
+                && !c.name.Contains("PirateRig|DualSwordAttack_From_Top"))
             {
                 AnimationEvent[] events = new AnimationEvent[1];
                 events[0] = new AnimationEvent();
+                events[0].functionName = "AnimationEnd";
+                events[0].time = animation_length[c.name];
+                c.events = events;
+            }
+
+            if (c.name.Equals("PirateRig|DualSwordAttack_CW_Flip"))
+            {
+                AnimationEvent[] events = new AnimationEvent[2];
+                events[0] = new AnimationEvent();
+                events[0].functionName = "EnableWeapon";
+                events[0].time = 0.8f;
+
+                events[1] = new AnimationEvent();
+                events[1].functionName = "AnimationEnd";
+                events[1].time = animation_length[c.name];
+                c.events = events;
+            }
+
+            if (c.name.Equals("PirateRig|DualSwordAttack_From_Top"))
+            {
+                AnimationEvent[] events = new AnimationEvent[2];
+                events[0] = new AnimationEvent();
                 events[0].functionName = "EnableWeapon";
                 events[0].time = 0.6f;
+
+                events[1] = new AnimationEvent();
+                events[1].functionName = "AnimationEnd";
+                events[1].time = animation_length[c.name];                
                 c.events = events;
             }
         }
@@ -72,6 +100,12 @@ public class CharacterAnimationController : MonoBehaviour
     string attackName = "";
     string rollDirection = "";
 
+    public Dictionary<string, float> animation_length = new Dictionary<string, float>() {
+        { "PirateRig|DualSwordAttack_CW_Flip", 1},{ "PirateRig|DualSwordAttack_From_Top", 1},{ "PirateRig|TwoHandLongAttack", 1},
+        { "PirateRig|RightSwordStab_01", 1},{ "PirateRig|RollLeft", 1f},{ "PirateRig|RollRight", 1f},
+        { "PirateJump", 1f},{ "PirateRig|RollForward", 1f},
+    };
+
     public string[] animation_tags = new string[] {
         "DSA_Flip", "DSA_Top", "DSA_Long",
         "Stab", "RollLeft", "RollRight",
@@ -79,14 +113,7 @@ public class CharacterAnimationController : MonoBehaviour
 
     public bool InState()
     {
-        AnimatorStateInfo info = anim.GetCurrentAnimatorStateInfo(0);
-
-        foreach (string tag in animation_tags)
-        {
-            if (anim.GetCurrentAnimatorStateInfo(0).IsTag(tag))
-                return true;
-        }
-        return false;
+        return inState;
     }
 
     void FixedUpdate()
@@ -136,7 +163,18 @@ public class CharacterAnimationController : MonoBehaviour
         if (!InState())
         {
             if (!gathering && !crafting)
-            {                
+            {
+                if (attackName.Equals("DSA_Flip") && HasEnergy("DSA_Flip"))//Input.GetKeyDown(KeyCode.Alpha2))
+                {
+                    /*IEnumerator translateCoroutine = Translate(Vector3.forward, DSA_Top_time, 2f, 0f);
+                    StartCoroutine(translateCoroutine);*/
+                    anim.SetTrigger("DSA_Flip");
+                    attackName = "";
+                    currentAttack = NetworkManager.playerAbilities["DSA_Flip"].Clone();
+                    playerCharacter.energy -= NetworkManager.playerAbilities["DSA_Flip"].energy;
+                    playerCharacter.energyUpdateStart = Time.time;
+                    inState = true;
+                }
                 if (attackName.Equals("DSA_Top") && HasEnergy("DSA_Top"))//Input.GetKeyDown(KeyCode.Alpha2))
                 {
                     /*IEnumerator translateCoroutine = Translate(Vector3.forward, DSA_Top_time, 2f, 0f);
@@ -146,6 +184,7 @@ public class CharacterAnimationController : MonoBehaviour
                     currentAttack = NetworkManager.playerAbilities["DSA_Top"].Clone();
                     playerCharacter.energy -= NetworkManager.playerAbilities["DSA_Top"].energy;
                     playerCharacter.energyUpdateStart = Time.time;
+                    inState = true;
                 }
                 else if (attackName.Equals("DSA_Long") && HasEnergy("DSA_Long"))//Input.GetKeyDown(KeyCode.Alpha3))
                 {
@@ -157,6 +196,7 @@ public class CharacterAnimationController : MonoBehaviour
                     EnableWeapon();
                     playerCharacter.energy -= NetworkManager.playerAbilities["DSA_Long"].energy;
                     playerCharacter.energyUpdateStart = Time.time;
+                    inState = true;
                 }
                 else if (attackName.Equals("Stab") && HasEnergy("Stab"))
                 {
@@ -166,6 +206,7 @@ public class CharacterAnimationController : MonoBehaviour
                     EnableWeapon();
                     playerCharacter.energy -= NetworkManager.playerAbilities["Stab"].energy;
                     playerCharacter.energyUpdateStart = Time.time;
+                    inState = true;
                 }
                 else if (rollDirection.Equals("Left") && HasEnergy("RollLeft"))//Input.GetKeyDown(KeyCode.Alpha5))
                 {
@@ -177,6 +218,7 @@ public class CharacterAnimationController : MonoBehaviour
                     rollDirection = "";
                     playerCharacter.energy -= NetworkManager.playerAbilities["RollLeft"].energy;
                     playerCharacter.energyUpdateStart = Time.time;
+                    inState = true;
                 }
                 else if (rollDirection.Equals("Right") && HasEnergy("RollRight"))//Input.GetKeyDown(KeyCode.Alpha6))
                 {
@@ -188,6 +230,7 @@ public class CharacterAnimationController : MonoBehaviour
                     rollDirection = "";
                     playerCharacter.energy -= NetworkManager.playerAbilities["RollRight"].energy;
                     playerCharacter.energyUpdateStart = Time.time;
+                    inState = true;
                 }
                 else if (rollDirection.Equals("Forward") && HasEnergy("RollForward"))//Input.GetKeyDown(KeyCode.Alpha6))
                 {
@@ -199,11 +242,12 @@ public class CharacterAnimationController : MonoBehaviour
                     rollDirection = "";
                     playerCharacter.energy -= NetworkManager.playerAbilities["RollForward"].energy;
                     playerCharacter.energyUpdateStart = Time.time;
+                    inState = true;
                 }                
             }
 
             if (jump && movement.isGrounded)
-            {
+            {                
                 anim.SetTrigger("Jump");
                 anim.SetBool(GatherTypeToAnimation(gatheringType), false);
                 anim.SetBool(CraftingTypeToAnimation(craftingType), false);
@@ -217,8 +261,12 @@ public class CharacterAnimationController : MonoBehaviour
     }
 
     public void Jump()
-    {        
-        anim.SetTrigger("Jump");
+    {
+        if (!inState)
+        {
+            anim.SetBool("Jump_", true);
+            StartCoroutine(JumpEnd());
+        }
     }
 
     public string GatherTypeToAnimation(SkillType type)
@@ -334,5 +382,16 @@ public class CharacterAnimationController : MonoBehaviour
 
     private bool HasEnergy(string abilityName) {
         return playerCharacter.energy >= NetworkManager.playerAbilities[abilityName].energy;
+    }
+
+    public void AnimationEnd()
+    {
+        inState = false;
+    }
+
+    public IEnumerator JumpEnd()
+    {
+        yield return new WaitForSeconds(0.5f);
+        anim.SetBool("Jump_", false);
     }
 }

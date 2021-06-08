@@ -12,6 +12,7 @@ public class DragonAnimController : MonoBehaviour
     public string[] bools = new string[] { "Idle", "walk", "Run" };
 
     public GameObject fire;
+    public ParticleSystem stompFX;
 
     private void Awake()
     {
@@ -42,6 +43,15 @@ public class DragonAnimController : MonoBehaviour
                 events[1] = new AnimationEvent();
                 events[1].functionName = "DisableFire";
                 events[1].time = 6f;
+                c.events = events;
+            }
+
+            if (c.name.Equals("rig|Stomp"))
+            {
+                AnimationEvent[] events = new AnimationEvent[1];
+                events[0] = new AnimationEvent();
+                events[0].functionName = "PlayStompFX";
+                events[0].time = 1.5f;
                 c.events = events;
             }
         }
@@ -84,5 +94,10 @@ public class DragonAnimController : MonoBehaviour
     public void DisableFire()
     {
         fire.SetActive(false);
+    }
+
+    public void PlayStompFX()
+    {
+        stompFX.Play();
     }
 }

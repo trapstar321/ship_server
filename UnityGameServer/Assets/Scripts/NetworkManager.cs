@@ -18,7 +18,7 @@ public class NetworkManager : MonoBehaviour
     public GameObject enemyPrefab;
     public GameObject projectilePrefab;
     public static float visibilityRadius = 60;
-    
+
     float positionAndRotationTick = 25;
     float playerPositionUpdateTick = 5;
     float respawnTradersTick = 10;
@@ -35,19 +35,21 @@ public class NetworkManager : MonoBehaviour
     public static Dictionary<string, PlayerTrade> tradeLinks = new Dictionary<string, PlayerTrade>();
     public static Dictionary<int, PlayerTrade> trades = new Dictionary<int, PlayerTrade>();
     public static Dictionary<string, PlayerAbility> playerAbilities = new Dictionary<string, PlayerAbility>() {
-        { "RollLeft", new PlayerAbility(){ multiplier=0f, abilityName="RollLeft", energy = 80} },
-        { "RollRight", new PlayerAbility(){ multiplier=0f, abilityName="RollRight", energy = 80} },
+        { "RollLeft", new PlayerAbility(){ multiplier=0f, abilityName="RollLeft", energy = 50} },
+        { "RollRight", new PlayerAbility(){ multiplier=0f, abilityName="RollRight", energy = 50} },
+        { "DSA_Flip", new PlayerAbility(){ multiplier=1.5f, abilityName="DSA_Flip", energy = 50} },
         { "DSA_Top", new PlayerAbility(){ multiplier=2f, abilityName="DSA_Top", energy = 50} },
         { "DSA_Long", new PlayerAbility(){ multiplier=1.5f, abilityName="DSA_Long", energy = 30} },
         { "Stab", new PlayerAbility(){ multiplier=1f, abilityName="Stab", energy=10} },
-        { "RollForward", new PlayerAbility(){ multiplier=0f, abilityName="RollForward", energy=80} }
+        { "RollForward", new PlayerAbility(){ multiplier=0f, abilityName="RollForward", energy=50} }
     };
 
     public static float buffCheckPeriod = 1f;
     public static float energyGainPeriod = 1f;
     public static float energyGainAmount = 10f;
 
-    public class PacketData {
+    public class PacketData
+    {
         public int type;
         public Packet packet;
     }
@@ -101,7 +103,7 @@ public class NetworkManager : MonoBehaviour
             Destroy(this);
         }
 
-        mysql = FindObjectOfType<Mysql>();        
+        mysql = FindObjectOfType<Mysql>();
     }
 
     private void Start()
@@ -109,13 +111,13 @@ public class NetworkManager : MonoBehaviour
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = 30;
 
-        Server.Start(50, 26950);
+        GameServer.Start(50, 26950);
     }
 
     private void OnApplicationQuit()
     {
         Debug.Log("OnApplicationQuit");
-        Server.Stop();
+        GameServer.StopServer();
     }
 
     public Player InstantiatePlayer(float x, float y, float z)
@@ -128,10 +130,10 @@ public class NetworkManager : MonoBehaviour
     {
         while (true)
         {
-            foreach (Client client in Server.clients.Values)
-            {                
+            foreach (Client client in GameServer.clients.Values)
+            {
                 if (buffer.ContainsKey(client.id))
-                {                    
+                {
                     ProcessBuffer(client);
                     //ProcessMovementPackets(client);
                 }
@@ -141,22 +143,22 @@ public class NetworkManager : MonoBehaviour
     }
 
     IEnumerator NPCPositionAndRotationTick()
-    {        
+    {
         while (true)
         {
-            foreach (NPC npc in Server.npcs.Values)
+            foreach (NPC npc in GameServer.npcs.Values)
             {
-                ServerSend.NPCPosition(npc.id, npc.transform.position, npc.transform.rotation);                    
+                ServerSend.NPCPosition(npc.id, npc.transform.position, npc.transform.rotation);
             }
             yield return new WaitForSeconds(1 / positionAndRotationTick);
-        }        
+        }
     }
 
     IEnumerator UpdatePlayerPosition()
     {
         while (true)
         {
-            foreach (Client client in Server.clients.Values)
+            foreach (Client client in GameServer.clients.Values)
             {
                 Player player = client.player;
 
@@ -175,17 +177,20 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    public static void AddPacket(int _fromClient, int type, Packet packet) {
+    public static void AddPacket(int _fromClient, int type, Packet packet)
+    {
         if (!buffer.ContainsKey(_fromClient))
             buffer.Add(_fromClient, new List<PacketData>());
 
-        buffer[_fromClient].Add(new PacketData() { type=type, packet=packet});
+        buffer[_fromClient].Add(new PacketData() { type = type, packet = packet });
     }
 
-    void ProcessBuffer(Client client) {
-        int end = buffer[client.id].Count;            
+    void ProcessBuffer(Client client)
+    {
+        int end = buffer[client.id].Count;
 
-        foreach (PacketData packet in buffer[client.id]) {
+        foreach (PacketData packet in buffer[client.id])
+        {
             try
             {
                 switch (packet.type)
@@ -219,7 +224,7 @@ public class NetworkManager : MonoBehaviour
                         break;
                     case (int)ClientPackets.searchChest:
                         ServerHandle.SearchChest(client.id, packet.packet);
-                        break;                    
+                        break;
                     case (int)ClientPackets.getShipEquipment:
                         ServerHandle.GetShipEquipment(client.id, packet.packet);
                         break;
@@ -231,7 +236,7 @@ public class NetworkManager : MonoBehaviour
                         break;
                     case (int)ClientPackets.removeItemFromInventory:
                         ServerHandle.RemoveItemFromInventory(client.id, packet.packet);
-                        break;                    
+                        break;
                     case (int)ClientPackets.getPlayerEquipment:
                         ServerHandle.GetPlayerEquipment(client.id, packet.packet);
                         break;
@@ -393,8 +398,9 @@ public class NetworkManager : MonoBehaviour
                         break;
                 }
             }
-            catch (Exception ex) {
-                Debug.LogError("NetworkManager.cs ProcessBuffer(): "+ex.Message+" "+ex.StackTrace);
+            catch (Exception ex)
+            {
+                Debug.LogError("NetworkManager.cs ProcessBuffer(): " + ex.Message + " " + ex.StackTrace);
             }
         }
 
@@ -430,29 +436,37 @@ public class NetworkManager : MonoBehaviour
         //Debug.Log("LSN:" + client.lastInputSequenceNumber);
     }*/
 
-    public static void PlayerDisconnected(int id) {
+    public static void PlayerDisconnected(int id)
+    {
         buffer.Remove(id);
     }
 
-    public static SkillLevel FindSkill(SkillType skillType, int level) {
-        foreach (SkillLevel skillLevel in skillLevel) {
-            if (skillLevel.skill == skillType && skillLevel.level == level) {
+    public static SkillLevel FindSkill(SkillType skillType, int level)
+    {
+        foreach (SkillLevel skillLevel in skillLevel)
+        {
+            if (skillLevel.skill == skillType && skillLevel.level == level)
+            {
                 return skillLevel;
             }
         }
         return null;
     }
 
-    public static Recipe FindRecipe(int recipeId) {
-        foreach (Recipe recipe in recipes) {
-            if (recipe.id == recipeId) {
+    public static Recipe FindRecipe(int recipeId)
+    {
+        foreach (Recipe recipe in recipes)
+        {
+            if (recipe.id == recipeId)
+            {
                 return recipe;
             }
         }
         return null;
     }
 
-    public static SerializableObjects.Trader FindTrader(int from, int traderId) {
+    public static SerializableObjects.Trader FindTrader(int from, int traderId)
+    {
         foreach (SerializableObjects.Trader trader in traders[from])
         {
             if (trader.id == traderId)
@@ -468,7 +482,7 @@ public class NetworkManager : MonoBehaviour
         SerializableObjects.Trader trader = FindTrader(from, traderId);
         foreach (SerializableObjects.TraderItem item in trader.inventory)
         {
-            if (item.item_id==item_id)
+            if (item.item_id == item_id)
             {
                 return item;
             }
@@ -482,9 +496,10 @@ public class NetworkManager : MonoBehaviour
         yield return new WaitForSeconds(5);
     }
 
-    IEnumerator RespawnTraders() {
+    IEnumerator RespawnTraders()
+    {
         Action ac = () =>
-        {   
+        {
             foreach (int playerId in traders.Keys)
             {
                 List<SerializableObjects.Trader> traders = NetworkManager.traders[playerId];
@@ -499,18 +514,18 @@ public class NetworkManager : MonoBehaviour
                     traders[i] = trader;
                     //}
                 }
-            }            
+            }
         };
         Task task = null;
 
         while (true)
-        {   
-            if (task==null || task.Status!=TaskStatus.Running)
+        {
+            if (task == null || task.Status != TaskStatus.Running)
             {
                 task = new Task(ac);
                 task.Start();
-            }                                         
-            
+            }
+
             yield return new WaitForSeconds(respawnTradersTick);
         }
     }
@@ -569,6 +584,88 @@ public class NetworkManager : MonoBehaviour
             overtime = item.overtime,
             buff_duration = item.buff_duration,
             cooldown = item.cooldown
+        };
+    }
+
+    public static SerializableObjects.InventorySlot SlotToSerializable(InventorySlot slot)
+    {
+        SerializableObjects.Item item = null;
+
+        if (slot.item != null)
+        {
+            item = new SerializableObjects.Item()
+            {
+                id = slot.item.id,
+                item_id = slot.item.item_id,
+                iconName = slot.item.iconName,
+                isDefaultItem = slot.item.isDefaultItem,
+                name = slot.item.name,
+                item_type = slot.item.item_type,
+                attack = slot.item.attack,
+                health = slot.item.health,
+                defence = slot.item.defence,
+                speed = slot.item.speed,
+                visibility = slot.item.visibility,
+                rotation = slot.item.rotation,
+                cannon_reload_speed = slot.item.cannon_reload_speed,
+                crit_chance = slot.item.crit_chance,
+                cannon_force = slot.item.cannon_force,
+                stackable = slot.item.stackable,
+                energy = slot.item.energy,
+                max_energy = slot.item.max_energy,
+                max_health = slot.item.max_health,
+                overtime = slot.item.overtime,
+                buff_duration = slot.item.buff_duration,
+                cooldown = slot.item.cooldown
+            };
+        }
+
+        return new SerializableObjects.InventorySlot()
+        {
+            slotID = slot.slotID,
+            quantity = slot.quantity,
+            item = item
+        };
+    }
+
+    public static InventorySlot SerializableToSlot(SerializableObjects.InventorySlot slot)
+    {
+        Item item = null;
+
+        if (slot.item != null)
+        {
+            item = new Item()
+            {
+                id = slot.item.id,
+                item_id = slot.item.item_id,
+                iconName = slot.item.iconName,
+                isDefaultItem = slot.item.isDefaultItem,
+                name = slot.item.name,
+                item_type = slot.item.item_type,
+                attack = slot.item.attack,
+                health = slot.item.health,
+                defence = slot.item.defence,
+                speed = slot.item.speed,
+                visibility = slot.item.visibility,
+                rotation = slot.item.rotation,
+                cannon_reload_speed = slot.item.cannon_reload_speed,
+                crit_chance = slot.item.crit_chance,
+                cannon_force = slot.item.cannon_force,
+                stackable = slot.item.stackable,
+                energy = slot.item.energy,
+                max_energy = slot.item.max_energy,
+                max_health = slot.item.max_health,
+                overtime = slot.item.overtime,
+                buff_duration = slot.item.buff_duration,
+                cooldown = slot.item.cooldown
+            };
+        }
+
+        return new InventorySlot()
+        {
+            slotID = slot.slotID,
+            quantity = slot.quantity,
+            item = item
         };
     }
 }

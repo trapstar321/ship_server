@@ -31,13 +31,13 @@ public class InverseKinematics
         {
             npc.attackElapsed = 0;
             returning = false;
-            npc.attacking = false;
+            npc.usingAbility = false;
             npc.ability = DragonNPC.DragonNPCAbility.NONE;
             npc.StartCooldown();
         }
         else if (npc.attackElapsed < endTime && !returning)
         {
-            Vector3 targetPosition = npc.enemy.position + new Vector3(0, 0.5f, 0);
+            Vector3 targetPosition = npc.enemy.transform.position + new Vector3(0, 0.5f, 0);
             target.transform.position = Vector3.MoveTowards(target.transform.position, targetPosition, step);
         }
         else if (npc.attackElapsed < endTime && returning)

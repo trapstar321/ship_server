@@ -22,41 +22,49 @@ public class ServerSend : MonoBehaviour
     /// <param name="_packet">The packet to send to the client.</param>    
     public static void SendTCPData(int _toClient, Packet _packet)
     {
-        _packet.WriteLength();
-        Server.clients[_toClient].tcp.SendData(_packet);
+        //_packet.WriteLength();
+        byte[] data = _packet.ToArray();
+        /*GameServer.server.Send(GameServer.clients[_toClient].connectionId,
+            new List<AsyncTCPServer.Message>() {
+                new AsyncTCPServer.Message(1, data)
+        });*/
+        GameServer.server.Send(GameServer.clients[_toClient].ipPort, data);        
     }
 
     public static void SendTCPData(List<int> clients, Packet _packet)
     {
-        _packet.WriteLength();
+        //_packet.WriteLength();
         foreach (int clientId in clients)
-            Server.clients[clientId].tcp.SendData(_packet);
+            /*GameServer.server.Send(GameServer.clients[clientId].connectionId,
+            new List<AsyncTCPServer.Message>() {
+                new AsyncTCPServer.Message(1, _packet.ToArray())            
+            });*/
+            GameServer.server.Send(GameServer.clients[clientId].ipPort, _packet.ToArray());
     }
 
     public static void SendTCPData(List<Player> clients, Packet _packet)
     {
-        _packet.WriteLength();
-        foreach (Player player in clients)
-            Server.clients[player.id].tcp.SendData(_packet);
+        //_packet.WriteLength();
+        foreach (Player player in clients) { 
+            /*GameServer.server.Send(GameServer.clients[player.id].connectionId,
+            new List<AsyncTCPServer.Message>() {
+                new AsyncTCPServer.Message(1, _packet.ToArray())*/
+            GameServer.server.Send(GameServer.clients[player.id].ipPort, _packet.ToArray());
+        };        
     }
-
-    /// <summary>Sends a packet to a client via UDP.</summary>
-    /// <param name="_toClient">The client to send the packet the packet to.</param>
-    /// <param name="_packet">The packet to send to the client.</param>
-    private static void SendUDPData(int _toClient, Packet _packet)
-    {
-        _packet.WriteLength();
-        Server.clients[_toClient].udp.SendData(_packet);
-    }
-
     /// <summary>Sends a packet to all clients via TCP.</summary>
     /// <param name="_packet">The packet to send.</param>
     private static void SendTCPDataToAll(Packet _packet)
     {
-        _packet.WriteLength();
-        for (int i = 1; i <= Server.MaxPlayers; i++)
+        //_packet.WriteLength();
+        for (int i = 1; i <= GameServer.MaxPlayers; i++)
         {
-            Server.clients[i].tcp.SendData(_packet);
+            /*GameServer.server.Send(GameServer.clients[i].connectionId,
+             new List<AsyncTCPServer.Message>() {
+                new AsyncTCPServer.Message(1, _packet.ToArray())
+            });*/
+            if(GameServer.clients[i].player)
+                GameServer.server.Send(GameServer.clients[i].ipPort, _packet.ToArray());
         }
     }
     /// <summary>Sends a packet to all clients except one via TCP.</summary>
@@ -64,38 +72,47 @@ public class ServerSend : MonoBehaviour
     /// <param name="_packet">The packet to send.</param>
     private static void SendTCPDataToAll(int _exceptClient, Packet _packet)
     {
-        _packet.WriteLength();
-        for (int i = 1; i <= Server.MaxPlayers; i++)
+        //_packet.WriteLength();
+        for (int i = 1; i <= GameServer.MaxPlayers; i++)
         {
             if (i != _exceptClient)
             {
-                Server.clients[i].tcp.SendData(_packet);
+                /*GameServer.server.Send(GameServer.clients[i].connectionId,
+                    new List<AsyncTCPServer.Message>() {
+                    new AsyncTCPServer.Message(1, _packet.ToArray())
+                });*/
+                if(GameServer.clients[i].player)
+                    GameServer.server.Send(GameServer.clients[i].ipPort, _packet.ToArray());
             }
         }
     }
 
     private static void SendTCPDataRadius(Packet _packet, Vector3 position, float sendRadius)
     {
-        _packet.WriteLength();
+        //_packet.WriteLength();
 
-        for (int i = 1; i <= Server.MaxPlayers; i++)
+        for (int i = 1; i <= GameServer.MaxPlayers; i++)
         {
-            if (Server.clients[i].player != null && Server.clients[i].player.playerInstance!=null)
+            if (GameServer.clients[i].player != null && GameServer.clients[i].player.playerInstance!=null)
             {
                 Vector3 targetPosition;
-                if (Server.clients[i].player.data.is_on_ship)
+                if (GameServer.clients[i].player.data.is_on_ship)
                 {
-                    targetPosition = Server.clients[i].player.transform.position;
+                    targetPosition = GameServer.clients[i].player.transform.position;
                 }
                 else
                 {
-                    targetPosition = Server.clients[i].player.playerInstance.transform.position;
+                    targetPosition = GameServer.clients[i].player.playerInstance.transform.position;
                 }
 
                 float distance = Vector3.Distance(position, targetPosition);
                 if (Math.Abs(distance) < sendRadius)
                 {
-                    Server.clients[i].tcp.SendData(_packet);
+                    /*GameServer.server.Send(GameServer.clients[i].connectionId,
+                        new List<AsyncTCPServer.Message>() {
+                            new AsyncTCPServer.Message(1, _packet.ToArray())
+                    });*/
+                    GameServer.server.Send(GameServer.clients[i].ipPort, _packet.ToArray());
                 }
             }
         }
@@ -103,11 +120,11 @@ public class ServerSend : MonoBehaviour
 
     private static void SendTCPDataRadius(int exceptClient, Packet _packet, Vector3 position, float sendRadius)
     {
-        _packet.WriteLength();
+        //_packet.WriteLength();
 
-        for (int i = 1; i <= Server.MaxPlayers; i++)
+        for (int i = 1; i <= GameServer.MaxPlayers; i++)
         {
-            if (Server.clients[i].player != null)
+            if (GameServer.clients[i].player != null)
             {
                 if (i == exceptClient)
                 {
@@ -115,19 +132,23 @@ public class ServerSend : MonoBehaviour
                 }
 
                 Vector3 targetPosition;
-                if (Server.clients[i].player.data.is_on_ship)
+                if (GameServer.clients[i].player.data.is_on_ship)
                 {
-                    targetPosition = Server.clients[i].player.transform.position;
+                    targetPosition = GameServer.clients[i].player.transform.position;
                 }
                 else
                 {
-                    targetPosition = Server.clients[i].player.playerInstance.transform.position;
+                    targetPosition = GameServer.clients[i].player.playerInstance.transform.position;
                 }
 
                 float distance = Vector3.Distance(position, targetPosition);
                 if (Math.Abs(distance) < sendRadius)
                 {
-                    Server.clients[i].tcp.SendData(_packet);
+                    /*GameServer.server.Send(GameServer.clients[i].connectionId,
+                        new List<AsyncTCPServer.Message>() {
+                            new AsyncTCPServer.Message(1, _packet.ToArray())
+                    });*/
+                    GameServer.server.Send(GameServer.clients[i].ipPort, _packet.ToArray());
                 }
             }
         }
@@ -136,32 +157,11 @@ public class ServerSend : MonoBehaviour
     IEnumerator MakeLag(int to, Packet packet, float ms)
     {
         yield return new WaitForSeconds(ms / 1000);
-        Server.clients[to].tcp.SendData(packet);
-    }
-
-    /// <summary>Sends a packet to all clients via UDP.</summary>
-    /// <param name="_packet">The packet to send.</param>
-    private static void SendUDPDataToAll(Packet _packet)
-    {
-        _packet.WriteLength();
-        for (int i = 1; i <= Server.MaxPlayers; i++)
-        {
-            Server.clients[i].udp.SendData(_packet);
-        }
-    }
-    /// <summary>Sends a packet to all clients except one via UDP.</summary>
-    /// <param name="_exceptClient">The client to NOT send the data to.</param>
-    /// <param name="_packet">The packet to send.</param>
-    private static void SendUDPDataToAll(int _exceptClient, Packet _packet)
-    {
-        _packet.WriteLength();
-        for (int i = 1; i <= Server.MaxPlayers; i++)
-        {
-            if (i != _exceptClient)
-            {
-                Server.clients[i].udp.SendData(_packet);
-            }
-        }
+        /*GameServer.server.Send(GameServer.clients[to].connectionId,
+                        new List<AsyncTCPServer.Message>() {
+                            new AsyncTCPServer.Message(1, packet.ToArray())
+                    });*/
+        GameServer.server.Send(GameServer.clients[to].ipPort, packet.ToArray());
     }
 
     #region Packets
@@ -277,7 +277,7 @@ public class ServerSend : MonoBehaviour
 
     public static void Inventory(int to, Inventory inventory)
     {
-        int dbid = Server.clients[to].player.dbid;
+        int dbid = GameServer.clients[to].player.dbid;
 
         using (Packet _packet = new Packet((int)ServerPackets.inventory))
         {
@@ -285,7 +285,7 @@ public class ServerSend : MonoBehaviour
 
             foreach (InventorySlot slot in inventory.items)
             {
-                items.Add(SlotToSerializable(slot));
+                items.Add(NetworkManager.SlotToSerializable(slot));
             }
 
             _packet.Write(items);
@@ -296,18 +296,18 @@ public class ServerSend : MonoBehaviour
 
     public static void InventorySlot(int to, InventorySlot inventorySlot)
     {
-        int dbid = Server.clients[to].player.dbid;
+        int dbid = GameServer.clients[to].player.dbid;
 
         using (Packet _packet = new Packet((int)ServerPackets.inventorySlot))
         {
-            _packet.Write(SlotToSerializable(inventorySlot));
+            _packet.Write(NetworkManager.SlotToSerializable(inventorySlot));
             SendTCPData(to, _packet);
         }
     }
 
     public static void InventoryItemCount(int to)
     {
-        int dbid = Server.clients[to].player.dbid;
+        int dbid = GameServer.clients[to].player.dbid;
 
         using (Packet _packet = new Packet((int)ServerPackets.inventoryItemCount))
         {
@@ -350,72 +350,22 @@ public class ServerSend : MonoBehaviour
 
     public static void AddToInventory(int to, InventorySlot slot)
     {
-        int dbid = Server.clients[to].player.dbid;
+        int dbid = GameServer.clients[to].player.dbid;
         using (Packet _packet = new Packet((int)ServerPackets.addToInventory))
         {
-            SerializableObjects.InventorySlot sslot = SlotToSerializable(slot);
+            SerializableObjects.InventorySlot sslot = NetworkManager.SlotToSerializable(slot);
 
             _packet.Write(sslot);
             _packet.Write(mysql.TotalItems(dbid));
             SendTCPData(to, _packet);
         }
-    }
-
-    protected static SerializableObjects.InventorySlot SlotToSerializable(InventorySlot slot)
-    {
-        SerializableObjects.Item item = null;
-
-        if (slot.item != null)
-        {
-            item = new SerializableObjects.Item()
-            {
-                id = slot.item.id,
-                item_id = slot.item.item_id,
-                iconName = slot.item.iconName,
-                isDefaultItem = slot.item.isDefaultItem,
-                name = slot.item.name,
-                item_type = slot.item.item_type,
-                attack = slot.item.attack,
-                health = slot.item.health,
-                defence = slot.item.defence,
-                speed = slot.item.speed,
-                visibility = slot.item.visibility,
-                rotation = slot.item.rotation,
-                cannon_reload_speed = slot.item.cannon_reload_speed,
-                crit_chance = slot.item.crit_chance,
-                cannon_force = slot.item.cannon_force,
-                stackable = slot.item.stackable,
-                energy = slot.item.energy,
-                max_energy = slot.item.max_energy,
-                max_health = slot.item.max_health,
-                overtime = slot.item.overtime,
-                buff_duration = slot.item.buff_duration,
-                cooldown = slot.item.cooldown
-            };
-        }
-
-        return new SerializableObjects.InventorySlot()
-        {
-            slotID = slot.slotID,
-            quantity = slot.quantity,
-            item = item
-        };
-    }
+    }    
 
     protected static SerializableObjects.ItemDrop ItemDropToSerializable(ItemDrop drop)
     {
         SerializableObjects.Item item = NetworkManager.ItemToSerializable(drop.item);
 
         return new SerializableObjects.ItemDrop() { quantity = drop.quantity, item = item };
-    }
-
-    public static void Time(float time)
-    {
-        using (Packet _packet = new Packet((int)ServerPackets.time))
-        {
-            _packet.Write(time);
-            SendUDPDataToAll(_packet);
-        }
     }
 
     public static void SpawnGameObject(int _toClient, SpawnManager.Spawn spawn)
@@ -502,7 +452,7 @@ public class ServerSend : MonoBehaviour
 
     public static void CannonRotate(int from, string direction, string side)
     {
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
         using (Packet _packet = new Packet((int)ServerPackets.cannonRotate))
         {
             _packet.Write(from);
@@ -527,7 +477,7 @@ public class ServerSend : MonoBehaviour
 
     public static void Stats(int from)
     {
-        Player player = Server.clients[from].player;
+        Player player = GameServer.clients[from].player;
         PlayerCharacter playerCharacter = player.playerInstance.GetComponent<PlayerCharacter>();
         using (Packet _packet = new Packet((int)ServerPackets.stats))
         {
@@ -582,7 +532,7 @@ public class ServerSend : MonoBehaviour
     {
         using (Packet _packet = new Packet((int)ServerPackets.stats))
         {
-            Player player = Server.clients[from].player;
+            Player player = GameServer.clients[from].player;
             PlayerCharacter playerCharacter = player.playerInstance.GetComponent<PlayerCharacter>();
 
             ShipBaseStat shipStats = new ShipBaseStat();
@@ -615,11 +565,36 @@ public class ServerSend : MonoBehaviour
         }
     }
 
+    public static void NPCStats(int from)
+    {
+        NPC npc = GameServer.npcs[from];
+        using (Packet _packet = new Packet((int)ServerPackets.npcStats))
+        {
+            NPCBaseStat stats = new NPCBaseStat();
+            stats.attack = npc.attack;
+            stats.health = npc.health;
+            stats.defence = npc.defence;
+            stats.rotation = npc.rotation;
+            stats.speed = npc.speed;
+            stats.visibility = npc.visibility;
+            stats.cannon_reload_speed = npc.cannon_reload_speed;
+            stats.crit_chance = npc.crit_chance;
+            stats.cannon_force = npc.cannon_force;
+            stats.max_health = npc.maxHealth;
+
+            _packet.Write(from);
+            _packet.Write(stats);            
+
+            //SendTCPDataRadius(_packet, player.transform.position, NetworkManager.visibilityRadius);
+            SendTCPDataRadius(_packet, npc.transform.position, NetworkManager.visibilityRadius);
+        }
+    }
+
     public static void NPCStats(int from, int to)
     {
         using (Packet _packet = new Packet((int)ServerPackets.npcStats))
         {
-            NPC npc = Server.npcs[from];
+            NPC npc = GameServer.npcs[from];
 
             NPCBaseStat stats = new NPCBaseStat();
             stats.attack = npc.attack;
@@ -711,13 +686,13 @@ public class ServerSend : MonoBehaviour
             foreach (Group group in NetworkManager.groups.Values)
             {
                 //dont send owned group
-                if (group.owner != Server.clients[to].player.dbid && group.players.Count < Group.maxPlayers)
+                if (group.owner != GameServer.clients[to].player.dbid && group.players.Count < Group.maxPlayers)
                 {
                     groups.Add(new SerializableObjects.Group()
                     {
                         groupId = group.groupId,
                         name = group.groupName,
-                        owner = Server.FindPlayerByDBid(group.owner).data.username,
+                        owner = GameServer.FindPlayerByDBid(group.owner).data.username,
                         playerCount = group.players.Count
                     });
                 }
@@ -748,7 +723,7 @@ public class ServerSend : MonoBehaviour
             {
                 foreach (int dbid in group.players)
                 {
-                    if (Server.FindPlayerByDBid(dbid) != null)
+                    if (GameServer.FindPlayerByDBid(dbid) != null)
                     {
                         anyMemberOnline = true;
                         break;
@@ -775,7 +750,7 @@ public class ServerSend : MonoBehaviour
                     myGroup = group;
                     foreach (int dbid in group.players)
                     {
-                        Player player = Server.FindPlayerByDBid(dbid);
+                        Player player = GameServer.FindPlayerByDBid(dbid);
 
                         if (player != null)
                         {
@@ -834,7 +809,7 @@ public class ServerSend : MonoBehaviour
                 {
                     groupId = myGroup.groupId,
                     name = myGroup.groupName,
-                    owner = Server.FindPlayerByDBid(myGroup.owner).data.username,
+                    owner = GameServer.FindPlayerByDBid(myGroup.owner).data.username,
                     playerCount = myGroup.players.Count
                 });
             }
@@ -867,7 +842,7 @@ public class ServerSend : MonoBehaviour
             _packet.Write(from);
             _packet.Write(position);
             _packet.Write(Y_rotation);
-            _packet.Write(Server.clients[from].player.data);
+            _packet.Write(GameServer.clients[from].player.data);
             //SendTCPData(to, _packet);
             SendTCPDataToAll(_packet);
         }
@@ -949,14 +924,14 @@ public class ServerSend : MonoBehaviour
             _packet.Write(from);
             _packet.Write(position);
             _packet.Write(Y_rot);
-            _packet.Write(Server.clients[from].player.data);
+            _packet.Write(GameServer.clients[from].player.data);
             SendTCPData(to, _packet);
         }
     }
 
     public static void PlayerSkills(int to)
     {
-        Player player = Server.clients[to].player;
+        Player player = GameServer.clients[to].player;
         List<PlayerSkillLevel> pSkills = player.skills;
         List<SkillLevel> skills = NetworkManager.skillLevel;
 
@@ -997,7 +972,7 @@ public class ServerSend : MonoBehaviour
             {
                 _packet.Write(true);
                 _packet.Write((int)craftingSpot.skillType);
-                _packet.Write(Server.clients[to].player.skills);
+                _packet.Write(GameServer.clients[to].player.skills);
             }
             else
             {
@@ -1054,11 +1029,11 @@ public class ServerSend : MonoBehaviour
             foreach (InventorySlot slot in inventory.items)
             {
                 if (slot.item != null)
-                    items.Add(SlotToSerializable(slot));
+                    items.Add(NetworkManager.SlotToSerializable(slot));
             }
             _packet.Write(items);
 
-            SendTCPData(Server.FindPlayerByUsername(trade.player1.username).id, _packet);
+            SendTCPData(GameServer.FindPlayerByUsername(trade.player1.username).id, _packet);
         }
     }
 
@@ -1121,7 +1096,9 @@ public class ServerSend : MonoBehaviour
             _packet.Write(childRotation);
 
             if (except)
+            {                
                 SendTCPDataRadius(from, _packet, position, NetworkManager.visibilityRadius);
+            }
             else
                 SendTCPDataRadius(_packet, position, NetworkManager.visibilityRadius);
         }
@@ -1155,7 +1132,7 @@ public class ServerSend : MonoBehaviour
         using (Packet _packet = new Packet((int)ServerPackets.jump))
         {
             _packet.Write(from);
-            SendTCPDataRadius(from, _packet, Server.clients[from].player.playerInstance.transform.position, NetworkManager.visibilityRadius);
+            SendTCPDataRadius(from, _packet, GameServer.clients[from].player.playerInstance.transform.position, NetworkManager.visibilityRadius);
         }
     }
 
@@ -1164,7 +1141,7 @@ public class ServerSend : MonoBehaviour
         using (Packet _packet = new Packet((int)ServerPackets.startCrafting))
         {
             _packet.Write(from);
-            SendTCPDataRadius(from, _packet, Server.clients[from].player.playerInstance.transform.position, NetworkManager.visibilityRadius);
+            SendTCPDataRadius(from, _packet, GameServer.clients[from].player.playerInstance.transform.position, NetworkManager.visibilityRadius);
         }
     }
 
@@ -1173,7 +1150,7 @@ public class ServerSend : MonoBehaviour
         using (Packet _packet = new Packet((int)ServerPackets.stopCrafting))
         {
             _packet.Write(from);
-            SendTCPDataRadius(from, _packet, Server.clients[from].player.playerInstance.transform.position, NetworkManager.visibilityRadius);
+            SendTCPDataRadius(from, _packet, GameServer.clients[from].player.playerInstance.transform.position, NetworkManager.visibilityRadius);
         }
     }
 
@@ -1190,7 +1167,7 @@ public class ServerSend : MonoBehaviour
     {
         using (Packet _packet = new Packet((int)ServerPackets.activatePlayerCharacter))
         {
-            GameObject playerCharacter = Server.clients[from].player.playerInstance;
+            GameObject playerCharacter = GameServer.clients[from].player.playerInstance;
             _packet.Write(from);
             _packet.Write(playerCharacter.transform.position);
             _packet.Write(playerCharacter.transform.rotation);
@@ -1211,7 +1188,7 @@ public class ServerSend : MonoBehaviour
     {
         using (Packet _packet = new Packet((int)ServerPackets.activateShip))
         {
-            GameObject playerCharacter = Server.clients[from].player.gameObject;
+            GameObject playerCharacter = GameServer.clients[from].player.gameObject;
             _packet.Write(from);
             _packet.Write(playerCharacter.transform.position);
             _packet.Write(playerCharacter.transform.rotation);
@@ -1232,7 +1209,7 @@ public class ServerSend : MonoBehaviour
     {
         using (Packet _packet = new Packet((int)ServerPackets.activateNPC))
         {
-            GameObject npc = Server.npcs[from].gameObject;
+            GameObject npc = GameServer.npcs[from].gameObject;
             _packet.Write(from);
             _packet.Write(npc.transform.position);
             _packet.Write(npc.transform.rotation);
@@ -1258,6 +1235,15 @@ public class ServerSend : MonoBehaviour
         }
     }
 
+    public static void DieNPC(int from)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.dieNPC))
+        {
+            _packet.Write(from);            
+            SendTCPDataToAll(_packet);
+        }
+    }
+
     public static void RespawnPlayerCharacter(int from, PlayerData data)
     {
         using (Packet _packet = new Packet((int)ServerPackets.respawnPlayerCharacter))
@@ -1265,6 +1251,15 @@ public class ServerSend : MonoBehaviour
             _packet.Write(from);
             _packet.Write(NetworkManager.instance.respawnPointCharacter.transform.position);
             _packet.Write(data);
+            SendTCPDataToAll(_packet);
+        }
+    }
+
+    public static void RespawnNPC(int from)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.respawnNPC))
+        {
+            _packet.Write(from);            
             SendTCPDataToAll(_packet);
         }
     }
@@ -1354,7 +1349,7 @@ public class ServerSend : MonoBehaviour
 
     public static void Buffs(int from, int to)
     {
-        List<Buff> buffs = Server.clients[from].player.playerCharacter.buffManager.buffs;       
+        List<Buff> buffs = GameServer.clients[from].player.playerCharacter.buffManager.buffs;       
         
         using (Packet _packet = new Packet((int)ServerPackets.buffs))
         {
@@ -1394,6 +1389,14 @@ public class ServerSend : MonoBehaviour
             _packet.Write(objectType);
 
             SendTCPDataRadius(_packet, position, NetworkManager.visibilityRadius);
+        }
+    }
+
+    public static void CorrectState(int to, Vector3 position, long ticks) {
+        using (Packet _packet = new Packet((int)ServerPackets.correctState)) {
+            _packet.Write(position);
+            _packet.Write(ticks);
+            SendTCPData(to, _packet);
         }
     }
 }

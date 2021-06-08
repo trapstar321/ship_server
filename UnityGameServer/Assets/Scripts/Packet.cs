@@ -100,7 +100,10 @@ public enum ServerPackets
     deactivateNPC,
     npcSwitchState,
     npcDoAbility,
-    npcTarget
+    npcTarget,
+    respawnNPC,
+    dieNPC,
+    correctState
 }
 
 /// <summary>Sent from client to server.</summary>

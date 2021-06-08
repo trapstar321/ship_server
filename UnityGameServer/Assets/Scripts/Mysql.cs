@@ -38,7 +38,7 @@ public class Mysql : MonoBehaviour
 
     }
 
-    public List<InventorySlot> ReadInventory(int playerID)
+    public List<SerializableObjects.InventorySlot> ReadInventory(int playerID)
     {
         string sql = @"SELECT b.id as INV_SLOT_ID, b.SLOT_ID, b.QUANTITY, c.id, d.id as item_id, d.name, d.icon_name, d.is_default_item, d.item_type,d.stackable,
                         DROP_CHANCE, MAX_LOOT_QUANTITY,
@@ -54,7 +54,7 @@ public class Mysql : MonoBehaviour
                         on c.item_id=d.id
                         where a.player_id=" + playerID.ToString() + " order by slot_id asc";
 
-        List<InventorySlot> slots = new List<InventorySlot>();
+        List<SerializableObjects.InventorySlot> slots = new List<SerializableObjects.InventorySlot>();
 
         using (MySqlConnection con = new MySqlConnection(connectionString))
         {
@@ -74,11 +74,11 @@ public class Mysql : MonoBehaviour
                             int slot_id = rdr.GetInt32("SLOT_ID");
                             int quantity = rdr.GetInt32("QUANTITY");
 
-                            Item item = new Item();
+                            SerializableObjects.Item item = new SerializableObjects.Item();
                             item.id = id;
-                            ReadItem(item, rdr);
+                            ReadSerializableItem(item, rdr);
 
-                            InventorySlot slot = new InventorySlot() { id = inv_slot_id, slotID = slot_id, quantity = quantity, item = item };
+                            SerializableObjects.InventorySlot slot = new SerializableObjects.InventorySlot() { id = inv_slot_id, slotID = slot_id, quantity = quantity, item = item };
                             slots.Add(slot);
                         }
                         rdr.Close();
