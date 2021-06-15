@@ -37,6 +37,8 @@ public class NPC : MonoBehaviour
     public float respawnUpdateTime;
     public float respawnTime = 10;
 
+    public Dictionary<int, float> playerDamage = new Dictionary<int, float>();
+
     public void Initialize()
     {
         level = 1;
@@ -91,10 +93,10 @@ public class NPC : MonoBehaviour
 
     public virtual void Die()
     {
-
+        playerDamage.Clear();
     }
 
-    public void TakeDamage(float damage, bool crit)
+    public virtual void TakeDamage(PlayerCharacter attacker, float damage, bool crit)
     {
         health -= damage;
 
@@ -102,6 +104,16 @@ public class NPC : MonoBehaviour
         {
             health = 0;
             Die();
+        }
+        else {
+            if (!playerDamage.ContainsKey(attacker.id))
+            {
+                playerDamage.Add(attacker.id, damage);
+            }
+            else
+            {
+                playerDamage[attacker.id] += damage;
+            }
         }
 
         ServerSend.TakeDamage(id, transform.position, damage, "npc", crit);

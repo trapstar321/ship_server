@@ -10,8 +10,7 @@ public class PlayerAttack
         {
             CharacterAnimationController animationController = attacker.GetComponentInChildren<CharacterAnimationController>();
             if (animationController.currentAttack != null && !animationController.currentAttack.done)
-            {
-                Debug.Log("Attack " + animationController.currentAttack.abilityName);
+            {                
                 animationController.currentAttack.done = true;
                 DoDamage(attacker, receiver, animationController.currentAttack);
             }
@@ -25,8 +24,7 @@ public class PlayerAttack
         {
             CharacterAnimationController animationController = attacker.GetComponentInChildren<CharacterAnimationController>();
             if (animationController.currentAttack != null && !animationController.currentAttack.done)
-            {
-                Debug.Log("Attack " + animationController.currentAttack.abilityName);
+            {                
                 animationController.currentAttack.done = true;
                 DoDamage(attacker, receiver, animationController.currentAttack);
             }
@@ -53,7 +51,7 @@ public class PlayerAttack
         float damage;
         CalcDamage(receiver.defence, attacker, attack, out crit, out damage);
 
-        receiver.TakeDamage(damage, crit);       
+        receiver.TakeDamage(attacker, damage, crit);       
     }
 
     public static void CalcDamage(float defence, PlayerCharacter attacker, SerializableObjects.PlayerAbility ability, out bool crit, out float damage) {

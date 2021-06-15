@@ -69,6 +69,11 @@ public class DragonNPC : NPC
     public float cooldownStart;
 
     public float chaseRange;
+    public float combatNoDamageTime = 10f;
+    public float lastDamageTime;
+    public float leaveCombatMaxRange = 20f;
+    public float lastDamageCheck;
+    public float damageCheckTime = 5f;
 
     private void Awake()
     {
@@ -104,6 +109,8 @@ public class DragonNPC : NPC
         abilities.Add(DragonNPCAbility.BITE, new Ability(this, DragonNPCAbility.BITE) { multiplier = 1.5f, useUpdate=false });
 
         disableMultipleCollisition.Add(DragonNPCAbility.TAIL_ATTACK, new List<PlayerCharacter>());
+        biteCollider.enabled = false;
+        EnableDisableTailColliders(false);        
     }
 
     private void FixedUpdate()
@@ -141,7 +148,7 @@ public class DragonNPC : NPC
             case State.RETURN:
                 Return();
                 break;
-            case State.COMBAT:
+            case State.COMBAT:                
                 Combat();
                 break;
         }
@@ -229,7 +236,7 @@ public class DragonNPC : NPC
 
         ChaseTarget(chaseRange);
         
-        if (Vector3.Distance(transform.position, enemy.transform.position) <= chaseRange)
+        if (enemy && Vector3.Distance(transform.position, enemy.transform.position) <= chaseRange)
         {
             StopAgent();
             SwitchState(State.COMBAT);
@@ -261,6 +268,7 @@ public class DragonNPC : NPC
 
     void Return()
     {
+        playerDamage.Clear();
         agent.stoppingDistance = 0f;
         agent.speed = speed / 1.5f;
         agent.destination = patrolPoint;
@@ -314,6 +322,38 @@ public class DragonNPC : NPC
     }
 
     void Combat() {
+        //nije primio damage x vremena -> return            
+        if (Time.time - lastDamageTime > combatNoDamageTime)
+        {            
+            SwitchState(State.RETURN);
+            return;
+        }
+
+        //izašao iz leaveCombatMaxRange -> return
+        if (Vector3.Distance(patrolPoint, transform.position) >= leaveCombatMaxRange) {            
+            SwitchState(State.RETURN);
+            return;
+        }
+
+        PlayerCharacter maxDamageEnemy = null;
+        //damage check
+        if (Time.time - lastDamageCheck > damageCheckTime) {
+            float maxDamage = 0;
+            foreach (int playerId in playerDamage.Keys) {
+                if (playerDamage[playerId] > maxDamage) {
+                    maxDamage = playerDamage[playerId];
+                    maxDamageEnemy = GameServer.clients[playerId].player.playerCharacter;                    
+                }
+            }
+
+            if (maxDamageEnemy)
+            {                
+                enemy = maxDamageEnemy;                
+            }
+
+            lastDamageCheck = Time.time;
+        }
+
         if (enemy == null)
         {
             SwitchState(State.RETURN);
@@ -335,7 +375,7 @@ public class DragonNPC : NPC
         {
             if (!onCooldown)
             {
-                int random = 5;//Random.Range(0, 7);
+                int random = Random.Range(0, 7);
                 if (random == 1 && Vector3.Distance(transform.position, enemy.transform.position) >= fireRange)
                 {
                     animationRig.weight = 0;
@@ -371,9 +411,7 @@ public class DragonNPC : NPC
                 }
                 else if (random == 5 && Vector3.Distance(transform.position, enemy.transform.position) >= tailAttackRange)
                 {
-                    foreach (Collider collider in tailColliders)
-                        collider.enabled = true;
-
+                    EnableDisableTailColliders(true);
                     animationRig.weight = 0;
                     ability = DragonNPCAbility.TAIL_ATTACK;
                     usingAbility = true;
@@ -480,14 +518,15 @@ public class DragonNPC : NPC
         }
         else if (state == State.CHASE)
         {
-            chaseRange = Random.Range(1, 3) == 1 ? chaseRange = combatRadiusMin : chaseRange = combatRadiusMax;
-            Debug.Log(chaseRange);
+            chaseRange = Random.Range(1, 3) == 1 ? chaseRange = combatRadiusMin : chaseRange = combatRadiusMax;            
             anim.ResetBools();
             anim.anim.SetBool("Run", true);
         }
         else if (state == State.COMBAT)
         {
             anim.ResetBools();
+            lastDamageTime = Time.time;
+            lastDamageCheck = Time.time;
         }
 
         ServerSend.NPCSwitchState(id, (int)state, (int)GameObjectType.dragon, transform.position, NetworkManager.visibilityRadius);
@@ -560,14 +599,14 @@ public class DragonNPC : NPC
 
     public override void Die()
     {
+        base.Die();
         dead = true;
         SwitchState(State.DEAD);
         anim.anim.SetTrigger("Die");
         ServerSend.DieNPC(id);
 
         biteCollider.enabled = false;
-        foreach (Collider collider in tailColliders)
-            collider.enabled = false;
+        EnableDisableTailColliders(false);
     }
 
     public override void Respawn()
@@ -587,8 +626,7 @@ public class DragonNPC : NPC
         StartCoroutine(GoToIdle());
 
         biteCollider.enabled = true;
-        foreach (Collider collider in tailColliders)
-            collider.enabled = true;
+        EnableDisableTailColliders(true);
     }    
 
     public override bool DisableMultipleCollision(DamageColliderInfo info, PlayerCharacter receiver) {
@@ -603,6 +641,7 @@ public class DragonNPC : NPC
     private void AbilityEnd(DragonNPCAbility ability) {
         if (ability == DragonNPCAbility.TAIL_ATTACK) {
             disableMultipleCollisition[DragonNPCAbility.TAIL_ATTACK].Clear();
+            EnableDisableTailColliders(false);
         }
     }
 
@@ -610,5 +649,15 @@ public class DragonNPC : NPC
     {
         if (info.colliderName.Equals("Bite"))
             biteCollider.enabled = false;        
+    }
+
+    private void EnableDisableTailColliders(bool value) {
+        foreach (Collider collider in tailColliders)
+            collider.enabled = value;
+    }
+
+    public override void TakeDamage(PlayerCharacter attacker, float damage, bool crit) {
+        base.TakeDamage(attacker, damage, crit);
+        lastDamageTime = Time.time;
     }
 }

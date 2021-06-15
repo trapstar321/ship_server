@@ -698,10 +698,47 @@ public class ServerHandle : MonoBehaviour
             bool leftShift = packet.ReadBool();
             Vector3 position = packet.ReadVector3();
 
-            movement.Simulate(x,z,x_raw,y_raw,w,s,leftShift);
+            movement.Simulate(x,z,x_raw,y_raw,w,s,leftShift);            
 
-            if (Vector3.Distance(movement.transform.position, position) > 0.01f) {
+            Vector3 serverPosition = new Vector3(movement.transform.position.x, 0, movement.transform.position.z);
+            Vector3 clientPosition = new Vector3(position.x, 0, position.z);
+            if (Vector3.Distance(serverPosition, clientPosition) > 0.1f)
+            {
                 ServerSend.CorrectState(from, movement.transform.position, DateTime.UtcNow.Ticks);
+            }
+            else {
+                ServerSend.PlayerCharacterPosition(from, player.playerCharacter.transform.position,
+                    player.playerCharacter.transform.rotation,
+                    player.playerCharacter.pirate.transform.rotation,
+                    true);
+            }
+        }
+    }
+
+    public static void AnimationTranslate(int from, Packet packet)
+    {        
+        Player player = GameServer.clients[from].player;
+
+        if (player.playerInstance != null)
+        {
+            CharacterAnimationController controller = player.playerCharacter.animationController;
+
+            string currentAbility = packet.ReadString();
+            Vector3 position = packet.ReadVector3();
+
+            controller.Simulate(currentAbility);            
+
+            Vector3 serverPosition = new Vector3(controller.transform.parent.position.x, 0, controller.transform.parent.position.z);
+            Vector3 clientPosition = new Vector3(position.x, 0, position.z);
+            if (Vector3.Distance(serverPosition, clientPosition) > 0.1f)
+            {
+                ServerSend.CorrectState(from, controller.transform.parent.position, DateTime.UtcNow.Ticks);
+            }
+            else {
+                ServerSend.PlayerCharacterPosition(from, player.playerCharacter.transform.position,
+                        player.playerCharacter.transform.rotation,
+                        player.playerCharacter.pirate.transform.rotation,
+                        true);
             }
         }
     }
@@ -725,12 +762,11 @@ public class ServerHandle : MonoBehaviour
             bool leftMouseDown = packet.ReadBool();
             float speed = packet.ReadFloat();
             float horizontal = packet.ReadFloat();
-            string attackName = packet.ReadString();
-            string rollDirection = packet.ReadString();            
+            string currentAbility = packet.ReadString();            
 
             CharacterAnimationController.AnimationInputs input = new CharacterAnimationController.AnimationInputs() { 
                 w = w, leftShift = leftShift, jump = jump, leftMouseDown = leftMouseDown, 
-                speed=speed, horizontal = horizontal, attackName = attackName, rollDirection = rollDirection };
+                speed=speed, horizontal = horizontal, currentAbility = currentAbility };
             animationController.buffer.Add(input);
 
             movement.DisableAgent();
@@ -749,6 +785,12 @@ public class ServerHandle : MonoBehaviour
             mouseLook look = player.playerCharacter.mouseLook;
             float x = packet.ReadFloat();
             look.Rotate(x);
+
+            ServerSend.PlayerCharacterPosition(from, player.playerCharacter.transform.position,
+                    player.playerCharacter.transform.rotation,
+                    player.playerCharacter.pirate.transform.rotation,
+                    true);
+
             //look.buffer.Add(x);
 
             //ServerSend.MouseLook(from, x, position);

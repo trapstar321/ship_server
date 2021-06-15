@@ -123,8 +123,13 @@ MonoBehaviour:
   jump: 0
   player: {fileID: 0}
   sender: {fileID: 0}
+  playerCharacter: {fileID: 0}
   agent: {fileID: 0}
   turnSpeed: 1
+  jumpLerpStep: 0.05
+  jumpFrames: 21
+  jumpFrame: 0
+  jumping: 0
   checkEvery: 1
 --- !u!114 &-5338092380957027230
 MonoBehaviour:
@@ -197,6 +202,7 @@ MonoBehaviour:
   clientPosition: {x: 0, y: 0, z: 0}
   clientRotation: {x: 0, y: 0, z: 0, w: 0}
   childRotation: {x: 0, y: 0, z: 0, w: 0}
+  mouseLook: {fileID: 0}
   respawnUpdateTime: 0
   respawnTime: 10
   energyUpdateStart: 0
@@ -449,7 +455,7 @@ MonoBehaviour:
   inState: 0
   rollDistance: 7
   rollTime: 0.9
-  DSA_Top_time: 1.5
+  DSA_Top_time: 1
   DSA_Long_time: 0.5
   currentAttack:
     abilityName: 

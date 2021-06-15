@@ -178,7 +178,8 @@ public enum ClientPackets
     startCrafting,
     stopCrafting,
     shipPosition,
-    addBuff
+    addBuff,
+    animationTranslate
 }
 
 public class Packet: IDisposable

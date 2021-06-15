@@ -35,13 +35,13 @@ public class NetworkManager : MonoBehaviour
     public static Dictionary<string, PlayerTrade> tradeLinks = new Dictionary<string, PlayerTrade>();
     public static Dictionary<int, PlayerTrade> trades = new Dictionary<int, PlayerTrade>();
     public static Dictionary<string, PlayerAbility> playerAbilities = new Dictionary<string, PlayerAbility>() {
-        { "RollLeft", new PlayerAbility(){ multiplier=0f, abilityName="RollLeft", energy = 50} },
-        { "RollRight", new PlayerAbility(){ multiplier=0f, abilityName="RollRight", energy = 50} },
+        { "RollLeft", new PlayerAbility(){ multiplier=0f, abilityName="RollLeft", energy = 20} },
+        { "RollRight", new PlayerAbility(){ multiplier=0f, abilityName="RollRight", energy = 20} },
         { "DSA_Flip", new PlayerAbility(){ multiplier=1.5f, abilityName="DSA_Flip", energy = 50} },
         { "DSA_Top", new PlayerAbility(){ multiplier=2f, abilityName="DSA_Top", energy = 50} },
         { "DSA_Long", new PlayerAbility(){ multiplier=1.5f, abilityName="DSA_Long", energy = 30} },
         { "Stab", new PlayerAbility(){ multiplier=1f, abilityName="Stab", energy=10} },
-        { "RollForward", new PlayerAbility(){ multiplier=0f, abilityName="RollForward", energy=50} }
+        { "RollForward", new PlayerAbility(){ multiplier=0f, abilityName="RollForward", energy=20} }
     };
 
     public static float buffCheckPeriod = 1f;
@@ -107,10 +107,7 @@ public class NetworkManager : MonoBehaviour
     }
 
     private void Start()
-    {
-        QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = 30;
-
+    {   
         GameServer.Start(50, 26950);
     }
 
@@ -395,6 +392,9 @@ public class NetworkManager : MonoBehaviour
                         break;
                     case (int)ClientPackets.addBuff:
                         ServerHandle.AddBuff(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.animationTranslate:
+                        ServerHandle.AnimationTranslate(client.id, packet.packet);
                         break;
                 }
             }

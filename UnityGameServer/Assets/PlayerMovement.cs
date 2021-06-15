@@ -137,7 +137,7 @@ public class PlayerMovement : MonoBehaviour
             jumpFrame += 1;
             Vector3 moveDirection = new Vector3(0, 0, 0);
             moveDirection.y = Mathf.Lerp(0, jumpHeight, jumpLerpStep);
-            transform.Translate(moveDirection);
+            transform.Translate(moveDirection);            
 
             if (jumpFrame==jumpFrames)
             {                

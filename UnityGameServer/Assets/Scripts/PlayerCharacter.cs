@@ -46,6 +46,7 @@ public class PlayerCharacter : MonoBehaviour
     public Quaternion childRotation;
 
     public mouseLook mouseLook;
+    public bool rolling;
 
     private void Awake()
     {
@@ -291,8 +292,7 @@ public class PlayerCharacter : MonoBehaviour
             ServerSend.GroupMembers(GameServer.clients[id].player.group.groupId);
     }*/
 
-    public void Die() {
-        Debug.Log("Die");
+    public void Die() {        
         data.dead = true;
         GameServer.clients[id].player.playerMovement.DisableAgent();
         mysql.DiePlayerCharacter(GameServer.clients[id].player.dbid);
@@ -333,8 +333,7 @@ public class PlayerCharacter : MonoBehaviour
             if (Time.time - respawnUpdateTime < respawnTime)
                 return;
 
-            respawnUpdateTime = Time.time;
-            Debug.Log("Respawn");
+            respawnUpdateTime = Time.time;            
             Respawn();
         }
         else
@@ -354,6 +353,9 @@ public class PlayerCharacter : MonoBehaviour
     }
 
     public void TakeDamage(float damage, bool crit) {
+        if (rolling)
+            return;
+
         health -= damage;        
 
         ServerSend.TakeDamage(id, transform.position, damage, "character", crit);

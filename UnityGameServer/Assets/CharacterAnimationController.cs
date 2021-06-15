@@ -36,8 +36,7 @@ public class CharacterAnimationController : MonoBehaviour
         public bool leftMouseDown;
         public float speed;
         public float horizontal;
-        public string attackName;
-        public string rollDirection;
+        public string currentAbility;
     }
 
     public List<AnimationInputs> buffer = new List<AnimationInputs>();
@@ -93,12 +92,10 @@ public class CharacterAnimationController : MonoBehaviour
     bool w;
     bool leftShift;
     bool jump;
-    bool leftMouseDown;
-    bool rolling;
+    bool leftMouseDown;    
     float speed;
     float horizontal;
-    string attackName = "";
-    string rollDirection = "";
+    string currentAbility = "";    
 
     public Dictionary<string, float> animation_length = new Dictionary<string, float>() {
         { "PirateRig|DualSwordAttack_CW_Flip", 1},{ "PirateRig|DualSwordAttack_From_Top", 1},{ "PirateRig|TwoHandLongAttack", 1},
@@ -136,8 +133,7 @@ public class CharacterAnimationController : MonoBehaviour
             leftMouseDown = buffer[0].leftMouseDown;
             speed = buffer[0].speed;
             horizontal = buffer[0].horizontal;
-            attackName = buffer[0].attackName;
-            rollDirection = buffer[0].rollDirection;            
+            currentAbility = buffer[0].currentAbility;                       
 
             buffer.RemoveAt(0);
         }
@@ -147,10 +143,9 @@ public class CharacterAnimationController : MonoBehaviour
             DisableWeapon();
         }
 
-        if (rolling && !inState)
+        if (playerCharacter.rolling && !inState)
         {
-            controller.enabled = true;
-            rolling = false;
+            playerCharacter.rolling = false;
         }
 
         if (w || jump)
@@ -164,82 +159,78 @@ public class CharacterAnimationController : MonoBehaviour
         {
             if (!gathering && !crafting)
             {
-                if (attackName.Equals("DSA_Flip") && HasEnergy("DSA_Flip"))//Input.GetKeyDown(KeyCode.Alpha2))
+                if (currentAbility.Equals("DSA_Flip") && HasEnergy("DSA_Flip"))//Input.GetKeyDown(KeyCode.Alpha2))
                 {
-                    /*IEnumerator translateCoroutine = Translate(Vector3.forward, DSA_Top_time, 2f, 0f);
-                    StartCoroutine(translateCoroutine);*/
                     anim.SetTrigger("DSA_Flip");
-                    attackName = "";
+                    currentAbility = "";
                     currentAttack = NetworkManager.playerAbilities["DSA_Flip"].Clone();
                     playerCharacter.energy -= NetworkManager.playerAbilities["DSA_Flip"].energy;
                     playerCharacter.energyUpdateStart = Time.time;
                     inState = true;
                 }
-                if (attackName.Equals("DSA_Top") && HasEnergy("DSA_Top"))//Input.GetKeyDown(KeyCode.Alpha2))
+                if (currentAbility.Equals("DSA_Top") && HasEnergy("DSA_Top"))//Input.GetKeyDown(KeyCode.Alpha2))
                 {
-                    /*IEnumerator translateCoroutine = Translate(Vector3.forward, DSA_Top_time, 2f, 0f);
-                    StartCoroutine(translateCoroutine);*/
+                    /*IEnumerator translateCoroutine = Translate(transform.forward, DSA_Top_time, 2f, 0f);
+                    StartCoroutine(translateCoroutine);*/                   
+
                     anim.SetTrigger("DSA_Top");
-                    attackName = "";
+                    currentAbility = "";
                     currentAttack = NetworkManager.playerAbilities["DSA_Top"].Clone();
                     playerCharacter.energy -= NetworkManager.playerAbilities["DSA_Top"].energy;
                     playerCharacter.energyUpdateStart = Time.time;
                     inState = true;
                 }
-                else if (attackName.Equals("DSA_Long") && HasEnergy("DSA_Long"))//Input.GetKeyDown(KeyCode.Alpha3))
+                else if (currentAbility.Equals("DSA_Long") && HasEnergy("DSA_Long"))//Input.GetKeyDown(KeyCode.Alpha3))
                 {
                     /*IEnumerator translateCoroutine = Translate(Vector3.forward, DSA_Long_time, 0.5f, 0.5f);
                     StartCoroutine(translateCoroutine);*/
                     anim.SetTrigger("DSA_Long");
-                    attackName = "";
+                    currentAbility = "";
                     currentAttack = NetworkManager.playerAbilities["DSA_Long"].Clone();
                     EnableWeapon();
                     playerCharacter.energy -= NetworkManager.playerAbilities["DSA_Long"].energy;
                     playerCharacter.energyUpdateStart = Time.time;
                     inState = true;
                 }
-                else if (attackName.Equals("Stab") && HasEnergy("Stab"))
+                else if (currentAbility.Equals("Stab") && HasEnergy("Stab"))
                 {
                     anim.SetTrigger("Stab");
-                    attackName = "";
+                    currentAbility = "";
                     currentAttack = NetworkManager.playerAbilities["Stab"].Clone();
                     EnableWeapon();
                     playerCharacter.energy -= NetworkManager.playerAbilities["Stab"].energy;
                     playerCharacter.energyUpdateStart = Time.time;
                     inState = true;
                 }
-                else if (rollDirection.Equals("Left") && HasEnergy("RollLeft"))//Input.GetKeyDown(KeyCode.Alpha5))
+                else if (currentAbility.Equals("RollLeft") && HasEnergy("RollLeft"))//Input.GetKeyDown(KeyCode.Alpha5))
                 {
                     /*IEnumerator rollCoroutine = Translate(Vector3.left, rollTime, 2f, 0f);
                     StartCoroutine(rollCoroutine);*/
                     anim.SetTrigger("RollLeft");
-                    rolling = true;
-                    controller.enabled = false;
-                    rollDirection = "";
+                    playerCharacter.rolling = true;
+                    currentAbility = "";
                     playerCharacter.energy -= NetworkManager.playerAbilities["RollLeft"].energy;
                     playerCharacter.energyUpdateStart = Time.time;
                     inState = true;
                 }
-                else if (rollDirection.Equals("Right") && HasEnergy("RollRight"))//Input.GetKeyDown(KeyCode.Alpha6))
+                else if (currentAbility.Equals("RollRight") && HasEnergy("RollRight"))//Input.GetKeyDown(KeyCode.Alpha6))
                 {
                     /*IEnumerator rollCoroutine = Translate(Vector3.right, rollTime, 2f, 0f);
                     StartCoroutine(rollCoroutine);*/
                     anim.SetTrigger("RollRight");
-                    rolling = true;
-                    controller.enabled = false;
-                    rollDirection = "";
+                    playerCharacter.rolling = true;
+                    currentAbility = "";
                     playerCharacter.energy -= NetworkManager.playerAbilities["RollRight"].energy;
                     playerCharacter.energyUpdateStart = Time.time;
                     inState = true;
                 }
-                else if (rollDirection.Equals("Forward") && HasEnergy("RollForward"))//Input.GetKeyDown(KeyCode.Alpha6))
+                else if (currentAbility.Equals("RollForward") && HasEnergy("RollForward"))//Input.GetKeyDown(KeyCode.Alpha6))
                 {
                     /*IEnumerator rollCoroutine = Translate(Vector3.right, rollTime, 2f, 0f);
                     StartCoroutine(rollCoroutine);*/
                     anim.SetTrigger("RollForward");
-                    rolling = true;
-                    controller.enabled = false;
-                    rollDirection = "";
+                    playerCharacter.rolling = true;
+                    currentAbility = "";
                     playerCharacter.energy -= NetworkManager.playerAbilities["RollForward"].energy;
                     playerCharacter.energyUpdateStart = Time.time;
                     inState = true;
@@ -350,6 +341,26 @@ public class CharacterAnimationController : MonoBehaviour
         Frypan.SetActive(false);
         Pancake.SetActive(false);
     }
+    int i = 0;
+
+    IEnumerator Translate(Vector3 direction, float time, float multiplier, float waitBefore)
+    {
+        yield return new WaitForSeconds(waitBefore);
+        float start = Time.time;
+
+        while (true)
+        {
+            i++;
+            Debug.Log(i);
+            //transform.parent.Translate(direction * multiplier * Time.deltaTime, Space.Self);
+            //transform.parent.position += direction * multiplier* Time.deltaTime;
+            controller.Move(direction * multiplier * Time.fixedDeltaTime);
+
+            if (Time.time - start > time)
+                yield break;
+            yield return new WaitForSeconds(0.02f);
+        }        
+    }
 
     public void Gather()
     {
@@ -365,20 +376,38 @@ public class CharacterAnimationController : MonoBehaviour
         playerCharacter.currentWeapon.weaponCollider.enabled = false;
     }
 
-    IEnumerator Translate(Vector3 direction, float time, float multiplier, float waitBefore)
-    {
-        yield return new WaitForSeconds(waitBefore);
-        float start = Time.time;
+    public void Simulate(string currentAbility)
+    {        
+        Vector3 direction = Vector3.zero;
+        float multiplier = 0; ;
 
-        while (true)
+        if (currentAbility.Equals("DSA_Top")){
+            direction = transform.forward;
+            multiplier = 2;
+        }else if (currentAbility.Equals("DSA_Long"))
         {
-            transform.parent.Translate(direction * multiplier * Time.deltaTime);
+            direction = transform.forward;
+            multiplier = 0.5f;
+        }else if (currentAbility.Equals("RollLeft"))
+        {
+            direction = -transform.right;
+            multiplier = 2f;
+        }
+        else if (currentAbility.Equals("RollRight"))
+        {
+            direction = transform.right;
+            multiplier = 2f;
+        }
+        else if (currentAbility.Equals("RollForward"))
+        {
+            direction = transform.forward;
+            multiplier = 2f;
+        }
 
-            if (Time.time - start > time)
-                yield break;
-            yield return new WaitForSeconds(0.002f);
-        }        
-    }
+        //Vector3 move = transform.forward;
+        controller.Move(direction * multiplier * Time.fixedDeltaTime);           
+        //controller.Move(move * multiplier/*2f / 1.5f*/ * Time.fixedDeltaTime);
+    }    
 
     private bool HasEnergy(string abilityName) {
         return playerCharacter.energy >= NetworkManager.playerAbilities[abilityName].energy;

@@ -892,8 +892,7 @@ public class ServerSend : MonoBehaviour
             _packet.Write(input.leftMouseDown);
             _packet.Write(input.speed);
             _packet.Write(input.horizontal);
-            _packet.Write(input.attackName);
-            _packet.Write(input.rollDirection);
+            _packet.Write(input.currentAbility);            
             SendTCPDataRadius(from, _packet, position, NetworkManager.visibilityRadius);
         }
     }
