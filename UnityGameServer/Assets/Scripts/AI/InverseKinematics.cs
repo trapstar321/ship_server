@@ -35,7 +35,7 @@ public class InverseKinematics
             npc.ability = DragonNPC.DragonNPCAbility.NONE;
             npc.StartCooldown();
         }
-        else if (npc.attackElapsed < endTime && !returning)
+        else if (npc.attackElapsed < endTime && !returning && npc.enemy)
         {
             Vector3 targetPosition = npc.enemy.transform.position + new Vector3(0, 0.5f, 0);
             target.transform.position = Vector3.MoveTowards(target.transform.position, targetPosition, step);

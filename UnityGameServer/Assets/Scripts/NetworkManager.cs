@@ -38,7 +38,7 @@ public class NetworkManager : MonoBehaviour
         { "RollLeft", new PlayerAbility(){ multiplier=0f, abilityName="RollLeft", energy = 20} },
         { "RollRight", new PlayerAbility(){ multiplier=0f, abilityName="RollRight", energy = 20} },
         { "DSA_Flip", new PlayerAbility(){ multiplier=1.5f, abilityName="DSA_Flip", energy = 50} },
-        { "DSA_Top", new PlayerAbility(){ multiplier=2f, abilityName="DSA_Top", energy = 50} },
+        { "DSA_Top", new PlayerAbility(){ multiplier=2f, abilityName="DSA_Top", energy = 20} },
         { "DSA_Long", new PlayerAbility(){ multiplier=1.5f, abilityName="DSA_Long", energy = 30} },
         { "Stab", new PlayerAbility(){ multiplier=1f, abilityName="Stab", energy=10} },
         { "RollForward", new PlayerAbility(){ multiplier=0f, abilityName="RollForward", energy=20} }

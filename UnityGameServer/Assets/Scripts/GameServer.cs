@@ -30,7 +30,7 @@ public class GameServer
         Port = _port;
 
         InitializeServerData();
-        server = new WatsonTcpServer("192.168.0.127", _port);
+        server = new WatsonTcpServer("0.0.0.0", _port);
         server.Events.ExceptionEncountered += Events_ExceptionEncountered;
         server.Events.ClientConnected += ClientConnected;
         server.Events.ClientDisconnected += ClientDisconnected;
