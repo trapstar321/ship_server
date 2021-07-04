@@ -23,7 +23,7 @@ public class NetworkManager : MonoBehaviour
     float playerPositionUpdateTick = 5;
     float respawnTradersTick = 10;
 
-    Mysql mysql;
+    public Mysql mysql;
     public GameObject respawnPointCharacter;
     public GameObject respawnPointShip;
 
@@ -42,11 +42,13 @@ public class NetworkManager : MonoBehaviour
         { "DSA_Long", new PlayerAbility(){ multiplier=1.5f, abilityName="DSA_Long", energy = 30} },
         { "Stab", new PlayerAbility(){ multiplier=1f, abilityName="Stab", energy=10} },
         { "RollForward", new PlayerAbility(){ multiplier=0f, abilityName="RollForward", energy=20} }
-    };
+    };    
 
     public static float buffCheckPeriod = 1f;
     public static float energyGainPeriod = 1f;
     public static float energyGainAmount = 10f;
+
+    public static float lootDespawnTime = 10f;
 
     public class PacketData
     {
@@ -163,7 +165,7 @@ public class NetworkManager : MonoBehaviour
                 {
                     mysql.UpdateShipPosition(player.dbid, player.transform.position.x, player.transform.position.y, player.transform.position.z, player.transform.eulerAngles.y);
 
-                    if (!player.data.is_on_ship)
+                    if (!player.data.is_on_ship && player.playerInstance)
                     {
                         Transform transform = player.playerInstance.transform;
                         mysql.UpdatePlayerPosition(player.dbid, transform.position.x, transform.position.y, transform.position.z, transform.eulerAngles.y, player.playerCharacter.pirate.transform.eulerAngles.y);
@@ -309,7 +311,7 @@ public class NetworkManager : MonoBehaviour
                     case (int)ClientPackets.playerSkills:
                         ServerSend.PlayerSkills(client.id);
                         break;
-                    case (int)ClientPackets.makeSelected:
+                    case (int)ClientPackets.craftSelected:
                         ServerHandle.CraftSelected(client.id, packet.packet);
                         break;
                     case (int)ClientPackets.cancelCrafting:
@@ -395,6 +397,12 @@ public class NetworkManager : MonoBehaviour
                         break;
                     case (int)ClientPackets.animationTranslate:
                         ServerHandle.AnimationTranslate(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.ping:
+                        ServerHandle.Ping(client.id, packet.packet);
+                        break;
+                    case (int)ClientPackets.loadLoot:
+                        ServerHandle.LoadLoot(client.id, packet.packet);
                         break;
                 }
             }
@@ -667,5 +675,10 @@ public class NetworkManager : MonoBehaviour
             quantity = slot.quantity,
             item = item
         };
+    }
+
+    public static SerializableObjects.ItemDrop ItemDropToSerializable(ItemDrop drop)
+    {
+        return new SerializableObjects.ItemDrop() { quantity = drop.quantity, item = drop.item };
     }
 }

@@ -7,6 +7,6 @@ using System.Threading.Tasks;
 public class ItemDrop
 {
     public int quantity;
-    public Item item;
+    public SerializableObjects.Item item;
 }
 

@@ -42,6 +42,7 @@ public enum ServerPackets
     baseStats,
     npcStats,
     onLootDropped,
+    loadLoot,
     hello,
     loginFailed,
     chatMessage,
@@ -103,7 +104,9 @@ public enum ServerPackets
     npcTarget,
     respawnNPC,
     dieNPC,
-    correctState
+    correctState,
+    ping,
+    removeLoot
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -151,7 +154,7 @@ public enum ClientPackets
     gatherResource,
     inputMsg,
     playerSkills,
-    makeSelected,
+    craftSelected,
     cancelCrafting,
     requestCrafting,
     traderInventoryRequest,
@@ -179,7 +182,9 @@ public enum ClientPackets
     stopCrafting,
     shipPosition,
     addBuff,
-    animationTranslate
+    animationTranslate,
+    ping,
+    loadLoot
 }
 
 public class Packet: IDisposable
@@ -292,6 +297,7 @@ public class Packet: IDisposable
     {
         buffer.AddRange(BitConverter.GetBytes(_value));
     }
+
     /// <summary>Adds an int to the packet.</summary>
     /// <param name="_value">The int to add.</param>
     public void Write(int _value)
@@ -353,6 +359,13 @@ public class Packet: IDisposable
     }
 
     public void Write(List<SerializableObjects.Item> _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(DateTime _value)
     {
         byte[] data = ObjectToByteArray(_value);
         Write(data.Length); // Add the length of the string to the packet
@@ -521,6 +534,13 @@ public class Packet: IDisposable
     }
 
     public void Write(List<SerializableObjects.Buff> _value)
+    {
+        byte[] data = ObjectToByteArray(_value);
+        Write(data.Length); // Add the length of the string to the packet
+        buffer.AddRange(data); // Add the string itself
+    }
+
+    public void Write(SerializableObjects.NPCStartParams _value)
     {
         byte[] data = ObjectToByteArray(_value);
         Write(data.Length); // Add the length of the string to the packet
@@ -786,6 +806,26 @@ public class Packet: IDisposable
         catch
         {
             throw new Exception("Could not read value of type 'SerializableObjects.InventorySlot'!");
+        }
+    }
+
+    public DateTime ReadDateTime(bool _moveReadPos = true)
+    {
+        try
+        {
+            int _length = ReadInt(); // Get the length of the string
+            byte[] data = new byte[_length];
+            Array.Copy(readableBuffer, readPos, data, 0, _length);
+            if (_moveReadPos && data.Length > 0)
+            {
+                // If _moveReadPos is true string is not empty
+                readPos += _length; // Increase readPos by the length of the string
+            }
+            return FromByteArray<DateTime>(data); // Return the string
+        }
+        catch
+        {
+            throw new Exception("Could not read value of type 'DateTime'!");
         }
     }
 

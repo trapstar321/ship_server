@@ -32,8 +32,7 @@ public class DragonNPC : NPC
 
     private State state;
     private State lastState;
-    private bool coroutineRunning;
-    private NavMeshPath path;    
+    private bool coroutineRunning;    
     public Rig animationRig;
     
     private ParabolaController parabolaController;
@@ -70,24 +69,20 @@ public class DragonNPC : NPC
 
     public float chaseRange;
     public float combatNoDamageTime = 10f;
-    public float lastDamageTime;
-    public float leaveCombatMaxRange = 20f;
+    public float lastDamageTime;    
     public float lastDamageCheck;
     public float damageCheckTime = 5f;
-
+    
+    
     private void Awake()
     {
-        level = 1;
-        Mysql mysql = FindObjectOfType<Mysql>();
-        baseStats = mysql.ReadNPCBaseStatsTable(NPCType.DRAGON);
-        base.Initialize();
+        level = 1;        
+        base.Initialize(NPCType.DRAGON);
 
         agent = GetComponent<NavMeshAgent>();
         agent.Warp(transform.position);
 
-        anim = GetComponentInChildren<DragonAnimController>();
-
-        path = new NavMeshPath();                
+        anim = GetComponentInChildren<DragonAnimController>();                      
         parabolaController = GetComponent<ParabolaController>();
         state = State.PATROL;
         SwitchState(state);
@@ -101,9 +96,19 @@ public class DragonNPC : NPC
             npc = this
         });
 
-        abilities.Add(DragonNPCAbility.FIRE, new Ability(this, DragonNPCAbility.FIRE) { endTime = fireEndTime, multiplier=0 });
-        abilities.Add(DragonNPCAbility.STOMP, new Ability(this, DragonNPCAbility.STOMP) { endTime = stompEndTime, multiplier=0 });
-        abilities.Add(DragonNPCAbility.FLY_FIRE, new Ability(this, DragonNPCAbility.FLY_FIRE) { endTime = flyFireEndTime, multiplier=0 });
+        Ability fire = new Ability(this, DragonNPCAbility.FIRE) { endTime = fireEndTime, multiplier = 0 };
+        fire.fxs.Add(new FX() { name = "FireFX", start = 2.5f, end = 6 });
+        abilities.Add(DragonNPCAbility.FIRE, fire);
+
+        Ability stomp = new Ability(this, DragonNPCAbility.STOMP) { endTime = stompEndTime, multiplier = 0 };
+        stomp.fxs.Add(new FX() { name = "StompFX", start = 1.5f, end = anim.stompFX.main.duration });
+        abilities.Add(DragonNPCAbility.STOMP, stomp);
+
+        Ability flyFire = new Ability(this, DragonNPCAbility.FLY_FIRE) { endTime = flyFireEndTime, multiplier = 0 };
+        flyFire.fxs.Add(new FX() { name = "FireFX", start=3f, end=6f});
+        abilities.Add(DragonNPCAbility.FLY_FIRE, flyFire);
+
+
         abilities.Add(DragonNPCAbility.TAIL_ATTACK, new Ability(this, DragonNPCAbility.TAIL_ATTACK) { endTime = tailAttackEndTime, multiplier=1.2f });
         abilities.Add(DragonNPCAbility.JUMP, new Ability(this, DragonNPCAbility.JUMP) { endTime = jumpEndTime, multiplier=0 });
         abilities.Add(DragonNPCAbility.BITE, new Ability(this, DragonNPCAbility.BITE) { multiplier = 1.5f, useUpdate=false });
@@ -134,6 +139,12 @@ public class DragonNPC : NPC
     new void Update()
     {
         base.Update();
+
+        /*if (Input.GetKeyDown(KeyCode.A)) {
+            anim.anim.Play("rig|walk", 0, 0f);
+            anim.anim.SetBool("walk", true);
+        }*/
+
         switch (state)
         {
             case State.PATROL:
@@ -167,7 +178,7 @@ public class DragonNPC : NPC
     void Chill() {
         IEnumerator Chilling() {
             coroutineRunning = true;
-            chillTime  = Random.Range(5, 10);
+            chillTime = Random.Range(5, 10);
             totalChilled = 0;
 
             while (totalChilled <= chillTime)
@@ -241,6 +252,12 @@ public class DragonNPC : NPC
             StopAgent();
             SwitchState(State.COMBAT);
         }
+
+        //izašao iz leaveCombatMaxRange -> return
+        if (Vector3.Distance(patrolPoint, transform.position) >= leaveCombatMaxRange)
+        {
+            SwitchState(State.RETURN);            
+        }
     }
 
     void ChaseTarget(float stoppingDistance)
@@ -254,8 +271,12 @@ public class DragonNPC : NPC
             if (path.status != NavMeshPathStatus.PathComplete)
             {
                 enemy = null;
-                SwitchState(State.RETURN);
-                return;
+                ChooseNextEnemy();
+                if (enemy == null)
+                {
+                    SwitchState(State.RETURN);
+                    return;
+                }
             }
         }
 
@@ -277,6 +298,9 @@ public class DragonNPC : NPC
         {
             SwitchState(State.PATROL);
         }
+
+        health = maxHealth;
+        ServerSend.NPCStats(id);
     }
 
     public enum DragonNPCAbility { 
@@ -290,12 +314,20 @@ public class DragonNPC : NPC
         TAIL_ATTACK
     }
 
+    public class FX {
+        public string name;
+        public float start;
+        public float end;
+    }
+
     public class Ability {
         public float endTime;
         public DragonNPC npc;
         public DragonNPCAbility ability;
         public float multiplier;
         public bool useUpdate = true;
+
+        public List<FX> fxs = new List<FX>();        
 
         public Ability(DragonNPC npc, DragonNPCAbility ability, float multiplier=0) {
             this.npc = npc;
@@ -334,23 +366,10 @@ public class DragonNPC : NPC
             SwitchState(State.RETURN);
             return;
         }
-
-        PlayerCharacter maxDamageEnemy = null;
+        
         //damage check
         if (Time.time - lastDamageCheck > damageCheckTime) {
-            float maxDamage = 0;
-            foreach (int playerId in playerDamage.Keys) {
-                if (playerDamage[playerId] > maxDamage) {
-                    maxDamage = playerDamage[playerId];
-                    maxDamageEnemy = GameServer.clients[playerId].player.playerCharacter;                    
-                }
-            }
-
-            if (maxDamageEnemy)
-            {                
-                enemy = maxDamageEnemy;                
-            }
-
+            ChooseNextEnemy();
             lastDamageCheck = Time.time;
         }
 
@@ -361,8 +380,12 @@ public class DragonNPC : NPC
         }
 
         if (enemy && enemy.data.dead) {
-            SwitchState(State.RETURN);
-            return;
+            ChooseNextEnemy();
+            if (enemy == null)
+            {
+                SwitchState(State.RETURN);
+                return;
+            }
         }
         
         if (!parabolaController.Animation)
@@ -375,7 +398,7 @@ public class DragonNPC : NPC
         {
             if (!onCooldown)
             {
-                int random = Random.Range(0, 7);
+                int random = Random.Range(0, 7);                
                 if (random == 1 && Vector3.Distance(transform.position, enemy.transform.position) >= fireRange)
                 {
                     animationRig.weight = 0;
@@ -554,6 +577,14 @@ public class DragonNPC : NPC
             }
         }
 
+        if (enemy != null)
+        {
+            bool ok = NavMesh.CalculatePath(transform.position, enemy.transform.position, NavMesh.AllAreas, path);
+            if (path.status != NavMeshPathStatus.PathComplete)
+            {
+                return null;
+            }
+        }
         return tMin;
     }
 
@@ -573,7 +604,8 @@ public class DragonNPC : NPC
     {
         if (other.tag == "Weapon")
         {
-            PlayerAttack.OnPlayerAttack(this, other);
+            if(state!=State.RETURN)
+                PlayerAttack.OnPlayerAttack(this, other);
         }
     }
 
@@ -625,8 +657,8 @@ public class DragonNPC : NPC
         ServerSend.RespawnNPC(id);
         StartCoroutine(GoToIdle());
 
-        biteCollider.enabled = true;
-        EnableDisableTailColliders(true);
+        /*biteCollider.enabled = true;
+        EnableDisableTailColliders(true);*/
     }    
 
     public override bool DisableMultipleCollision(DamageColliderInfo info, PlayerCharacter receiver) {
@@ -659,5 +691,81 @@ public class DragonNPC : NPC
     public override void TakeDamage(PlayerCharacter attacker, float damage, bool crit) {
         base.TakeDamage(attacker, damage, crit);
         lastDamageTime = Time.time;
+    }
+
+    public override NPCStartParams GetStartParams()
+    {
+        AnimatorStateInfo animState = anim.anim.GetCurrentAnimatorStateInfo(0);        
+        float animationTime = animState.normalizedTime % 1;
+        AnimatorClipInfo[] m_CurrentClipInfo = anim.anim.GetCurrentAnimatorClipInfo(0);
+        string animationName = m_CurrentClipInfo[0].clip.name;
+        float animationLength = m_CurrentClipInfo[0].clip.length;
+        float animationTimeSeconds = m_CurrentClipInfo[0].clip.length*animState.normalizedTime;
+        System.DateTime animationStart = System.DateTime.UtcNow.AddSeconds(-animationTimeSeconds);
+        System.DateTime animationEnd = animationStart.AddSeconds(animationLength);        
+
+        NPCStartParams params_ = new NPCStartParams();
+        params_.animationName = animationName;
+        params_.animationTime = animationTime;
+        params_.animationLength = animationLength;
+        params_.animationStart = animationStart;
+        params_.animationTimeSeconds = animationTimeSeconds;
+        params_.animationEnd = animationEnd;
+
+        if (animationName.Equals("rig|walk")) {
+            params_.stateName = "walk";
+            params_.parameterType = AnimationParameterType.BOOL;
+        }
+
+        if (anim.fireFX.isPlaying) {
+            params_.fxName = "FireFX";
+            params_.fxTime = anim.fireFX.time;
+            params_.fxStart = abilities[DragonNPCAbility.FIRE].fxs[0].start;
+            params_.fxEnd = abilities[DragonNPCAbility.FIRE].fxs[0].end;
+        }
+
+        if (anim.stompFX.isPlaying) {
+            params_.fxName = "StompFX";
+            params_.fxTime = anim.stompFX.time;
+            params_.fxStart = abilities[DragonNPCAbility.STOMP].fxs[0].start;
+            params_.fxEnd = abilities[DragonNPCAbility.STOMP].fxs[0].end;
+        }
+
+        params_.sendTime = System.DateTime.UtcNow;
+
+        return params_;
+    }
+
+    void ChooseNextEnemy()
+    {
+        PlayerCharacter maxDamageEnemy = null;
+        float maxDamage = 0;
+        foreach (int playerId in playerDamage.Keys)
+        {
+            PlayerCharacter player = GameServer.clients[playerId].player.playerCharacter;
+            if (playerDamage[playerId] > maxDamage && Vector3.Distance(transform.position, player.transform.position) <= chaseRange)
+            {
+                maxDamage = playerDamage[playerId];
+                maxDamageEnemy = GameServer.clients[playerId].player.playerCharacter;
+            }
+        }
+
+        if (maxDamageEnemy)
+        {
+            enemy = maxDamageEnemy;
+        }
+        else
+        {
+            enemy = GetClosestEnemy();
+        }
+
+        if (enemy != null)
+        {
+            bool ok = NavMesh.CalculatePath(transform.position, enemy.transform.position, NavMesh.AllAreas, path);
+            if (path.status != NavMeshPathStatus.PathComplete)
+            {
+                enemy = null;
+            }
+        }
     }
 }

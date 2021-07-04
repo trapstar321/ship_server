@@ -214,7 +214,7 @@ public class Mysql : MonoBehaviour
         return items;
     }
 
-    public List<Item> ReadPlayerEquipment(int playerID)
+    public List<SerializableObjects.Item> ReadPlayerEquipment(int playerID)
     {
         string sql = @"select b.id, c.id as item_id,name,is_default_item, c.item_type,c.icon_name,
                        ATTACK,HEALTH,DEFENCE,ROTATION,SPEED,VISIBILITY,CANNON_RELOAD_SPEED,CRIT_CHANCE, CANNON_FORCE,DROP_CHANCE,
@@ -226,7 +226,7 @@ public class Mysql : MonoBehaviour
                         on b.item_id= c.id
                         where a.player_id= " + playerID.ToString();
 
-        List<Item> items = new List<Item>();
+        List<SerializableObjects.Item> items = new List<SerializableObjects.Item>();
 
 
         using (MySqlConnection con = new MySqlConnection(connectionString))
@@ -244,9 +244,9 @@ public class Mysql : MonoBehaviour
                         {
                             int id = rdr.GetInt32("ID");
 
-                            Item item = new Item();
+                            SerializableObjects.Item item = new SerializableObjects.Item();
                             item.id = id;
-                            ReadItem(item, rdr);
+                            ReadSerializableItem(item, rdr);
 
                             items.Add(item);
                         }
@@ -567,6 +567,7 @@ public class Mysql : MonoBehaviour
 
                 cmd.Parameters.AddWithValue("@item_id", item.item_id);
                 cmd.Parameters.AddWithValue("@player_id", player_id);
+                
                 id = Convert.ToInt32(cmd.ExecuteScalar());
 
                 con.Close();
@@ -3338,7 +3339,7 @@ public class Mysql : MonoBehaviour
             AddItemToInventory(player.dbid, slot);
         }
         return slot;
-    }
+    }    
 
     public void InventoryRemove(Player player, int item_id, int quantity)
     {
@@ -3854,5 +3855,368 @@ public class Mysql : MonoBehaviour
         {
             return false;
         }
+    }
+
+    public List<SerializableObjects.Item> GetNPCLoot(int npc_type, float damage_percentage)
+    {
+        string sql = @"select * from npc_loot_table as a
+                        inner join item as b
+                        on a.item_id=b.id
+                        left join item_grade as c
+                        on b.grade_id=c.id
+                        where npc_type=@type
+                        and damage_percentage<=@damage or damage_percentage is null";
+
+        List<SerializableObjects.Item> items = new List<SerializableObjects.Item>();
+        using (MySqlConnection con = new MySqlConnection(connectionString))
+        {
+            try
+            {
+                con.Open();
+
+                var cmd = new MySqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@type", npc_type);
+                cmd.Parameters.AddWithValue("@damage", damage_percentage);
+
+                using (MySqlDataReader rdr = cmd.ExecuteReader())
+                {
+                    try
+                    {
+                        while (rdr.Read())
+                        {
+                            int item_id = rdr.GetInt32("item_id");
+                            int drop_chance = rdr.GetInt32("drop_chance");
+                            float max_loot_quantity = 0;
+                            if (!rdr.IsDBNull(rdr.GetOrdinal("max_loot_quantity")))
+                            {
+                                max_loot_quantity = rdr.GetFloat("max_loot_quantity");
+                            }
+
+                            //Item item = ReadItem(item_id);
+                            SerializableObjects.Item item = new SerializableObjects.Item();                            
+                            ReadSerializableItem(item, rdr);
+
+                            item.dropChance = drop_chance;
+                            item.maxLootQuantity = max_loot_quantity;
+                            items.Add(item);
+                        }
+                        rdr.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError(ex);
+                        if (rdr != null)
+                            rdr.Close();
+                    }
+                }
+
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(ex);
+                if (con != null)
+                    con.Close();
+            }
+        }
+
+        return items;
+    }
+
+    public int GetNPCMaxLootCount(NPCType npc_type)
+    {
+        string sql = @"select max_loot_item_count from npc_type where id=@type";
+
+        int max_loot_item_count=0;
+
+        List<Item> items = new List<Item>();
+        using (MySqlConnection con = new MySqlConnection(connectionString))
+        {
+            try
+            {
+                con.Open();
+
+                var cmd = new MySqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@type", (int)npc_type);                
+
+                using (MySqlDataReader rdr = cmd.ExecuteReader())
+                {
+                    try
+                    {
+                        while (rdr.Read())
+                        {
+                            max_loot_item_count = rdr.GetInt32("max_loot_item_count");
+                        }
+                        rdr.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError(ex);
+                        if (rdr != null)
+                            rdr.Close();
+                    }
+                }
+
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(ex);
+                if (con != null)
+                    con.Close();
+            }
+        }
+
+        return max_loot_item_count;
+    }
+
+    public void RemovePlayerLoot(int playerId)
+    {
+        string sqlLoot = @"delete from player_loot where player_id=@id";
+        string sqlLootItems = @"delete a from player_loot_items as a
+                                inner join player_loot as b
+                                on a.loot_id=b.id
+                                where b.player_id=@id";
+
+        using (MySqlConnection con = new MySqlConnection(connectionString))
+        {
+            try
+            {
+                con.Open();
+
+                var cmd = new MySqlCommand(sqlLootItems, con);
+                cmd.CommandText = sqlLootItems;
+                cmd.Parameters.AddWithValue("@id", playerId);
+                cmd.ExecuteNonQuery();
+
+                cmd.CommandText = sqlLoot;
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("@id", playerId);
+                cmd.ExecuteNonQuery();
+
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(ex);
+                if (con != null)
+                    con.Close();
+            }
+        }
+    }
+
+    public void AddLoot(int playerId, RandomLoot loot) {
+        long id = AddPlayerLoot(playerId, loot);
+        AddPlayerLootItems(playerId, id, loot);
+    }
+
+    public long AddPlayerLoot(int playerId, RandomLoot loot)
+    {
+        string sql = @"insert into player_loot(X, Y, Z, PLAYER_ID, REMAINING_TIME)
+                       values(@x, @y, @z, @player_id, @remaining_time);select last_insert_id();";
+
+        long id = 0;
+        using (MySqlConnection con = new MySqlConnection(connectionString))
+        {
+            try
+            {
+                con.Open();
+
+                var cmd = new MySqlCommand(sql, con);
+                cmd.CommandText = sql;                
+
+                cmd.Parameters.AddWithValue("@loot_id", loot.id);
+                cmd.Parameters.AddWithValue("@x", loot.position.x);
+                cmd.Parameters.AddWithValue("@y", loot.position.y);
+                cmd.Parameters.AddWithValue("@z", loot.position.z);
+                cmd.Parameters.AddWithValue("@player_id", playerId);
+                cmd.Parameters.AddWithValue("@remaining_time", NetworkManager.lootDespawnTime - (DateTime.UtcNow - loot.generatedTime).Seconds);
+                id = Convert.ToInt64(cmd.ExecuteScalar());                
+
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(ex);
+                if (con != null)
+                    con.Close();
+            }
+        }
+
+        return id;
+    }
+
+    public void AddPlayerLootItems(int playerId, long lootId, RandomLoot loot)
+    {
+        string sql = @"insert into player_loot_items(ITEM_ID, QUANTITY, LOOT_ID)
+                       select @item_id, @quantity, @loot_id";
+
+        using (MySqlConnection con = new MySqlConnection(connectionString))
+        {
+            try
+            {
+                con.Open();
+
+                var cmd = new MySqlCommand(sql, con);
+                cmd.CommandText = sql;
+
+                foreach (ItemDrop drop in loot.droppedItems) {
+                    cmd.Parameters.Clear();                    
+                    cmd.Parameters.AddWithValue("@item_id", drop.item.item_id);
+                    cmd.Parameters.AddWithValue("@quantity", drop.quantity);
+                    cmd.Parameters.AddWithValue("@loot_id", lootId);
+                    cmd.ExecuteNonQuery();
+                }
+
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(ex);
+                if (con != null)
+                    con.Close();
+            }
+        }
+    }
+
+    public List<RandomLoot> LoadPlayerLoot(int playerId)
+    {
+        string sql = @"select * from player_loot as a                        
+                        where player_id=@id";
+
+        List<RandomLoot> loot = new List<RandomLoot>();
+        using (MySqlConnection con = new MySqlConnection(connectionString))
+        {
+            try
+            {
+                con.Open();
+
+                var cmd = new MySqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@id", playerId);
+                
+                using (MySqlDataReader rdr = cmd.ExecuteReader())
+                {
+                    try
+                    {
+                        while (rdr.Read())
+                        {
+                            float x, y, z;
+                            long id;
+                            int remaining_time;
+
+                            x = rdr.GetFloat("X");
+                            y = rdr.GetFloat("Y");
+                            z = rdr.GetFloat("Z");
+                            id = rdr.GetInt64("ID");
+                            remaining_time = rdr.GetInt32("REMAINING_TIME");
+
+                            RandomLoot l = new RandomLoot(new List<ItemDrop>(), remaining_time, new UnityEngine.Vector3(x, y, z));
+                            l.dbid = id;
+                            loot.Add(l);
+                        }
+                        rdr.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError(ex);
+                        if (rdr != null)
+                            rdr.Close();
+                    }
+                }
+
+                foreach (RandomLoot l in loot)
+                {
+                    cmd.CommandText = @"select* from player_loot_items as a 
+                                        inner join item as b 
+                                        on a.item_id=b.id
+                                        where loot_id=@id";
+                    cmd.Parameters.Clear();
+                    cmd.Parameters.AddWithValue("@id", l.dbid);
+
+                    using (MySqlDataReader rdrItems = cmd.ExecuteReader())
+                    {
+                        List<ItemDrop> drop = new List<ItemDrop>();
+                        try
+                        {
+                            while (rdrItems.Read())
+                            {
+                                int item_id = rdrItems.GetInt32("item_id");
+                                float quantity = rdrItems.GetInt32("quantity");
+
+                                SerializableObjects.Item item = new SerializableObjects.Item();
+                                ReadSerializableItem(item, rdrItems);
+
+                                ItemDrop d = new ItemDrop();
+                                d.item = item;
+                                d.quantity = (int)quantity;
+                                drop.Add(d);
+                                l.droppedItems.Add(d);
+                            }
+                            rdrItems.Close();                            
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogError(ex);
+                            if (rdrItems != null)
+                                rdrItems.Close();
+                        }
+                    }
+                }
+
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(ex);
+                if (con != null)
+                    con.Close();
+            }
+        }
+
+        return loot;
+    }
+
+    public long AddBuff(int playerId, Buff buff)
+    {
+        string sql = @"insert into player_buffs(PLAYER_ID, ITEM_NAME, PROPERTY_NAME, MAX_PROPERTY_NAME, VALUE, OVERTIME,
+                                                BUFF_DURATION, COOLDOWN, ICON)
+                       values(@player_id, @item_name, @property_name, @max_property_name, @value, @overtime,
+                              @buff_duration, @cooldown, @icon)";
+
+        long id = 0;
+        using (MySqlConnection con = new MySqlConnection(connectionString))
+        {
+            try
+            {
+                con.Open();
+
+                var cmd = new MySqlCommand(sql, con);
+                cmd.CommandText = sql;
+
+                cmd.Parameters.AddWithValue("@player_id", playerId);
+                cmd.Parameters.AddWithValue("@item_name", buff.item_name);
+                cmd.Parameters.AddWithValue("@property_name", buff.property_name);
+                if(buff.max_property_name!=null)
+                    cmd.Parameters.AddWithValue("@max_property_name", buff.max_property_name);
+                else
+                    cmd.Parameters.AddWithValue("@max_property_name", DBNull.Value);
+                cmd.Parameters.AddWithValue("@value", buff.value);
+                cmd.Parameters.AddWithValue("@overtime", buff.overtime);
+                cmd.Parameters.AddWithValue("@buff_duration", buff.buff_duration-(DateTime.UtcNow-buff.start).TotalSeconds);
+                cmd.Parameters.AddWithValue("@cooldown", buff.cooldown);
+                cmd.Parameters.AddWithValue("@icon", buff.icon);
+                id = Convert.ToInt64(cmd.ExecuteScalar());                
+
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(ex);
+                if (con != null)
+                    con.Close();
+            }
+        }
+
+        return id;
     }
 }

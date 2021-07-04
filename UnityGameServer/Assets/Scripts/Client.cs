@@ -48,8 +48,7 @@ public class Client: MonoBehaviour
         player = NetworkManager.instance.InstantiatePlayer(data.X_SHIP, data.Y_SHIP, data.Z_SHIP);
         player.transform.eulerAngles = new Vector3(0, data.Y_ROT_SHIP, 0);
         player.Initialize(id, dbid);
-
-        ServerSend.SpawnShip(id, player);
+        
         player.Load(); 
     }
 
@@ -90,6 +89,9 @@ public class Client: MonoBehaviour
                     }
                 }
             }
+            
+            GameServer.StoreLoot(player.dbid, GameServer.playerLoot[player.id]);
+            GameServer.StoreBuffs(player.dbid, player.playerCharacter.buffManager.buffs);
 
             player = null;
 
@@ -97,7 +99,7 @@ public class Client: MonoBehaviour
                 ServerSend.GroupMembers(groupId);
             }           
         });
-
+        
         NetworkManager.PlayerDisconnected(id);
         ServerSend.PlayerDisconnected(id);
         //TODO: disconnect client

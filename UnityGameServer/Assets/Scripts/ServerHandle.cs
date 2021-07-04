@@ -393,6 +393,7 @@ public class ServerHandle : MonoBehaviour
     public static void CollectLoot(int from, Packet packet)
     {
         int dbid = GameServer.clients[from].player.dbid;
+        long lootId = packet.ReadLong();        
         List<int> items = packet.ReadIntList();
 
         Player player = GameServer.clients[from].player;
@@ -405,25 +406,46 @@ public class ServerHandle : MonoBehaviour
             return false;
         }
 
-        if (player.lootCache != null)
+        RandomLoot loot = GameServer.FindLoot(from, lootId);
+        if (loot != null)
         {
-            foreach (ItemDrop drop in player.lootCache)
+            List<ItemDrop> toRemove = new List<ItemDrop>();
+            foreach (ItemDrop drop in loot.droppedItems)
             {
                 if (ItemInList(drop))
-                {                    
-                    mysql.InventoryAdd(player, drop.item, drop.quantity);
+                {
+                    toRemove.Add(drop);
+                    mysql.InventoryAdd(player, NetworkManager.SerializableToItem(drop.item), drop.quantity);
                 }
             }
+            
+            loot.droppedItems = loot.droppedItems.Except(toRemove).ToList();
+
+            if (loot.droppedItems.Count == 0)
+            {
+                GameServer.RemoveLoot(from, loot);
+                ServerSend.RemoveLoot(from, loot.id);
+            }
+            ServerSend.Inventory(from, player.inventory);
         }
-
-        player.lootCache = null;
-
-        ServerSend.Inventory(from, player.inventory);
     }
 
     public static void DiscardLoot(int from, Packet packet)
     {
+        long lootId = packet.ReadLong();
 
+        RandomLoot toRemove=null;
+        foreach (RandomLoot loot in GameServer.playerLoot[from]) {
+            if (loot.id == lootId) {
+                toRemove = loot;
+            }
+        }
+
+        if (toRemove!=null) {
+            GameServer.playerLoot[from].Remove(toRemove);
+        }
+
+        ServerSend.RemoveLoot(from, lootId);
     }
 
     public static void ChatMessage(int from, Packet packet)
@@ -1504,5 +1526,28 @@ public class ServerHandle : MonoBehaviour
             }
         }
         return quantity;
-    }      
+    }
+
+    public static void Ping(int from, Packet packet)
+    {
+        DateTime sent = packet.ReadDateTime();
+        Debug.Log((DateTime.UtcNow - sent).TotalMilliseconds + " ms");
+    }
+
+    public static void LoadLoot(int from, Packet packet)
+    {
+        long lootId = packet.ReadLong();        
+
+        RandomLoot loot = GameServer.FindLoot(from, lootId);
+        if (loot != null)
+        {
+            List<SerializableObjects.ItemDrop> toSend = new List<SerializableObjects.ItemDrop>();
+            foreach (ItemDrop item in loot.droppedItems)
+            {
+                toSend.Add(NetworkManager.ItemDropToSerializable(item));
+            }
+
+            ServerSend.LoadLoot(from, lootId, toSend);
+        }
+    }
 }

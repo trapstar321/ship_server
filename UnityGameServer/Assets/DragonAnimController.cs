@@ -11,11 +11,13 @@ public class DragonAnimController : MonoBehaviour
 
     public string[] bools = new string[] { "Idle", "walk", "Run" };
 
-    public GameObject fire;
+    public ParticleSystem fireFX;
     public ParticleSystem stompFX;
+    
 
     private void Awake()
     {
+        fireFX.Stop();
         AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
 
         foreach (AnimationClip c in clips)
@@ -24,11 +26,11 @@ public class DragonAnimController : MonoBehaviour
             {
                 AnimationEvent[] events = new AnimationEvent[2];
                 events[0] = new AnimationEvent();
-                events[0].functionName = "EnableFire";
+                events[0].functionName = "PlayFireFX";
                 events[0].time = 2.5f;
 
                 events[1] = new AnimationEvent();
-                events[1].functionName = "DisableFire";
+                events[1].functionName = "StopFireFX";
                 events[1].time = 6f;
                 c.events = events;
             }
@@ -37,11 +39,11 @@ public class DragonAnimController : MonoBehaviour
             {
                 AnimationEvent[] events = new AnimationEvent[2];
                 events[0] = new AnimationEvent();
-                events[0].functionName = "EnableFire";
+                events[0].functionName = "PlayFireFX";
                 events[0].time = 3f;
 
                 events[1] = new AnimationEvent();
-                events[1].functionName = "DisableFire";
+                events[1].functionName = "StopFireFX";
                 events[1].time = 6f;
                 c.events = events;
             }
@@ -86,14 +88,14 @@ public class DragonAnimController : MonoBehaviour
         }
     }
 
-    public void EnableFire()
+    public void PlayFireFX()
     {
-        fire.SetActive(true);
+        fireFX.Play();
     }
 
-    public void DisableFire()
+    public void StopFireFX()
     {
-        fire.SetActive(false);
+        fireFX.Stop();
     }
 
     public void PlayStompFX()

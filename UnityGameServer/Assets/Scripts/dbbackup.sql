@@ -110,7 +110,7 @@ CREATE TABLE `inventory` (
   KEY `SLOT_ID` (`SLOT_ID`),
   CONSTRAINT `inventory_ibfk_1` FOREIGN KEY (`PLAYER_ID`) REFERENCES `player` (`ID`),
   CONSTRAINT `inventory_ibfk_2` FOREIGN KEY (`SLOT_ID`) REFERENCES `inventory_slot` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=338 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=341 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -119,7 +119,7 @@ CREATE TABLE `inventory` (
 
 LOCK TABLES `inventory` WRITE;
 /*!40000 ALTER TABLE `inventory` DISABLE KEYS */;
-INSERT INTO `inventory` VALUES (171,2,173),(175,2,177),(184,2,186),(185,2,187),(186,2,188),(187,2,189),(188,2,190),(189,2,191),(190,2,192),(191,2,193),(192,2,194),(193,3,195),(194,3,196),(195,3,197),(196,3,198),(197,3,199),(198,3,200),(199,3,201),(200,3,202),(201,3,203),(203,2,205),(204,2,206),(205,1,207),(206,1,208),(207,1,209),(208,1,210),(209,1,211),(210,1,212),(211,1,213),(212,1,214),(213,1,215),(214,1,216),(215,1,217),(216,1,218),(217,1,219),(218,1,220),(219,1,221),(220,1,222),(221,1,223),(222,1,224),(223,1,225),(224,1,226),(225,1,227),(226,1,228),(227,1,229),(228,1,230),(229,1,231),(230,1,232),(231,1,233),(232,1,234),(233,1,235),(234,1,236),(235,1,237),(236,1,238),(237,1,239),(238,1,240),(239,1,241),(240,1,242),(241,1,243),(242,1,244),(243,1,245),(244,1,246),(245,1,247),(246,1,248),(247,1,249),(248,1,250),(249,1,251),(250,1,252),(251,1,253),(252,1,254),(253,1,255),(254,1,256),(255,1,257),(256,1,258),(257,1,259),(258,1,260),(259,1,261),(260,1,262),(261,1,263),(262,1,264),(263,1,265),(264,1,266),(265,1,267),(266,1,268),(267,1,269),(268,1,270),(269,1,271),(270,1,272),(271,1,273),(272,1,274),(273,1,275),(274,1,276),(275,1,277),(276,1,278),(277,1,279),(278,1,280),(279,1,281),(280,1,282),(281,1,283),(282,1,284),(283,1,285),(284,1,286),(332,2,287),(333,2,288),(334,2,289),(335,2,290),(336,2,291),(337,2,292);
+INSERT INTO `inventory` VALUES (171,2,173),(175,2,177),(184,2,186),(185,2,187),(186,2,188),(187,2,189),(188,2,190),(189,2,191),(190,2,192),(191,2,193),(192,2,194),(193,3,195),(194,3,196),(195,3,197),(196,3,198),(197,3,199),(198,3,200),(199,3,201),(200,3,202),(201,3,203),(203,2,205),(204,2,206),(205,1,207),(206,1,208),(207,1,209),(208,1,210),(209,1,211),(210,1,212),(211,1,213),(212,1,214),(213,1,215),(214,1,216),(215,1,217),(216,1,218),(217,1,219),(218,1,220),(219,1,221),(220,1,222),(221,1,223),(222,1,224),(223,1,225),(224,1,226),(225,1,227),(226,1,228),(227,1,229),(228,1,230),(229,1,231),(230,1,232),(231,1,233),(232,1,234),(233,1,235),(234,1,236),(235,1,237),(236,1,238),(237,1,239),(238,1,240),(239,1,241),(240,1,242),(241,1,243),(242,1,244),(243,1,245),(244,1,246),(245,1,247),(246,1,248),(247,1,249),(248,1,250),(249,1,251),(250,1,252),(251,1,253),(252,1,254),(253,1,255),(254,1,256),(255,1,257),(256,1,258),(257,1,259),(258,1,260),(259,1,261),(260,1,262),(261,1,263),(262,1,264),(263,1,265),(264,1,266),(265,1,267),(266,1,268),(267,1,269),(268,1,270),(269,1,271),(270,1,272),(271,1,273),(272,1,274),(273,1,275),(274,1,276),(275,1,277),(276,1,278),(277,1,279),(278,1,280),(279,1,281),(280,1,282),(281,1,283),(282,1,284),(283,1,285),(284,1,286),(332,2,287),(333,2,288),(334,2,289),(335,2,290),(336,2,291),(337,2,292),(338,2,293),(339,2,294),(340,2,295);
 /*!40000 ALTER TABLE `inventory` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -138,7 +138,7 @@ CREATE TABLE `inventory_slot` (
   PRIMARY KEY (`ID`),
   KEY `ITEM_ID` (`ITEM_ID`),
   CONSTRAINT `inventory_slot_ibfk_1` FOREIGN KEY (`ITEM_ID`) REFERENCES `player_item` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=293 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=296 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -147,7 +147,7 @@ CREATE TABLE `inventory_slot` (
 
 LOCK TABLES `inventory_slot` WRITE;
 /*!40000 ALTER TABLE `inventory_slot` DISABLE KEYS */;
-INSERT INTO `inventory_slot` VALUES (143,34,11,1554),(146,9,26,3),(147,NULL,41,0),(148,18,9,1),(149,54,8,100),(150,12,12,1),(151,61,21,48),(152,41,15,1),(153,20,3,5),(154,NULL,39,0),(155,14,27,1),(156,15,6,1),(157,57,22,129),(158,NULL,13,0),(159,59,10,100),(160,25,4,1),(161,17,5,1),(162,60,31,231),(163,11,2,2),(164,19,1,1),(167,NULL,17,0),(168,53,19,32),(169,16,7,1),(170,85,12,1),(171,NULL,14,0),(172,52,20,192),(173,63,1,11),(177,51,2,277),(178,NULL,24,0),(179,17,28,1),(180,10,25,1),(181,NULL,30,0),(182,15,29,1),(183,58,18,87),(184,NULL,38,0),(185,62,23,52),(186,108,3,2),(187,64,4,200),(188,65,5,269),(189,66,6,55),(190,67,7,168),(191,68,8,240),(192,69,17,150),(193,70,10,403),(194,71,11,105),(195,80,1,1),(196,75,2,10),(197,126,3,2),(198,79,4,30),(199,72,5,13),(200,78,6,2),(201,NULL,7,0),(202,NULL,8,0),(203,NULL,9,0),(204,10,16,1),(205,105,12,1),(206,87,13,1),(207,59,63,20),(208,36,79,1),(209,116,23,47),(210,36,77,1),(211,36,68,1),(212,36,75,1),(213,36,74,1),(214,36,73,1),(215,56,11,30),(216,61,69,1),(217,36,70,1),(218,36,72,1),(219,36,76,1),(220,36,67,1),(221,36,66,1),(222,36,65,1),(223,36,64,1),(224,NULL,80,0),(225,36,53,1),(226,36,61,1),(227,57,60,101),(228,54,16,40),(229,36,58,1),(230,36,57,1),(231,36,56,1),(232,36,55,1),(233,36,54,1),(234,36,62,1),(235,36,52,1),(236,36,59,1),(237,36,50,1),(238,36,49,1),(239,36,48,1),(240,36,47,1),(241,36,46,1),(242,36,45,1),(243,36,44,1),(244,36,43,1),(245,36,42,1),(246,36,41,1),(247,36,40,1),(248,36,39,1),(249,36,38,1),(250,36,37,1),(251,36,36,1),(252,36,35,1),(253,36,34,1),(254,36,33,1),(255,NULL,32,0),(256,NULL,29,0),(257,36,3,1),(258,36,15,1),(259,36,10,1),(260,36,27,1),(261,36,26,1),(262,36,25,1),(263,36,24,1),(264,36,78,1),(265,36,13,1),(266,36,8,1),(267,36,7,1),(268,36,6,1),(269,36,18,1),(270,36,71,1),(271,36,17,1),(272,36,51,1),(273,36,14,1),(274,115,22,44),(275,NULL,30,0),(276,36,9,1),(277,113,28,50),(278,112,31,48),(279,111,21,46),(280,110,20,42),(281,109,19,37),(282,60,5,4),(283,58,4,88),(284,52,12,17),(285,53,2,107),(286,99,1,400),(287,NULL,30,0),(288,123,14,18),(289,124,15,27),(290,125,16,7),(291,106,9,1),(292,127,18,4);
+INSERT INTO `inventory_slot` VALUES (143,34,11,1554),(146,9,26,3),(147,NULL,41,0),(148,18,9,1),(149,54,8,100),(150,12,12,1),(151,61,21,48),(152,41,15,1),(153,20,3,5),(154,NULL,39,0),(155,14,27,1),(156,15,6,1),(157,57,22,129),(158,NULL,13,0),(159,59,10,100),(160,25,4,1),(161,17,5,1),(162,60,31,231),(163,11,2,2),(164,19,1,1),(167,NULL,17,0),(168,53,19,32),(169,16,7,1),(170,85,12,1),(171,NULL,14,0),(172,52,20,192),(173,63,1,11),(177,51,2,277),(178,NULL,24,0),(179,17,28,1),(180,10,25,1),(181,NULL,30,0),(182,15,29,1),(183,58,18,87),(184,NULL,38,0),(185,62,23,52),(186,108,3,2),(187,64,4,200),(188,65,5,269),(189,66,6,56),(190,67,7,168),(191,68,8,240),(192,69,17,152),(193,70,10,403),(194,71,11,105),(195,80,1,1),(196,75,2,10),(197,126,3,2),(198,79,4,30),(199,72,5,13),(200,78,6,4),(201,132,7,1),(202,134,8,1),(203,135,9,1),(204,10,16,1),(205,105,12,1),(206,87,13,1),(207,59,63,20),(208,36,79,1),(209,116,23,53),(210,36,77,1),(211,36,68,1),(212,36,75,1),(213,36,74,1),(214,36,73,1),(215,56,11,30),(216,61,69,1),(217,36,70,1),(218,36,72,1),(219,36,76,1),(220,36,67,1),(221,36,66,1),(222,36,65,1),(223,36,64,1),(224,139,80,1),(225,36,53,1),(226,36,61,1),(227,57,60,101),(228,54,16,70),(229,36,58,1),(230,36,57,1),(231,36,56,1),(232,36,55,1),(233,36,54,1),(234,36,62,1),(235,36,52,1),(236,36,59,1),(237,36,50,1),(238,36,49,1),(239,36,48,1),(240,36,47,1),(241,36,46,1),(242,36,45,1),(243,36,44,1),(244,36,43,1),(245,36,42,1),(246,36,41,1),(247,142,40,1),(248,36,39,1),(249,36,38,1),(250,36,37,1),(251,36,36,1),(252,36,35,1),(253,36,34,1),(254,36,33,1),(255,148,32,1),(256,55,29,8),(257,NULL,3,0),(258,36,15,1),(259,36,10,1),(260,36,27,1),(261,36,26,1),(262,36,25,1),(263,36,24,1),(264,36,78,1),(265,36,13,1),(266,36,8,1),(267,36,7,1),(268,36,6,1),(269,36,18,1),(270,36,71,1),(271,36,17,1),(272,36,51,1),(273,36,14,1),(274,115,22,43),(275,137,30,1),(276,36,9,1),(277,113,28,50),(278,112,31,47),(279,111,21,46),(280,110,20,49),(281,109,19,30),(282,60,5,4),(283,58,4,88),(284,52,12,17),(285,53,2,111),(286,99,1,400),(287,NULL,30,0),(288,123,14,18),(289,124,15,27),(290,125,16,7),(291,106,9,1),(292,127,18,4),(293,130,19,1),(294,131,20,2),(295,133,21,1);
 /*!40000 ALTER TABLE `inventory_slot` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -183,7 +183,10 @@ CREATE TABLE `item` (
   `OVERTIME` tinyint(1) NOT NULL DEFAULT '0',
   `BUFF_DURATION` float NOT NULL DEFAULT '0',
   `COOLDOWN` float NOT NULL DEFAULT '0',
-  PRIMARY KEY (`ID`)
+  `GRADE_ID` bigint DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `FK_GRADE` (`GRADE_ID`),
+  CONSTRAINT `FK_GRADE` FOREIGN KEY (`GRADE_ID`) REFERENCES `item_grade` (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -193,7 +196,7 @@ CREATE TABLE `item` (
 
 LOCK TABLES `item` WRITE;
 /*!40000 ALTER TABLE `item` DISABLE KEYS */;
-INSERT INTO `item` VALUES (1,'Wood log','wood.png',0,'resource',0,0,0,0,0,0,0,0,0,200,50,NULL,1,0,0,0,0,0,0),(2,'Wood plank','WoodPlank.png',0,'general',0,0,0,0,0,0,0,0,0,10,20,5,1,0,0,0,0,0,0),(3,'Gold crows nest','crows_nest_gold.png',0,'crows_nest',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0),(4,'Bow sprite','bow_sprite.png',0,'bow_sprite',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0),(5,'Jib sail','jib_sail.png',0,'jib_sail',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0),(6,'Fore sail','fore_sail.png',0,'fore_sail',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0),(7,'Rudder','rudder.png',0,'rudder',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0),(8,'Keel','keel.png',0,'keel',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0),(9,'Hull','hull.png',0,'hull',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0),(10,'Main mast','main_mast.png',0,'main_mast',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0),(11,'Rigging','rigging.png',0,'rigging',0,0,0,0,1,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0),(12,'Captains cabin','captains_cabin.png',0,'captains_cabin',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0),(13,'Main sail','main_sail.png',0,'main_sail',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0),(14,'Crows nest','crows_nest.png',0,'crows_nest',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0),(15,'Legs','legs.png',0,'legs',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0),(16,'Helmet','helmet.png',0,'helmet',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0),(17,'Top','top.png',0,'top',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0),(18,'Hands','hands.png',0,'hands',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0),(19,'Boots','boots.png',0,'boots',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0),(20,'Wooden Sword','Wooden Sword',0,'hands',10,0,0,0,0,0,0,2,0,10,NULL,NULL,0,0,0,0,0,0,0),(21,'Iron Sword','Iron Sword',0,'hands',15,0,0,0,0,0,0,2,0,40,NULL,NULL,0,0,0,0,0,0,0),(22,'Steel Sword','Steel Sword',0,'hands',20,0,0,0,0,0,0,3,0,30,NULL,NULL,0,0,0,0,0,0,0),(23,'Edged Sword','Edged Sword',0,'hands',25,0,0,0,0,0,0,5,0,30,NULL,NULL,0,0,0,0,0,0,0),(24,'Pirate Sword','Pirate Sword',0,'hands',30,0,0,0,0,0,0,7,0,15,NULL,NULL,0,0,0,0,0,0,0),(25,'Small Dagger','Small Dagger',0,'hands',10,0,0,0,0,0,0,10,0,35,NULL,NULL,0,0,0,0,0,0,0),(26,'Axe','Axe',0,'hands',30,0,0,0,0,0,0,2,0,25,NULL,NULL,0,0,0,0,0,0,0),(27,'Battleaxe','Battleaxe',0,'hands',35,0,0,0,0,0,0,4,0,20,NULL,NULL,0,0,0,0,0,0,0),(28,'Iron Mace','Iron Mace',0,'hands',30,0,0,0,0,0,0,2,0,30,NULL,NULL,0,0,0,0,0,0,0),(29,'Mace','Mace',0,'hands',15,0,0,0,0,0,0,2,0,45,NULL,NULL,0,0,0,0,0,0,0),(30,'Iron ore','Iron Ore',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0),(31,'Gold ore','Gold Ore',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0),(35,'Coal','Coal',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0),(36,'Silver ore','Silver Ore',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0),(37,'Tin ore','Tin Ore',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0),(38,'Water','Water',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0),(39,'Flour','Flour',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0),(40,'Egg','Egg',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0),(41,'Bread','Bread',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,10,1,0,0,0,0,0,0),(42,'Milk','Milk',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0),(43,'Cheese','Cheese',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,10,1,0,0,0,0,0,0),(44,'Health Scroll','scroll_health',0,'scroll',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,50,0,0,1,0),(45,'Crit scroll','scroll_crit',0,'scroll',0,0,0,0,0,0,0,20,0,NULL,NULL,NULL,1,0,0,0,0,1,0),(46,'Attack scroll','scroll_att',0,'scroll',10,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,1,0),(47,'Defence scroll','scroll_defence',0,'scroll',0,0,20,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,1,0),(48,'Speed scroll','scroll_speed',0,'scroll',0,0,0,0,1,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,1,0),(49,'Health potion','potion_health',0,'potion',0,100,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0.1),(50,'Energy overtime potion','potion_energy_overtime',0,'potion',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,5,0,0,1,1,0),(51,'Energy potion','potion_energy',0,'potion',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,50,0,0,0,0,0.1);
+INSERT INTO `item` VALUES (1,'Wood log','wood.png',0,'resource',0,0,0,0,0,0,0,0,0,200,50,NULL,1,0,0,0,0,0,0,NULL),(2,'Wood plank','WoodPlank.png',0,'general',0,0,0,0,0,0,0,0,0,10,20,5,1,0,0,0,0,0,0,NULL),(3,'Gold crows nest','crows_nest_gold.png',0,'crows_nest',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0,NULL),(4,'Bow sprite','bow_sprite.png',0,'bow_sprite',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0,NULL),(5,'Jib sail','jib_sail.png',0,'jib_sail',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0,NULL),(6,'Fore sail','fore_sail.png',0,'fore_sail',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0,NULL),(7,'Rudder','rudder.png',0,'rudder',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0,NULL),(8,'Keel','keel.png',0,'keel',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0,NULL),(9,'Hull','hull.png',0,'hull',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0,NULL),(10,'Main mast','main_mast.png',0,'main_mast',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0,NULL),(11,'Rigging','rigging.png',0,'rigging',0,0,0,0,1,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0,NULL),(12,'Captains cabin','captains_cabin.png',0,'captains_cabin',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0,NULL),(13,'Main sail','main_sail.png',0,'main_sail',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0,NULL),(14,'Crows nest','crows_nest.png',0,'crows_nest',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0,NULL),(15,'Legs','legs.png',0,'legs',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0,12),(16,'Helmet','helmet.png',0,'helmet',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0,13),(17,'Top','top.png',0,'top',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0,13),(18,'Hands','hands.png',0,'hands',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0,13),(19,'Boots','boots.png',0,'boots',0,0,0,0,0,0,0,0,0,10,NULL,NULL,0,0,0,0,0,0,0,13),(20,'Wooden Sword','Wooden Sword',0,'hands',10,0,0,0,0,0,0,2,0,10,NULL,NULL,0,0,0,0,0,0,0,NULL),(21,'Iron Sword','Iron Sword',0,'hands',15,0,0,0,0,0,0,2,0,40,NULL,NULL,0,0,0,0,0,0,0,NULL),(22,'Steel Sword','Steel Sword',0,'hands',20,0,0,0,0,0,0,3,0,30,NULL,NULL,0,0,0,0,0,0,0,NULL),(23,'Edged Sword','Edged Sword',0,'hands',25,0,0,0,0,0,0,5,0,30,NULL,NULL,0,0,0,0,0,0,0,14),(24,'Pirate Sword','Pirate Sword',0,'hands',30,0,0,0,0,0,0,7,0,15,NULL,NULL,0,0,0,0,0,0,0,NULL),(25,'Small Dagger','Small Dagger',0,'hands',10,0,0,0,0,0,0,10,0,35,NULL,NULL,0,0,0,0,0,0,0,NULL),(26,'Axe','Axe',0,'hands',30,0,0,0,0,0,0,2,0,25,NULL,NULL,0,0,0,0,0,0,0,NULL),(27,'Battleaxe','Battleaxe',0,'hands',35,0,0,0,0,0,0,4,0,20,NULL,NULL,0,0,0,0,0,0,0,NULL),(28,'Iron Mace','Iron Mace',0,'hands',30,0,0,0,0,0,0,2,0,30,NULL,NULL,0,0,0,0,0,0,0,NULL),(29,'Mace','Mace',0,'hands',15,0,0,0,0,0,0,2,0,45,NULL,NULL,0,0,0,0,0,0,0,NULL),(30,'Iron ore','Iron Ore',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0,NULL),(31,'Gold ore','Gold Ore',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0,NULL),(35,'Coal','Coal',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0,NULL),(36,'Silver ore','Silver Ore',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0,NULL),(37,'Tin ore','Tin Ore',0,'resource',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0,NULL),(38,'Water','Water',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0,NULL),(39,'Flour','Flour',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0,NULL),(40,'Egg','Egg',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0,NULL),(41,'Bread','Bread',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,10,1,0,0,0,0,0,0,NULL),(42,'Milk','Milk',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0,NULL),(43,'Cheese','Cheese',0,'cooking',0,0,0,0,0,0,0,0,0,NULL,NULL,10,1,0,0,0,0,0,0,NULL),(44,'Health Scroll','scroll_health',0,'scroll',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,50,0,0,60,0,NULL),(45,'Crit scroll','scroll_crit',0,'scroll',0,0,0,0,0,0,0,20,0,NULL,NULL,NULL,1,0,0,0,0,60,0,NULL),(46,'Attack scroll','scroll_att',0,'scroll',10,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,60,0,NULL),(47,'Defence scroll','scroll_defence',0,'scroll',0,0,20,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,60,0,NULL),(48,'Speed scroll','scroll_speed',0,'scroll',0,0,0,0,1,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,60,0,NULL),(49,'Health potion','potion_health',0,'potion',0,100,0,0,0,0,0,0,0,NULL,NULL,NULL,1,0,0,0,0,0,0.1,NULL),(50,'Energy overtime potion','potion_energy_overtime',0,'potion',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,5,0,0,1,60,0,NULL),(51,'Energy potion','potion_energy',0,'potion',0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,1,50,0,0,0,0,0.1,NULL);
 /*!40000 ALTER TABLE `item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -224,6 +227,31 @@ LOCK TABLES `item_category` WRITE;
 /*!40000 ALTER TABLE `item_category` DISABLE KEYS */;
 INSERT INTO `item_category` VALUES (1,1,1),(2,1,2),(3,4,3),(4,4,4),(5,4,5),(6,4,6),(7,4,7),(8,4,8),(9,4,9),(10,4,10),(11,4,11),(12,4,12),(13,4,13),(14,4,14),(15,3,15),(16,3,16),(17,3,17),(18,3,18),(19,3,19),(20,2,20),(21,2,21),(22,2,22),(23,2,23),(24,2,24),(25,2,25),(26,2,26),(27,2,27),(28,2,28),(29,2,29),(30,2,30),(31,5,42),(32,5,43),(64,1,31),(65,9,31),(66,1,35),(67,9,35),(68,1,36),(69,9,36),(70,1,37),(71,9,37),(79,1,42),(80,1,43),(82,1,38),(83,5,38),(84,1,39),(85,5,39),(86,1,40),(87,5,40),(88,1,41),(89,5,42),(90,10,1),(91,10,2),(92,10,3),(93,10,4),(94,10,5),(95,10,6),(96,10,7),(97,10,8),(98,10,9),(99,10,10),(100,10,11),(101,10,12),(102,10,13),(103,10,14),(104,10,15),(105,10,16),(106,10,17),(107,10,18),(108,10,19),(109,10,20),(110,10,21),(111,10,22),(112,10,23),(113,10,24),(114,10,25),(115,10,26),(116,10,27),(117,10,28),(118,10,29),(119,10,30),(120,10,31),(121,10,35),(122,10,36),(123,10,37),(124,10,38),(125,10,39),(126,10,40),(127,10,41),(128,10,42),(129,10,43),(130,11,44),(131,11,45),(132,11,46),(133,11,47),(134,11,48),(135,11,49),(136,11,50),(137,11,51);
 /*!40000 ALTER TABLE `item_category` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `item_grade`
+--
+
+DROP TABLE IF EXISTS `item_grade`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `item_grade` (
+  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `NAME` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `DAMAGE_PERCENTAGE` float NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `item_grade`
+--
+
+LOCK TABLES `item_grade` WRITE;
+/*!40000 ALTER TABLE `item_grade` DISABLE KEYS */;
+INSERT INTO `item_grade` VALUES (12,'common',10),(13,'uncommon',30),(14,'rare',50);
+/*!40000 ALTER TABLE `item_grade` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -258,8 +286,39 @@ CREATE TABLE `npc_base_stats` (
 
 LOCK TABLES `npc_base_stats` WRITE;
 /*!40000 ALTER TABLE `npc_base_stats` DISABLE KEYS */;
-INSERT INTO `npc_base_stats` VALUES (1,1,50,300,10,1,3,20,2,10,800,1),(2,1,50,3000,20,0,4,0,0,10,0,2);
+INSERT INTO `npc_base_stats` VALUES (1,1,50,300,10,1,3,20,2,10,800,1),(2,1,50,500,20,0,4,0,0,10,0,2);
 /*!40000 ALTER TABLE `npc_base_stats` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `npc_loot_table`
+--
+
+DROP TABLE IF EXISTS `npc_loot_table`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `npc_loot_table` (
+  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `NPC_TYPE` bigint NOT NULL,
+  `DROP_CHANCE` int NOT NULL,
+  `ITEM_ID` int NOT NULL,
+  `MAX_LOOT_QUANTITY` float DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `NPC_TYPE` (`NPC_TYPE`),
+  KEY `ITEM_ID` (`ITEM_ID`),
+  CONSTRAINT `npc_loot_table_ibfk_1` FOREIGN KEY (`NPC_TYPE`) REFERENCES `npc_type` (`ID`),
+  CONSTRAINT `npc_loot_table_ibfk_2` FOREIGN KEY (`ITEM_ID`) REFERENCES `item` (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `npc_loot_table`
+--
+
+LOCK TABLES `npc_loot_table` WRITE;
+/*!40000 ALTER TABLE `npc_loot_table` DISABLE KEYS */;
+INSERT INTO `npc_loot_table` VALUES (5,2,20,15,NULL),(6,2,15,16,NULL),(7,2,10,17,NULL),(8,2,20,18,NULL),(9,2,20,19,NULL),(10,2,10,23,NULL),(11,2,30,31,3),(12,2,40,36,5),(13,2,40,45,NULL),(14,2,40,48,NULL);
+/*!40000 ALTER TABLE `npc_loot_table` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -305,6 +364,7 @@ DROP TABLE IF EXISTS `npc_type`;
 CREATE TABLE `npc_type` (
   `ID` bigint NOT NULL AUTO_INCREMENT,
   `NPC_TYPE` varchar(1000) NOT NULL,
+  `MAX_LOOT_ITEM_COUNT` int DEFAULT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -315,7 +375,7 @@ CREATE TABLE `npc_type` (
 
 LOCK TABLES `npc_type` WRITE;
 /*!40000 ALTER TABLE `npc_type` DISABLE KEYS */;
-INSERT INTO `npc_type` VALUES (1,'ship'),(2,'dragon');
+INSERT INTO `npc_type` VALUES (1,'ship',NULL),(2,'dragon',5);
 /*!40000 ALTER TABLE `npc_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -355,7 +415,7 @@ CREATE TABLE `player` (
 
 LOCK TABLES `player` WRITE;
 /*!40000 ALTER TABLE `player` DISABLE KEYS */;
-INSERT INTO `player` VALUES (1,'player1',1,0,36.205,79.9527,0.313115,267.415,'',33.5995,1.01623,57.1981,0,232.108,31697,0,0,135.118),(2,'player2',1,0,37.7141,76.1788,0.288415,232.192,'',36.3163,0.993628,58.7444,0,218.712,40720,0,0,269.36),(3,'player3',1,0,38.2758,76.1916,0.335598,321.524,'',33.575,1.01623,57.179,0,0.649918,49900,1,0,196.24);
+INSERT INTO `player` VALUES (1,'player1',1,0,36.205,79.9527,0.313115,267.415,'',34.3883,0.540199,63.5295,0,168.105,31697,0,0,168.105),(2,'player2',1,0,37.7141,76.1788,0.288415,232.192,'',38.8826,1.01623,44.8448,0,346.712,40720,0,0,346.712),(3,'player3',1,0,38.2758,76.1916,0.335598,321.524,'',36.9319,1.00047,55.5294,0,194.05,49900,0,0,194.12);
 /*!40000 ALTER TABLE `player` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -390,6 +450,40 @@ INSERT INTO `player_base_stats` VALUES (2,1,100,200,50,4,20,100);
 UNLOCK TABLES;
 
 --
+-- Table structure for table `player_buffs`
+--
+
+DROP TABLE IF EXISTS `player_buffs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `player_buffs` (
+  `ID` int NOT NULL AUTO_INCREMENT,
+  `PLAYER_ID` int NOT NULL,
+  `ITEM_NAME` varchar(1000) COLLATE utf8_unicode_ci NOT NULL,
+  `PROPERTY_NAME` varchar(1000) COLLATE utf8_unicode_ci NOT NULL,
+  `MAX_PROPERTY_NAME` varchar(1000) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `VALUE` int NOT NULL,
+  `OVERTIME` tinyint(1) NOT NULL,
+  `BUFF_DURATION` float NOT NULL,
+  `COOLDOWN` tinyint(1) NOT NULL,
+  `ICON` varchar(1000) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `PLAYER_ID` (`PLAYER_ID`),
+  CONSTRAINT `player_item_ibfk` FOREIGN KEY (`PLAYER_ID`) REFERENCES `player` (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `player_buffs`
+--
+
+LOCK TABLES `player_buffs` WRITE;
+/*!40000 ALTER TABLE `player_buffs` DISABLE KEYS */;
+INSERT INTO `player_buffs` VALUES (1,1,'Attack scroll','attack',NULL,10,0,58.6956,0,'scroll_att');
+/*!40000 ALTER TABLE `player_buffs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `player_equipment`
 --
 
@@ -406,7 +500,7 @@ CREATE TABLE `player_equipment` (
   KEY `PLAYER_ID` (`PLAYER_ID`),
   CONSTRAINT `player_equipment_ibfk_1` FOREIGN KEY (`ITEM_ID`) REFERENCES `player_item` (`ID`),
   CONSTRAINT `player_equipment_ibfk_2` FOREIGN KEY (`PLAYER_ID`) REFERENCES `player` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -415,7 +509,7 @@ CREATE TABLE `player_equipment` (
 
 LOCK TABLES `player_equipment` WRITE;
 /*!40000 ALTER TABLE `player_equipment` DISABLE KEYS */;
-INSERT INTO `player_equipment` VALUES (1,NULL,1,'hands'),(2,NULL,2,'hands'),(3,NULL,1,'legs'),(4,63,2,'resource');
+INSERT INTO `player_equipment` VALUES (1,36,1,'hands'),(2,NULL,2,'hands'),(3,138,1,'legs'),(4,63,2,'resource'),(5,147,1,'boots');
 /*!40000 ALTER TABLE `player_equipment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -435,7 +529,7 @@ CREATE TABLE `player_item` (
   KEY `PLAYER_ID` (`PLAYER_ID`),
   CONSTRAINT `player_item_ibfk_1` FOREIGN KEY (`ITEM_ID`) REFERENCES `item` (`ID`),
   CONSTRAINT `player_item_ibfk_2` FOREIGN KEY (`PLAYER_ID`) REFERENCES `player` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=128 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=149 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -444,8 +538,66 @@ CREATE TABLE `player_item` (
 
 LOCK TABLES `player_item` WRITE;
 /*!40000 ALTER TABLE `player_item` DISABLE KEYS */;
-INSERT INTO `player_item` VALUES (5,1,1),(9,2,1),(10,3,1),(11,4,1),(12,5,1),(13,6,1),(14,7,1),(15,8,1),(16,9,1),(17,10,1),(18,11,1),(19,12,1),(20,13,1),(21,14,1),(22,20,1),(23,29,1),(24,15,1),(25,5,1),(26,1,1),(27,1,1),(28,1,1),(29,1,1),(30,1,1),(31,1,1),(32,1,1),(33,1,1),(34,1,1),(35,29,1),(36,21,1),(37,18,1),(38,21,1),(39,28,1),(40,25,1),(41,6,1),(42,29,1),(43,25,1),(44,28,1),(45,7,2),(46,29,2),(51,1,2),(52,30,1),(53,31,1),(54,35,1),(55,36,1),(56,37,1),(57,38,1),(58,39,1),(59,40,1),(60,41,1),(61,42,1),(62,43,1),(63,35,2),(64,40,2),(65,39,2),(66,31,2),(67,30,2),(68,42,2),(69,36,2),(70,38,2),(71,41,2),(72,35,3),(73,40,3),(74,39,3),(75,31,3),(76,30,3),(77,42,3),(78,36,3),(79,37,3),(80,38,3),(81,15,2),(82,2,2),(85,15,1),(86,25,2),(87,18,2),(88,25,1),(89,21,1),(90,1,1),(91,1,1),(92,1,1),(93,1,1),(94,1,1),(95,1,1),(96,1,1),(97,1,1),(98,1,1),(99,1,1),(100,29,1),(101,29,1),(102,29,2),(103,29,1),(104,29,1),(105,21,2),(106,21,2),(107,21,2),(108,37,2),(109,46,1),(110,45,1),(111,47,1),(112,50,1),(113,51,1),(114,49,1),(115,44,1),(116,48,1),(123,49,2),(124,44,2),(125,48,2),(126,43,3),(127,43,2);
+INSERT INTO `player_item` VALUES (5,1,1),(9,2,1),(10,3,1),(11,4,1),(12,5,1),(13,6,1),(14,7,1),(15,8,1),(16,9,1),(17,10,1),(18,11,1),(19,12,1),(20,13,1),(21,14,1),(22,20,1),(23,29,1),(24,15,1),(25,5,1),(26,1,1),(27,1,1),(28,1,1),(29,1,1),(30,1,1),(31,1,1),(32,1,1),(33,1,1),(34,1,1),(35,29,1),(36,21,1),(37,18,1),(38,21,1),(39,28,1),(40,25,1),(41,6,1),(42,29,1),(43,25,1),(44,28,1),(45,7,2),(46,29,2),(51,1,2),(52,30,1),(53,31,1),(54,35,1),(55,36,1),(56,37,1),(57,38,1),(58,39,1),(59,40,1),(60,41,1),(61,42,1),(62,43,1),(63,35,2),(64,40,2),(65,39,2),(66,31,2),(67,30,2),(68,42,2),(69,36,2),(70,38,2),(71,41,2),(72,35,3),(73,40,3),(74,39,3),(75,31,3),(76,30,3),(77,42,3),(78,36,3),(79,37,3),(80,38,3),(81,15,2),(82,2,2),(85,15,1),(86,25,2),(87,18,2),(88,25,1),(89,21,1),(90,1,1),(91,1,1),(92,1,1),(93,1,1),(94,1,1),(95,1,1),(96,1,1),(97,1,1),(98,1,1),(99,1,1),(100,29,1),(101,29,1),(102,29,2),(103,29,1),(104,29,1),(105,21,2),(106,21,2),(107,21,2),(108,37,2),(109,46,1),(110,45,1),(111,47,1),(112,50,1),(113,51,1),(114,49,1),(115,44,1),(116,48,1),(123,49,2),(124,44,2),(125,48,2),(126,43,3),(127,43,2),(128,18,1),(129,15,1),(130,15,2),(131,45,2),(132,48,3),(133,15,2),(134,45,3),(135,16,3),(136,19,1),(137,19,1),(138,15,1),(139,15,1),(140,15,1),(141,15,1),(142,15,1),(143,19,1),(144,19,1),(145,18,1),(146,18,1),(147,19,1),(148,18,1);
 /*!40000 ALTER TABLE `player_item` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `player_loot`
+--
+
+DROP TABLE IF EXISTS `player_loot`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `player_loot` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `X` float NOT NULL,
+  `Y` float NOT NULL,
+  `Z` float NOT NULL,
+  `PLAYER_ID` int NOT NULL,
+  `REMAINING_TIME` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_PLAYER` (`PLAYER_ID`),
+  CONSTRAINT `FK_PLAYER` FOREIGN KEY (`PLAYER_ID`) REFERENCES `player` (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `player_loot`
+--
+
+LOCK TABLES `player_loot` WRITE;
+/*!40000 ALTER TABLE `player_loot` DISABLE KEYS */;
+/*!40000 ALTER TABLE `player_loot` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `player_loot_items`
+--
+
+DROP TABLE IF EXISTS `player_loot_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `player_loot_items` (
+  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `ITEM_ID` int NOT NULL,
+  `QUANTITY` float NOT NULL,
+  `LOOT_ID` bigint NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `FK_ITEM` (`ITEM_ID`),
+  KEY `FK_LOOT` (`LOOT_ID`),
+  CONSTRAINT `FK_ITEM` FOREIGN KEY (`ITEM_ID`) REFERENCES `item` (`ID`),
+  CONSTRAINT `FK_LOOT` FOREIGN KEY (`LOOT_ID`) REFERENCES `player_loot` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `player_loot_items`
+--
+
+LOCK TABLES `player_loot_items` WRITE;
+/*!40000 ALTER TABLE `player_loot_items` DISABLE KEYS */;
+/*!40000 ALTER TABLE `player_loot_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -474,7 +626,7 @@ CREATE TABLE `player_skill_level` (
 
 LOCK TABLES `player_skill_level` WRITE;
 /*!40000 ALTER TABLE `player_skill_level` DISABLE KEYS */;
-INSERT INTO `player_skill_level` VALUES (2,2,1,856),(3,3,1,0),(5,2,6,103),(6,3,6,136),(84,1,11,0),(85,1,18,0),(86,1,25,0),(88,1,39,0),(89,1,46,0),(91,2,11,0),(92,2,18,0),(93,2,25,0),(95,2,39,0),(96,2,46,0),(98,3,11,0),(99,3,18,0),(100,3,25,0),(101,3,32,0),(102,3,39,0),(103,3,46,0),(104,1,33,1440),(105,1,4,13204),(106,1,7,2161),(107,2,33,1210);
+INSERT INTO `player_skill_level` VALUES (2,2,1,856),(3,3,1,0),(5,2,6,103),(6,3,6,136),(84,1,11,0),(85,1,18,0),(86,1,25,0),(88,1,39,0),(89,1,46,0),(91,2,11,0),(92,2,18,0),(93,2,25,0),(95,2,39,0),(96,2,46,0),(98,3,11,0),(99,3,18,0),(100,3,25,0),(101,3,32,0),(102,3,39,0),(103,3,46,0),(104,1,33,1440),(105,1,4,13204),(106,1,7,2211),(107,2,33,1210);
 /*!40000 ALTER TABLE `player_skill_level` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -761,7 +913,7 @@ CREATE TABLE `temporary_storage` (
   PRIMARY KEY (`ID`),
   KEY `ITEM_ID` (`ITEM_ID`),
   CONSTRAINT `temporary_storage_ibfk_1` FOREIGN KEY (`ITEM_ID`) REFERENCES `player_item` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -907,4 +1059,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-06-15 22:45:54
+-- Dump completed on 2021-07-04 23:28:58

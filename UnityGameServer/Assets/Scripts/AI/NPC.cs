@@ -7,10 +7,13 @@ using UnityEngine;
 using SerializableObjects;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
+using System.Collections;
+using UnityEngine.AI;
 
 public class NPC : MonoBehaviour
 {
     public int id;
+    public NPCType npc_type;
 
     public int level;
     public float attack;
@@ -28,8 +31,7 @@ public class NPC : MonoBehaviour
 
     protected List<NPCBaseStat> baseStats;
 
-    protected SphereCollider playerEnterCollider;
-    protected RandomLoot randomLoot;
+    protected SphereCollider playerEnterCollider;    
     protected Vector3 patrolPoint;
     public float rotationSpeed;
 
@@ -39,16 +41,27 @@ public class NPC : MonoBehaviour
 
     public Dictionary<int, float> playerDamage = new Dictionary<int, float>();
 
-    public void Initialize()
+    public int max_loot_count = 0;
+
+    public float leaveCombatMaxRange = 20f;
+
+    public NavMeshPath path;
+
+    public void Initialize(NPCType type)
     {
         level = 1;
-        LoadBaseStats();
+        path = new NavMeshPath();
+        Mysql mysql = FindObjectOfType<Mysql>();
+        baseStats = mysql.ReadNPCBaseStatsTable(type);
+        max_loot_count = mysql.GetNPCMaxLootCount(type);
+
+        LoadBaseStats();        
 
         playerEnterCollider = GetComponentsInChildren<SphereCollider>().Where(x => x.name.Equals("NPCSphere")).FirstOrDefault();
-        playerEnterCollider.radius = NetworkManager.visibilityRadius / 2;
-
-        randomLoot = FindObjectOfType<RandomLoot>();
+        playerEnterCollider.radius = NetworkManager.visibilityRadius / 2;        
         patrolPoint = transform.position;
+
+        StartCoroutine(RemovePlayerDamage());
     }
 
     protected void LoadBaseStats()
@@ -93,27 +106,50 @@ public class NPC : MonoBehaviour
 
     public virtual void Die()
     {
+        foreach (KeyValuePair<int, float> val in playerDamage) {
+            float percentage = val.Value / maxHealth * 100;
+
+            RandomLoot randomLoot;
+            if (GameServer.clients[val.Key].player.group == null)
+            {
+                randomLoot = new RandomLoot((int)npc_type, percentage, max_loot_count);
+                randomLoot.GenerateLoot();                
+            }
+            else {
+                float damage = GameServer.FindGroupDamage(this, GameServer.clients[val.Key].player.group);
+                randomLoot = new RandomLoot((int)npc_type, percentage, max_loot_count);
+                randomLoot.GenerateLoot();
+            }
+
+            StartCoroutine(GameServer.DespawnLoot(val.Key, randomLoot, NetworkManager.lootDespawnTime));            
+
+            if (!GameServer.playerLoot.ContainsKey(val.Key))
+                GameServer.playerLoot.Add(val.Key, new List<RandomLoot>());
+            GameServer.playerLoot[val.Key].Add(randomLoot);
+
+            randomLoot.position = transform.position;
+            ServerSend.OnLootDropped(val.Key, randomLoot.id, transform.position);
+        }
         playerDamage.Clear();
     }
 
     public virtual void TakeDamage(PlayerCharacter attacker, float damage, bool crit)
     {
-        health -= damage;
+        health -= damage;        
+
+        if (!playerDamage.ContainsKey(attacker.id))
+        {
+            playerDamage.Add(attacker.id, damage);
+        }
+        else
+        {
+            playerDamage[attacker.id] += damage;
+        }
 
         if (health <= 0)
         {
             health = 0;
             Die();
-        }
-        else {
-            if (!playerDamage.ContainsKey(attacker.id))
-            {
-                playerDamage.Add(attacker.id, damage);
-            }
-            else
-            {
-                playerDamage[attacker.id] += damage;
-            }
         }
 
         ServerSend.TakeDamage(id, transform.position, damage, "npc", crit);
@@ -137,7 +173,7 @@ public class NPC : MonoBehaviour
 
     public virtual void Respawn()
     {
-
+       
     }
 
     public virtual float AbilityDamage(DamageColliderInfo info)
@@ -153,6 +189,43 @@ public class NPC : MonoBehaviour
     public virtual bool DisableMultipleCollision(DamageColliderInfo info, PlayerCharacter receiver)
     {
         return false;
+    }
+
+    public virtual SerializableObjects.NPCStartParams GetStartParams() {
+        return null;
+    }
+
+    public float PlayerDamage(int playerId) {
+        return playerDamage[playerId];
+    }    
+
+    IEnumerator RemovePlayerDamage() {
+        List<int> toRemove = new List<int>();
+
+        while (true)
+        {
+            foreach (KeyValuePair<int, float> val in playerDamage)
+            {
+                PlayerCharacter player = GameServer.clients[val.Key].player.playerCharacter;
+
+                if (player.data.dead || Vector3.Distance(patrolPoint, player.transform.position) >= leaveCombatMaxRange)
+                {
+                    toRemove.Add(val.Key);
+                }
+
+                bool ok = NavMesh.CalculatePath(transform.position, player.transform.position, NavMesh.AllAreas, path);
+                if (path.status != NavMeshPathStatus.PathComplete)
+                {
+                    toRemove.Add(val.Key);
+                }
+            }            
+
+            foreach (int key in toRemove)
+                playerDamage.Remove(key);
+
+            toRemove.Clear();
+            yield return new WaitForSeconds(1);
+        }
     }
 }
 

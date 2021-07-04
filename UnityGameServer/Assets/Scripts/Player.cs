@@ -55,7 +55,6 @@ public class Player : MonoBehaviour
     BoatMovement movement;
     SphereCollider playerEnterCollider;
 
-    public List<ItemDrop> lootCache;
     public Group group;
     public Group ownedGroup;
     
@@ -133,7 +132,22 @@ public class Player : MonoBehaviour
                     NetworkManager.traders.Add(dbid, mysql.ReadTraders());
                 }
                 List<SerializableObjects.Item> shipEquipment = LoadShipEquipment(mysql);
+                List<SerializableObjects.Item> playerEquipment = LoadPlayerEquipment(mysql);
                 List<SerializableObjects.InventorySlot> inventory = LoadInventory(mysql);
+                
+                List<RandomLoot> loot = mysql.LoadPlayerLoot(dbid);
+                if (!GameServer.playerLoot.ContainsKey(id)) {
+                    GameServer.playerLoot.Add(id, null);
+                }
+                GameServer.playerLoot[id] = loot;
+                foreach (RandomLoot l in loot)
+                {
+                    ServerSend.OnLootDropped(id, l.id, l.position);                
+                }
+
+                mysql.RemovePlayerLoot(dbid);
+
+                List<PlayerBaseStat> playerStats = mysql.ReadPlayerBaseStatsTable();
 
                 ThreadManager.ExecuteOnMainThread(() =>
                 {
@@ -156,10 +170,7 @@ public class Player : MonoBehaviour
                     playerCharacter.childRotation = Quaternion.Euler(0, data.Y_ROT_PLAYER_CHILD, 0);                    
 
                     if (data.is_on_ship)
-                        playerInstance.SetActive(false);                                       
-
-                    ServerSend.OnGameStart(id, stats, playerCharacter.stats, exp, data);
-                    playerCharacter.Load();
+                        playerInstance.SetActive(false);
 
                     ShipEquipment equipment = ship_equipment;
 
@@ -168,12 +179,23 @@ public class Player : MonoBehaviour
                         equipment.Add(NetworkManager.SerializableToItem(item));
                     }
 
+                    foreach (SerializableObjects.Item item in playerEquipment)
+                    {
+                        playerCharacter.equipment.Add(NetworkManager.SerializableToItem(item));
+                    }
+
                     Inventory inv = this.inventory;
 
                     foreach (SerializableObjects.InventorySlot slot in inventory)
                     {
                         inv.Add(NetworkManager.SerializableToSlot(slot));
                     }
+
+                    playerCharacter.stats = playerStats;
+                    playerCharacter.Load();
+
+                    ServerSend.SpawnShip(id, this);
+                    ServerSend.OnGameStart(id, stats, playerCharacter.stats, exp, data);                                      
 
                     // Send the new player to all players
                     foreach (Client _client in GameServer.clients.Values)
@@ -226,7 +248,7 @@ public class Player : MonoBehaviour
                                         _client.player.playerInstance.transform.eulerAngles.y);
                             }
                         }
-                    }
+                    }                                       
 
                     spawnManager.SendAllGameObjects(id);
                     ServerSend.Recipes(id);
@@ -236,6 +258,11 @@ public class Player : MonoBehaviour
 
                     if (data.dead)
                         playerCharacter.Respawn();
+
+                    foreach (RandomLoot l in loot)
+                    {
+                        StartCoroutine(GameServer.DespawnLoot(id, l, l.remainingTime));
+                    }
                 });
                 
                 //LoadPlayerEquipment();              
@@ -250,8 +277,15 @@ public class Player : MonoBehaviour
         task.Start();                
     }
 
+    //bool started;
+
     public void Update()
     {
+        /*if (!started)
+        {
+            ServerSend.Ping(id);
+        }*/
+
         if (data.sunk)
         {
             if (Time.time - respawnUpdateTime < respawnTime)
@@ -264,6 +298,15 @@ public class Player : MonoBehaviour
         else
         {
             respawnUpdateTime = Time.time;
+        }
+    }
+
+    IEnumerator Ping()
+    {
+        while (true)
+        {
+            ServerSend.Ping(id);
+            yield return new WaitForSeconds(0.5f);
         }
     }
 
@@ -584,6 +627,17 @@ public class Player : MonoBehaviour
 
     public List<SerializableObjects.Item> LoadShipEquipment(Mysql mysql) {                
         return mysql.ReadShipEquipment(dbid);
+        /*ShipEquipment equipment = player.ship_equipment;
+
+        foreach (SerializableObjects.Item item in items)
+        {            
+            equipment.Add(NetworkManager.SerializableToItem(item));
+        }*/
+    }
+
+    public List<SerializableObjects.Item> LoadPlayerEquipment(Mysql mysql)
+    {
+        return mysql.ReadPlayerEquipment(dbid);
         /*ShipEquipment equipment = player.ship_equipment;
 
         foreach (SerializableObjects.Item item in items)

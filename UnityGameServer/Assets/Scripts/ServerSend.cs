@@ -359,13 +359,6 @@ public class ServerSend : MonoBehaviour
             _packet.Write(mysql.TotalItems(dbid));
             SendTCPData(to, _packet);
         }
-    }    
-
-    protected static SerializableObjects.ItemDrop ItemDropToSerializable(ItemDrop drop)
-    {
-        SerializableObjects.Item item = NetworkManager.ItemToSerializable(drop.item);
-
-        return new SerializableObjects.ItemDrop() { quantity = drop.quantity, item = item };
     }
 
     public static void SpawnGameObject(int _toClient, SpawnManager.Spawn spawn)
@@ -395,6 +388,10 @@ public class ServerSend : MonoBehaviour
             {
                 CraftingSpot craftingSpot = spawn.gameObject.GetComponent<CraftingSpot>();
                 _packet.Write((int)craftingSpot.skillType);
+            }
+            else if (spawn.objectType == ObjectType.NPC) {
+                NPCStartParams params_ = spawn.gameObject.GetComponent<NPC>().GetStartParams();                
+                _packet.Write(params_);                
             }
 
             SendTCPData(_toClient, _packet);
@@ -627,18 +624,12 @@ public class ServerSend : MonoBehaviour
         }
     }
 
-    public static void OnLootDropped(int to, List<ItemDrop> items)
+    public static void OnLootDropped(int to, long lootId, Vector3 position)
     {
-        List<SerializableObjects.ItemDrop> toSend = new List<SerializableObjects.ItemDrop>();
-
-        foreach (ItemDrop item in items)
-        {
-            toSend.Add(ItemDropToSerializable(item));
-        }
-
         using (Packet _packet = new Packet((int)ServerPackets.onLootDropped))
-        {
-            _packet.Write(toSend);
+        {            
+            _packet.Write(lootId);
+            _packet.Write(position);
             SendTCPData(to, _packet);
         }
     }
@@ -1395,6 +1386,31 @@ public class ServerSend : MonoBehaviour
         using (Packet _packet = new Packet((int)ServerPackets.correctState)) {
             _packet.Write(position);
             _packet.Write(ticks);
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void Ping(int to) {
+        using (Packet _packet = new Packet((int)ServerPackets.ping))
+        {
+            _packet.Write(DateTime.UtcNow);            
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void LoadLoot(int to, long lootId, List<SerializableObjects.ItemDrop> drop) {
+        using (Packet _packet = new Packet((int)ServerPackets.loadLoot))
+        {
+            _packet.Write(lootId);
+            _packet.Write(drop);
+            SendTCPData(to, _packet);
+        }
+    }
+
+    public static void RemoveLoot(int to, long lootId) {
+        using (Packet _packet = new Packet((int)ServerPackets.removeLoot))
+        {
+            _packet.Write(lootId);
             SendTCPData(to, _packet);
         }
     }

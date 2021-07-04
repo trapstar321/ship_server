@@ -54,7 +54,7 @@ public class ShipNPC : NPC
     public void Awake() {        
         Mysql mysql = FindObjectOfType<Mysql>();
         baseStats = mysql.ReadNPCBaseStatsTable(NPCType.SHIP);
-        base.Initialize();
+        base.Initialize(NPCType.SHIP);
     }    
 
     private void Start()
@@ -118,27 +118,9 @@ public class ShipNPC : NPC
         }
     }
 
-    public void Die() {
-        Debug.Log("Die");
-        dead = true;
-        List<ItemDrop> loot = randomLoot.GenerateLoot();        
-
-        int mostDamagePlayer = 0;
-        float mostDamage = 0;
-
-        foreach (int player_id in PlayerDamage.Keys)
-        {
-            float totalDamage = PlayerDamage[player_id];
-
-            if (totalDamage > mostDamage)
-            {
-                mostDamage = totalDamage;
-                mostDamagePlayer = player_id;
-            }
-        }
-
-        GameServer.clients[mostDamagePlayer].player.lootCache = loot;
-        ServerSend.OnLootDropped(mostDamagePlayer, loot);
+    public override void Die() {
+        base.Die();
+        dead = true;        
     }
 
     private float TakeDamage(Player player)

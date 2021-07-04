@@ -59,23 +59,9 @@ public class PlayerCharacter : MonoBehaviour
     }
 
     public void Load()
-    {
-        this.stats = mysql.ReadPlayerBaseStatsTable();
-        LoadBaseStats();
-        LoadPlayerEquipment();
+    {        
+        LoadBaseStats();        
         buffManager = new BuffManager(id, GameServer.clients[id], this);
-    }
-
-    public void LoadPlayerEquipment()
-    {
-        Mysql mysql = FindObjectOfType<Mysql>();
-        Player player = GameServer.clients[id].player;
-        List<Item> items = mysql.ReadPlayerEquipment(player.dbid);        
-
-        foreach (Item item in items)
-        {
-            equipment.Add(item);
-        }
     }
 
     protected void LoadBaseStats()

@@ -8,6 +8,7 @@ using System.Text;
 using UnityEngine;
 using System.Linq;
 using WatsonTcp;
+using System.Threading.Tasks;
 
 public class GameServer
 {
@@ -17,6 +18,8 @@ public class GameServer
     public delegate void PacketHandler(int _fromClient, Packet _packet);
     /*public static Dictionary<int, PacketHandler> packetHandlers;*/
     public static Dictionary<int, NPC> npcs = new Dictionary<int, NPC>();
+    public static Dictionary<int, List<RandomLoot>> playerLoot = new Dictionary<int, List<RandomLoot>>();
+
 
     public static WatsonTcpServer server;
     //public static AsyncTCPServer.AsyncTCPServer server;
@@ -98,14 +101,23 @@ public class GameServer
 
     private static void MessageReceived(object sender, MessageReceivedEventArgs e)
     {
-        ThreadManager.ExecuteOnMainThread(() =>
+        Packet packet = new Packet(e.Data);
+        Client client_ = FindClientByIpPort(e.IpPort);
+        int type = packet.ReadInt();
+
+        if (type == (int)ClientPackets.ping)
+            ServerHandle.Ping(client_.id, packet);
+        else
         {
-            byte[] packetData = e.Data;
-            Packet _packet = new Packet(packetData);
-            int _packetId = _packet.ReadInt();
-            Client client = FindClientByIpPort(e.IpPort);            
-            NetworkManager.AddPacket(client.id, _packetId, _packet);
-        });
+            ThreadManager.ExecuteOnMainThread(() =>
+            {
+                byte[] packetData = e.Data;
+                Packet _packet = new Packet(packetData);
+                int _packetId = _packet.ReadInt();
+                Client client = FindClientByIpPort(e.IpPort);
+                NetworkManager.AddPacket(client.id, _packetId, _packet);
+            });
+        }
     }
 
     private static void ClientDisconnected(object sender, DisconnectionEventArgs e)
@@ -200,5 +212,87 @@ public class GameServer
             otherPlayer = player1;
         }
         return otherPlayer;
-    }    
+    }
+
+    public static float FindGroupDamage(NPC npc, Group group)
+    {
+        float totalDamage = 0;
+        foreach (int playerId in group.players)
+        {
+            Player player = GameServer.FindPlayerByDBid(playerId);
+            totalDamage += npc.PlayerDamage(player.id);
+        }
+        return totalDamage;
+    }
+
+    public static RandomLoot FindLoot(int playerId, long lootId) {
+        if (playerLoot.ContainsKey(playerId)) {
+            foreach (RandomLoot loot in playerLoot[playerId]) {
+                if (loot.id == lootId) {
+                    return loot;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static void RemoveLoot(int playerId, RandomLoot loot) {
+        if (playerLoot.ContainsKey(playerId))
+        {
+            playerLoot[playerId].Remove(loot);
+        }
+    }
+
+    public static void StoreLoot(int playerId, List<RandomLoot> loot) {
+        Action ac = () =>
+        {
+            try
+            {
+                foreach (RandomLoot l in loot)
+                {
+                    NetworkManager.instance.mysql.AddLoot(playerId, l);
+                }
+            }
+            catch (Exception ex) {
+                Debug.LogError(ex.Message);
+                Debug.LogError(ex.StackTrace);
+            }
+        };
+
+        Task task = new Task(ac);
+        task.Start();
+    }
+
+    public static IEnumerator DespawnLoot(int playerId, RandomLoot loot, float timeLeft)
+    {
+        yield return new WaitForSeconds(timeLeft);
+
+        if (GameServer.playerLoot[playerId].Contains(loot))
+        {
+            GameServer.RemoveLoot(playerId, loot);
+            ServerSend.RemoveLoot(playerId, loot.id);
+        }
+    }
+
+    public static void StoreBuffs(int playerId, List<Buff> buffs)
+    {
+        Action ac = () =>
+        {
+            try
+            {
+                foreach (Buff buff in buffs)
+                {
+                    NetworkManager.instance.mysql.AddBuff(playerId, buff);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(ex.Message);
+                Debug.LogError(ex.StackTrace);
+            }
+        };
+
+        Task task = new Task(ac);
+        task.Start();
+    }
 }

@@ -28,7 +28,7 @@ public class BuffManager
             for (int i = buffs.Count - 1; i >= 0; i--)
             {
                 Buff buff = buffs[i];
-                if ((System.DateTime.UtcNow - buff.start).TotalSeconds > buff.buff_duration * 60)
+                if ((System.DateTime.UtcNow - buff.start).TotalSeconds > buff.buff_duration)
                 {
                     //ako nije overtime onda smanjiti vrijednost property-ja
                     if (!buff.overtime)
@@ -121,6 +121,14 @@ public class BuffManager
                 ServerSend.BuffAdded(from, ((PlayerCharacter)playerCharacter).transform.position, buff, item);
                 Debug.Log("Refreshed: " + item.name);
             }            
+        }
+    }
+
+    public void AddBuff(Buff buff)
+    {
+        if (buff.buff_duration > 0 && buffs.Where(x => x.item_name == buff.item_name).Count() == 0)
+        {            
+            buffs.Add(buff);
         }
     }
 
